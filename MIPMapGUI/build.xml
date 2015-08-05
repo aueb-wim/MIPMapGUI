@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="MIPMapGUI" basedir=".">
+    <description>Builds the module suite SpicyGUI.</description>
+
+    <import file="nbproject/build-impl.xml"/>
+
+    <property file="../common.properties" />
+
+    <target name="clean-dependencies" >
+        <delete failonerror="false">
+            <fileset dir=".\jep\release\modules\ext" includes="*.jar"/>
+        </delete>
+        <delete failonerror="false">
+            <fileset dir=".\mipmapEngine\release\modules\ext" includes="*.jar"/>
+        </delete>
+        <delete failonerror="false">
+            <fileset dir=".\mipmapVerifier\release\modules\ext" includes="*.jar"/>
+        </delete>
+    </target>
+
+    <target name="update-dependencies" depends="clean-dependencies, build-all">
+        <copy toDir=".\jep\release\modules\ext" >
+            <fileset dir="../lib" includes="jep-*.jar"/>
+        </copy>
+        <copy toDir=".\mipmapEngine\release\modules\ext" >
+            <fileset dir="../lib" includes="mipmapEngine-*.jar"/>
+        </copy>
+        <copy toDir=".\mipmapguicommons\release\modules\ext" >
+            <fileset dir="../lib" includes="mipmapguicommons-*.jar"/>
+        </copy>
+        <copy toDir=".\mipmapVerifier\release\modules\ext" >
+            <fileset dir="../lib" includes="mipmapVerifier-*.jar"/>
+        </copy>
+    </target>
+    <!-- per le piattaforme precedenti la 6.7 -->
+<!--    <target name="run" depends="update-dependencies, build,-jdk-init" description="Runs this suite in place.">
+        <ant antfile="${harness.dir}/run.xml" target="run"/>
+    </target>
+-->
+    <target name="run" depends="update-dependencies,build,-jdk-init" description="Runs this suite in place.">
+        <ant antfile="${harness.dir}/run.xml" target="run">
+            <reference refid="cluster.path.id"/>
+        </ant>
+    </target>
+
+    <target name="run-fast" depends="build,-jdk-init" description="Runs this suite in place.">
+        <ant antfile="${harness.dir}/run.xml" target="run"/>
+    </target>
+
+    <target name="dist" depends="update-dependencies, build-zip">
+    </target>
+
+    <target name="rebuild-all" depends="" description="compila">
+        <delete failonerror="false" file="../lib/jep-${jep.ver}.jar" />
+        <delete failonerror="false" file="../lib/mipmapguicommons-${spicyguicommons.ver}.jar" />
+        <delete failonerror="false" file="../lib/mipmapEngine-${mipmapEngine.ver}.jar" />
+        <delete failonerror="false" file="../lib/mipmapVerifier-${spicyVerifier.ver}.jar" />
+        <ant dir="${jep.dir}" inheritAll="false" target="clean" />
+        <ant dir="${jep.dir}" inheritAll="false" target="build" />
+        <ant dir="${mipmapguicommons.dir}" inheritAll="false" target="clean" />
+        <ant dir="${mipmapguicommons.dir}" inheritAll="false" target="build" />
+        <ant dir="${mipmapguicommons.dir}" inheritAll="false" target="light-deploy" />
+        <ant dir="${mipmapEngine.dir}" inheritAll="false" target="clean" />
+        <ant dir="${mipmapEngine.dir}" inheritAll="false" target="build" />
+        <ant dir="${mipmapEngine.dir}" inheritAll="false" target="light-deploy" />
+        <ant dir="${mipmapVerifier.dir}" inheritAll="false" target="clean" />
+        <ant dir="${mipmapVerifier.dir}" inheritAll="false" target="build" />
+        <ant dir="${mipmapVerifier.dir}" inheritAll="false" target="light-deploy" />
+        <antcall target="clean" />
+    </target>
+
+    <target name="clean-all" depends="" description="ripulisce">
+        <ant dir="${jep.dir}" inheritAll="false" target="clean" />
+        <ant dir="${mipmapEngine.dir}" inheritAll="false" target="clean" />
+        <ant dir="${mipmapVerifier.dir}" inheritAll="false" target="clean" />
+        <antcall target="clean" />
+    </target>
+
+    <target name="build-all" depends="" description="compila">
+        <ant dir="${jep.dir}" inheritAll="false" target="build" />
+        <ant dir="${mipmapEngine.dir}" inheritAll="false" target="build" />
+        <ant dir="${mipmapEngine.dir}" inheritAll="false" target="light-deploy" />
+        <ant dir="${mipmapguicommons.dir}" inheritAll="false" target="build" />
+        <ant dir="${mipmapguicommons.dir}" inheritAll="false" target="light-deploy" />
+        <ant dir="${mipmapVerifier.dir}" inheritAll="false" target="build" />
+        <ant dir="${mipmapVerifier.dir}" inheritAll="false" target="light-deploy" />
+        <antcall target="clean" />
+    </target>
+
+    <target name="gfp-all" depends="" description="rigenera le proprieta' del progetto freeform">
+        <ant dir="${jep.dir}" inheritAll="false" target="generate-freeform-properties" />
+        <ant dir="${mipmapEngine.dir}" inheritAll="false" target="generate-freeform-properties" />
+        <ant dir="${mipmapguicommons.dir}" inheritAll="false" target="generate-freeform-properties" />
+        <ant dir="${mipmapVerifier.dir}" inheritAll="false" target="generate-freeform-properties" />
+    </target>
+    
+    <target name="dist-src" depends="" description="genera il file zip contenente tutti i sorgenti">
+    	<delete file="dist/spicy-src.zip" />
+    	<zip zipfile="dist/spicy-src.zip">
+            <zipfileset dir="${mipmapEngine.dir}/src" prefix="mipmap-engine" />
+            <zipfileset dir="${mipmapgui.dir}" prefix="mipmap-gui" excludes="build.xml, dist/, **/build/, **/release/"/>
+            <zipfileset dir="${mipmapguicommons.dir}/src" prefix="mipmap-gui-commons"/>
+            <zipfileset dir="${mipmapVerifier.dir}/src" prefix="mipmap-verifier" />
+            <zipfileset dir="${jep.dir}/src" prefix="jep" />
+            <zipfileset dir="../lib" prefix="lib" excludes="*.map, *.pro, *laconic*, proguard*"/>
+        </zip>
+    </target>
+
+</project>

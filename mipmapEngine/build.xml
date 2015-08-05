@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="mipmapEngine" default="build">
+    
+ <!-- ***************************************************
+            Importazione del template
+      *************************************************** -->
+
+    <import file="../spicy-template-build.xml" /> 
+	
+    <property file="../common.properties" />
+
+    <target name="-init-classpath" depends="-init-folders">
+        <property name="build.sysclasspath" value="ignore" />
+        <path id="compile.classpath">
+            <pathelement location="${build.dir}" />
+			
+            <pathelement location="${lib.dir}/commons-logging-${commons-logging.ver}.jar" />
+            <pathelement location="${lib.dir}/jdom.jar" />
+            <pathelement location="${lib.dir}/postgresql-8.1-407.jdbc3.jar" />
+            <pathelement location="${lib.dir}/derbyclient.jar" />
+            <pathelement location="${lib.dir}/mysql-connector-java-5.0.3-bin.jar" /> 
+            <pathelement location="${lib.dir}/xercesImpl.jar" />
+            <pathelement location="${lib.dir}/saxon9.jar" />
+            <pathelement location="${lib.dir}/saxon9-xqj.jar" />
+            <pathelement location="${lib.dir}/antlr-3.1.1-runtime.jar" />            
+            <pathelement location="${lib.dir}/ibatis-${ibatis.ver}.jar" />
+            <pathelement location="${lib.dir}/jep-${jep.ver}.jar" />
+            <pathelement location="${lib.dir}/opencsv-3.0.jar" /> 		
+        </path>
+        <path id="test.classpath">
+            <path refid="compile.classpath" />
+            <pathelement location="${test.build.dir}" />
+            <pathelement location="${lib.dir}/junit.jar" />
+            <pathelement location="${lib.dir}/log4j-${log4j.ver}.jar" />
+            <pathelement location="${lib.dir}/spicyBenchmark-${spicyBenchmark.ver}.jar" />    
+        </path>
+    </target>    
+	
+    <target name="-light-deploy-jep" depends="init">
+        <ant dir="${jep.dir}" inheritAll="false" target="light-deploy" />    
+    </target>	
+
+    <target name="build" depends="-light-deploy-jep, compile, compile-test" description="compila ed esegue i test">
+    </target>
+	
+    <target name="test-subsumptions" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/subsumptions/Test*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+	
+    <target name="test-rewriting" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/rewriting/*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+	
+    <target name="test-parser" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/parser/Test*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+
+    <target name="test-stmark" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/stmark/Test*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+
+    <target name="test-coverages" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/coverage/Test*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+    
+    <target name="test-nonselfjoins" depends="test-subsumptions, test-coverages" description="esegue i test">
+    </target>
+
+    <target name="test-selfjoins" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/selfjoin/Test*.class" />
+                    <include name="**/laconic/Test*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+
+    <target name="test-selfjoins-red" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/selfjoin/Test*Red.class" />
+                    <include name="**/selfjoin/Test*Gen.class" />
+                    <include name="**/laconic/Test*Gen.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+
+    <target name="test-laconic" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/laconic/Test*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+
+    <target name="test-egds" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/egds/**/Test*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+
+    <target name="test-sql" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/query/sql/**/SQLQuery*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+
+    <target name="test-sql-noRSSkolem" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/query/sql/**/SQLQuery*.class" />
+                    <exclude name="**/query/sql/**/SQLQueryRSSkolem*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+    
+    <target name="test-sql-subsumptions" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/query/sql/subsumptions/**/SQLQuery*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+
+    <target name="test-sql-coverage" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/query/sql/coverage/**/SQLQuery*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+
+    <target name="test-sql-selfjoins" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/query/sql/selfjoin/**/SQLQuery*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+	
+    <target name="test-sql-tods-rs" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/query/sql/selfjoin/**/SQLQueryTods2005*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+
+    <target name="test-sql-mixed" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/query/sql/mixed/**/SQLQuery*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+	
+    <target name="test-sql-egd" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/query/sql/egd/**/SQLQuery*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+
+    <target name="test-xquery" depends="-prepare-test, build" description="esegue i test">
+        <junit haltonfailure="false"
+               errorProperty="test.failed"
+               failureProperty="test.failed"
+               fork="true"
+               maxmemory="${junit.maxmemory}">
+            <assertions>
+                <enable/>
+            </assertions>
+            <classpath refid="test.classpath" />
+            <batchtest todir="${test.report.dir}">
+                <fileset dir="${test.build.dir}">
+                    <include name="**/query/xquery/**/XQuery*.class" />
+                </fileset>
+            </batchtest>
+            <formatter type="brief" usefile="false" />
+        </junit>
+        <fail if="test.failed">
+            Esecuzione dell'operazione fallita a causa del fallimento dei test
+        </fail>
+    </target>
+
+</project>

@@ -1,0 +1,58 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package it.unibas.spicygui.vista.intermediatezone;
+
+//giannisk
+public class FunctionProperties {
+    public static final String[][] functionArray = {
+        {"Abs","Returns the absolute value of same type for Numbers / returns the Modulus for Complex","abs(x)"},
+        {"Append","Appends second parameter to first paramenter as string","append(str1, str2)"},
+        {"Arc Cosine","Inverse Cosine","acos(x)"},
+        {"Arc Cosine Hyperbolic","Inverse Hyperbolic Cosine","acosh(x)"},
+        {"Arc Sine","Inverse Sine","asin(x)"},
+        {"Arc Sine Hyperbolic","Inverse Hyperbolic Sine","asinh(x)"},
+        {"Arc Tangent","Inverse Tangent","atan(x)"},
+        {"Arc Tangent(2 parameters)","Inverse Tangent with 2 parameters","atan2(y,x)"},
+        {"Arc Tangent Hyperbolic","Inverse Hyperbolic Tangent","atanh(x)"},
+        {"Argument", "Argument of a complex number ", "arg(c)"},
+        {"Binomial","Binomial coefficients","binom(n,i)"},
+        {"Ceiling","The smallest integer above the number","ceil(x)"},
+        {"Complex PFMC","Converts a pair of real numbers to a complex number","complex(x,y)"},
+        {"Complex conjugate","The complex conjugate of a number","conj(c)"},
+        {"Cosine","Cosine","cos(x)"},
+        {"Cosine Hyperbolic","Hyperbolic Cosine","cosh(x)"},
+        {"Date","Returns current date","date()"},
+        {"DateTime","Returns current date in datetime format","datetime()"},
+        {"Exponential","The result of the exponential function (e^x)","exp(x)"},
+        {"Floor","The smallest integer below the number","floor(x)"},
+        {"If","The if function; trueval will be returned if cond is >0 or True and falseval will be returned if cond is <= 0 or False","if(cond, trueval, falseval)"},
+        {"Imaginary","Imaginary Component","im(c)"},
+        {"Index Of","Returns the position of the first occurrence of a specified value in a string","indexof(str, subStr)"},
+        {"Is Null","Tests if the argument is null","isNull(arg)"},
+        {"Is Not Null","Tests if the argument is not null","isNotNull(arg)"},
+        {"Length","Returns the length of a string","len(str)"},
+        {"Log","Logarithm base 10","log(x)"},
+        {"Ln","Natural Logarithm","ln(x)"},
+        {"Modulus","Calculates the modulus x % y of the arguments","mod(x,y)"},
+        {"New Id","Gets the next number in a sequence","newId()"},
+        {"Polar","Constructs a complex number from modulus and argument","polar(r, theta)"},
+        {"Power","Computes the power of an number","pow(x,y)"},
+        {"Real","Real Component","re(c)"},
+        {"Round","The closest integer to the argument. The second argument is optional and refers to decimal places","round(x,[y])"},
+        {"Sine","Sine","sin(x)"},
+        {"Sine Hyperbolic","Hyperbolic Sine","sinh(x)"},
+        {"Square Root","The square root of the parameter","sqrt(x)"},
+        {"Substring","Extract substring of first argument. Second argument is starting index, third argument is optional and it is the ending index","substring(str, start, [end])"},
+        {"Tangent","Tangent","tan(x)"},
+        {"Tangent Hyperbolic","Hyperbolic Tangent","tanh(x)"},
+        {"To Double","Returns the double value of a number","todouble(x)"},
+        {"To Integer","Returns the integer value of a number","toint(x)"},
+        {"To Lowercase","Converts a string to lowercase letters","tolower(str)"},
+        {"To String","Converts a data type to text","tostring(data)"},
+        {"To Uppercase","Converts a string to uppercase letters","toupper(str)"}
+    };
+    
+}
