@@ -90,7 +90,7 @@ public class ExecuteSQL {
                 StringBuilder createSchemasQuery = new StringBuilder();
                 createSchemasQuery.append("create schema " + GenerateSQL.SOURCE_SCHEMA_NAME + ";\n");
                 createSchemasQuery.append("create schema " + GenerateSQL.TARGET_SCHEMA_NAME + ";\n");
-                createSchemasQuery.append("create schema " + GenerateSQL.WORK_SCHEMA_NAME + ";\n");
+                //createSchemasQuery.append("create schema " + GenerateSQL.WORK_SCHEMA_NAME + ";\n");
 
                 scriptRunner.runScript(new StringReader(createSchemasQuery.toString()));
 

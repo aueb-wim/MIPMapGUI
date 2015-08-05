@@ -48,6 +48,7 @@ public class DAOCsv {
     private static final String TUPLE_SUFFIX = "Tuple";
     private static final String TRANSLATED_INSTANCE_SUFFIX = "-translatedInstances";
     private static final String CANONICAL_INSTANCE_SUFFIX = "-canonicalInstances";
+    private static final String PK_CONSTRAINT_VIOLATED_INSTANCE_SUFFIX ="-PKConstraintViolatedInstances";
     private static final int NUMBER_OF_SAMPLE = 100;
     private static final int BATCH_SIZE = 500;
     
@@ -74,7 +75,7 @@ public class DAOCsv {
             //giannisk postgres create schemas
             if(source){                        
                 String createSchemasQuery = "create schema if not exists " + GenerateSQL.SOURCE_SCHEMA_NAME + ";\n";
-                createSchemasQuery += "create schema if not exists " + GenerateSQL.WORK_SCHEMA_NAME + ";\n";                        
+                //createSchemasQuery += "create schema if not exists " + GenerateSQL.WORK_SCHEMA_NAME + ";\n";                        
                 createSchemasQuery += "create schema if not exists " + GenerateSQL.TARGET_SCHEMA_NAME + ";";
                 statement.executeUpdate(createSchemasQuery);
             }
@@ -407,41 +408,11 @@ public class DAOCsv {
     public void exportPKConstraintCSVinstances(MappingTask mappingTask, HashSet<String> tableNames, String directoryPath, int scenarioNo) throws DAOException {
         try{
             ExportCSVInstances exporter = new ExportCSVInstances();        
-            exporter.exportPKConstraintCSVInstances(mappingTask, directoryPath, tableNames, TRANSLATED_INSTANCE_SUFFIX, scenarioNo);
+            exporter.exportPKConstraintCSVInstances(mappingTask, directoryPath, tableNames, PK_CONSTRAINT_VIOLATED_INSTANCE_SUFFIX, scenarioNo);
         } catch (Throwable ex) {
             logger.error(ex);
             throw new DAOException(ex.getMessage());
         }
     }
-    
-    /*public void exportTranslatedCSVinstances(DataSource dataSource, String directoryPath) throws DAOException {
-        try {
-            ExportCSVInstances exporter = new ExportCSVInstances();
-            exporter.exportCSVInstances(dataSource.getInstances(), directoryPath, TRANSLATED_INSTANCE_SUFFIX);
-        } catch (Throwable ex) {
-            logger.error(ex);
-            throw new DAOException(ex.getMessage());
-        }
-    }
-    
-    /*public void exportCanonicalCSVinstances(DataSource dataSource, String directoryPath) throws DAOException {
-        try {
-            ExportCSVInstances exporter = new ExportCSVInstances();
-            exporter.exportCSVInstances(dataSource.getInstances(), directoryPath, CANONICAL_INSTANCE_SUFFIX);
-        } catch (Throwable ex) {
-            logger.error(ex);
-            throw new DAOException(ex.getMessage());
-        }
-    }
-    
-    public void appendTranslatedCSVinstances(DataSource dataSource, HashMap<String,String> directoryPaths) throws DAOException {
-        try {
-            ExportCSVInstances exporter = new ExportCSVInstances();
-            exporter.appendCSVInstances(dataSource.getInstances(), directoryPaths);
-        } catch (Throwable ex) {
-            logger.error(ex);
-            throw new DAOException(ex.getMessage());
-        }
-    }*/
     
 }

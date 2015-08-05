@@ -101,7 +101,7 @@ public class GenerateSQL {
         }
 
         result.append("\n---------------------------- PRE-EXCHANGE ---------------------------------\n");
-        result.append(this.getDropWorkSchemaScript(mappingTask));
+        result.append(this.getDropCreateWorkSchemaScript());
         result.append(this.getDeleteTablesScript(mappingTask));
         GenerateSQLForSourceToTargetExchange stGenerator = new GenerateSQLForSourceToTargetExchange();
 
@@ -338,10 +338,10 @@ public class GenerateSQL {
         return result.toString();
     }
     
-    private String getDropWorkSchemaScript(MappingTask mappingTask){
+    private String getDropCreateWorkSchemaScript(){
         StringBuilder result = new StringBuilder();
-         ///TODO
-        ///result.append();
+        result.append("drop schema if exists ").append(WORK_SCHEMA_NAME).append(" cascade;\n");
+        result.append("create schema ").append(WORK_SCHEMA_NAME).append(";\n");
         return result.toString();
     }
 

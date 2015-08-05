@@ -242,6 +242,9 @@ public class ExportCSVInstances {
     }
     
     public void exportPKConstraintCSVInstances(MappingTask mappingTask, String directoryPath, HashSet<String> tableNames, String suffix, int scenarioNo) throws DAOException, SQLException, IOException{
+        String folderPath = generateFolderPath(mappingTask.getTargetProxy().getIntermediateSchema(), directoryPath, suffix, 0);     
+        //create Folder
+        new File(folderPath).mkdir();    
         //connection to Postgres
         IConnectionFactory connectionFactory = new SimpleDbConnectionFactory();
         Connection connection = getConnectionToPostgres(connectionFactory, scenarioNo);
@@ -249,7 +252,7 @@ public class ExportCSVInstances {
         try{
             Statement statement = connection.createStatement();
             for (String tableName : tableNames) {
-                createCSVDocument(tableName, GenerateSQL.WORK_SCHEMA_NAME+".", mappingTask.getTargetProxy().getIntermediateSchema().getChild(tableName), directoryPath, statement, null);           
+                createCSVDocument(tableName, GenerateSQL.WORK_SCHEMA_NAME+".", mappingTask.getTargetProxy().getIntermediateSchema().getChild(tableName), folderPath, statement, null);           
             }  
         }finally{        
             //close connection
