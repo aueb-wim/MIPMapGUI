@@ -175,6 +175,9 @@ public final class InstancesTopComponent extends TopComponent {
                 String tabName = "Solution: " + i++;
                 this.tabbedPaneTarget.addTab(tabName, viewInstanceTree);
             }
+            //set focus on the last tab
+            this.tabbedPaneTarget.setSelectedIndex(this.tabbedPaneTarget.getTabCount()-1);
+            
             this.ripulitoTranslated = false;
         }
     }
