@@ -452,7 +452,6 @@ public class DAOMappingTaskLines {
         }
         IDataSourceProxy dataSource = daoCSV.loadSchema(scenarioNo, csvFullTableAbsoluteFilePath, csvDatabaseName, source);
         if (!csvFullInstAbsoluteFilePath.isEmpty()){
-            ////daoCSV.loadInstance(dataSource, csvFullInstAbsoluteFilePath, csvDatabaseName);
             daoCSV.loadInstance(scenarioNo, dataSource, csvFullInstAbsoluteFilePath, csvDatabaseName, source);
         }
         return dataSource;
