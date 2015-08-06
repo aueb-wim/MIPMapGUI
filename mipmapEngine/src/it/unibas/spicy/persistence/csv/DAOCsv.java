@@ -263,28 +263,31 @@ public class DAOCsv {
                 int line = 0;
                 while ((nextLine = reader.readNext()) != null) {//for each line in the file   
                     line++;
-                    //insert into batches (of 500 rows)
-                    if (line%BATCH_SIZE==0){
-                        //take out the last ',' character           
-                        sql_insert_stmnt = sql_insert_stmnt.substring(0, sql_insert_stmnt.length()-1);
-                        stmnt_list.add(sql_insert_stmnt);
-                        sql_insert_stmnt = "";
-                    }
-                    values = "";
-                    for (int i=0; i<nextLine.length; i++){
-                        if (!nextLine[i].equalsIgnoreCase("null")){
-                            //replace double quotes with single quotes
-                            //while first escape the character ' for SQL (the "replaceAll" method call)
-                            values += "'"+ nextLine[i].trim().replaceAll("'", "''") + "',";
+                    //skip empty lines at the end of the csv file
+                    if (nextLine.length != 1 || !nextLine[0].isEmpty()){
+                        //insert into batches (of 500 rows)
+                        if (line%BATCH_SIZE==0){
+                            //take out the last ',' character           
+                            sql_insert_stmnt = sql_insert_stmnt.substring(0, sql_insert_stmnt.length()-1);
+                            stmnt_list.add(sql_insert_stmnt);
+                            sql_insert_stmnt = "";
                         }
-                        //do not put quotes if value is the string null
-                        else{
-                            values += nextLine[i].trim().replaceAll("'", "''") + ",";   
+                        values = "";
+                        for (int i=0; i<nextLine.length; i++){
+                            if (!nextLine[i].equalsIgnoreCase("null")){
+                                //replace double quotes with single quotes
+                                //while first escape the character ' for SQL (the "replaceAll" method call)
+                                values += "'"+ nextLine[i].trim().replaceAll("'", "''") + "',";
+                            }
+                            //do not put quotes if value is the string null
+                            else{
+                                values += nextLine[i].trim().replaceAll("'", "''") + ",";   
+                            }
                         }
+                        //take out the last ',' character
+                        values = values.substring(0, values.length()-1);
+                        sql_insert_stmnt += "("+values+"),";   
                     }
-                //take out the last ',' character
-                values = values.substring(0, values.length()-1);
-                sql_insert_stmnt += "("+values+"),";   
                 }
                 reader.close();
                 //take out the last ',' character           
@@ -356,18 +359,21 @@ public class DAOCsv {
             int sampleSize = 0;
             
             while (((nextLine = reader.readNext()) != null) && (sampleSize < NUMBER_OF_SAMPLE)) {//for each line in the file until the NUMBER_OF_SAMPLE
-                TupleNode tupleNode = new TupleNode(getNode(tableName + TUPLE_SUFFIX).getLabel(), getOID());
-                setTable.addChild(tupleNode);
-                int i=0;
-                for (INode attributeNodeSchema : getNode(tableName + TUPLE_SUFFIX).getChildren()) { 
-                    AttributeNode attributeNode = new AttributeNode(attributeNodeSchema.getLabel(), getOID());
-                    Object columnvalue = (Object)nextLine[i].trim();
-                    i++;
-                    LeafNode leafNode = createLeafNode(attributeNodeSchema, columnvalue);
-                    attributeNode.addChild(leafNode);
-                    tupleNode.addChild(attributeNode);                   
+                //skip empty lines at the end of the csv file
+                if (nextLine.length != 1 || !nextLine[0].isEmpty()){
+                    TupleNode tupleNode = new TupleNode(getNode(tableName + TUPLE_SUFFIX).getLabel(), getOID());
+                    setTable.addChild(tupleNode);
+                    int i=0;
+                    for (INode attributeNodeSchema : getNode(tableName + TUPLE_SUFFIX).getChildren()) { 
+                        AttributeNode attributeNode = new AttributeNode(attributeNodeSchema.getLabel(), getOID());
+                        Object columnvalue = (Object)nextLine[i].trim();
+                        i++;
+                        LeafNode leafNode = createLeafNode(attributeNodeSchema, columnvalue);
+                        attributeNode.addChild(leafNode);
+                        tupleNode.addChild(attributeNode);                   
+                    }
+                    sampleSize++;
                 }
-                sampleSize++;
             }   
             reader.close();
         }catch(FileNotFoundException e){
