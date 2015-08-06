@@ -289,13 +289,15 @@ public class DAOCsv {
                         sql_insert_stmnt += "("+values+"),";   
                     }
                 }
-                reader.close();
-                //take out the last ',' character           
-                sql_insert_stmnt = sql_insert_stmnt.substring(0, sql_insert_stmnt.length()-1);
-                stmnt_list.add(sql_insert_stmnt);
-                for (String stmnmt : stmnt_list){
-                    statement.executeUpdate("insert into "+tableName+" values "+stmnmt+";");
-                }                                          
+                reader.close();                  
+                if (sql_insert_stmnt != ""){
+                    //take out the last ',' character
+                    sql_insert_stmnt = sql_insert_stmnt.substring(0, sql_insert_stmnt.length()-1);
+                    stmnt_list.add(sql_insert_stmnt);
+                    for (String stmnmt : stmnt_list){
+                        statement.executeUpdate("insert into "+tableName+" values "+stmnmt+";");
+                    } 
+                }                                         
             }   catch (IOException ex) {     
                     Logger.getLogger(DAOCsv.class.getName()).log(Level.SEVERE, null, ex);
                     throw new DAOException(ex);
