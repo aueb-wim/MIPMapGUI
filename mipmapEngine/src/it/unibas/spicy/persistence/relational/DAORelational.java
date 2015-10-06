@@ -74,7 +74,6 @@ public class DAORelational {
     public IDataSourceProxy loadSchema(int scenarioNo, AccessConfiguration accessConfiguration, DBFragmentDescription dataDescription, 
             IConnectionFactory dataSourceDB, boolean source) throws DAOException {
         this.dataDescription = dataDescription;
-        IConnectionFactory connectionFactory = null;
         Connection connectionPostgres = null;
         INode root = null;
         String catalog = null;
@@ -88,9 +87,8 @@ public class DAORelational {
         accessConfigurationPostgres.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME+scenarioNo);
         accessConfigurationPostgres.setLogin(SpicyEngineConstants.ACCESS_CONFIGURATION_LOGIN);
         accessConfigurationPostgres.setPassword(SpicyEngineConstants.ACCESS_CONFIGURATION_PASS);
-        
-        connectionFactory = new SimpleDbConnectionFactory();
-        connectionPostgres = connectionFactory.getConnection(accessConfigurationPostgres);     
+
+        connectionPostgres = dataSourceDB.getConnection(accessConfigurationPostgres);     
         try {            
             Statement statement = connectionPostgres.createStatement();
             
@@ -135,7 +133,7 @@ public class DAORelational {
             if (connection != null)
               dataSourceDB.close(connection);
             if (connectionPostgres != null)
-              connectionFactory.close(connectionPostgres);
+              dataSourceDB.close(connectionPostgres);
         }
         return dataSource;
     }
@@ -216,6 +214,7 @@ public class DAORelational {
                 if (logger.isDebugEnabled()) logger.debug("Searching primary keys. ANALYZING TABLE  = " + tableName);
                 ResultSet resultSet = databaseMetaData.getPrimaryKeys(catalog, null, tableName);
                 List<PathExpression> listOfPath = new ArrayList<PathExpression>();
+                List<String> PKcolumnNames = new ArrayList<String>();
                 while (resultSet.next()) {
                     String columnName = resultSet.getString("COLUMN_NAME");
                     if (logger.isDebugEnabled()) logger.debug("Analyzing primary key: " + columnName);
@@ -225,9 +224,12 @@ public class DAORelational {
                     if (logger.isDebugEnabled()) logger.debug("Found a Primary Key: " + columnName);
                     String keyPrimary = tableName + "." + columnName;
                     listOfPath.add(DAORelationalUtility.generatePath(keyPrimary));
-                    
+   
                     //giannisk alter table, add primary key
                     ////un-comment the following if Primary Key Constraints are to be considered
+                    PKcolumnNames.add(columnName);
+                }
+                if (!PKcolumnNames.isEmpty()){
                     String table;
                     if (source){
                         table = GenerateSQL.SOURCE_SCHEMA_NAME+".\""+tableName+"\"";
@@ -235,12 +237,14 @@ public class DAORelational {
                     else{
                         table = GenerateSQL.TARGET_SCHEMA_NAME+".\""+tableName+"\"";    
                     }
-                    
-                    statement.execute(createTriggerFunction(table, tableName));
+
+                    statement.execute(createTriggerFunction(table, tableName, PKcolumnNames));
                     statement.execute(createTriggerBeforeInsert(table, tableName));
-                    statement.executeUpdate("ALTER TABLE "+table+" ADD PRIMARY KEY ("+columnName+");");
-                    ////
+                    String primaryKeys = String.join(",", PKcolumnNames);
+                    statement.executeUpdate("ALTER TABLE "+table+" ADD PRIMARY KEY ("+primaryKeys+");");
                 }
+                ////
+              //}                 
                 if (!listOfPath.isEmpty()) {
                     KeyConstraint keyConstraint = new KeyConstraint(listOfPath, true);
                     dataSource.addKeyConstraint(keyConstraint);
@@ -251,12 +255,18 @@ public class DAORelational {
         }
     }
     
-    private String createTriggerFunction(String table, String tableName){
+    private String createTriggerFunction(String table, String tableName, List<String> PKcolumnNames){
         String tempTable = GenerateSQL.WORK_SCHEMA_NAME+".\""+tableName+"\"";
         StringBuilder result = new StringBuilder();
         result.append("CREATE OR REPLACE FUNCTION ").append(tableName).append("_check_not_equal()\n");
         result.append("RETURNS trigger AS ' begin\n");
-        result.append("if exists (select * from ").append(table).append(" e where e.id = new.id) then\n");
+        result.append("if exists (select * from ").append(table).append(" where ");
+        for (String PKcolumnName: PKcolumnNames){        
+            result.append(table).append(".").append(PKcolumnName).append(" = new.").append(PKcolumnName).append(" and ");
+        }
+        //delete the last " and "
+        result.delete(result.length()-5, result.length());
+        result.append(") then\n");
         result.append("EXECUTE ''create table if not exists ").append(tempTable).append(" (like ").append(table).append(")''; \n");
         result.append("insert into ").append(tempTable).append(" SELECT (NEW).*; \n");
         result.append("raise NOTICE ''").append(SpicyEngineConstants.PRIMARY_KEY_CONSTR_NOTICE).append(tableName).append("'';");
@@ -362,7 +372,6 @@ public class DAORelational {
         DatabaseMetaData databaseMetaData = null;
         String catalog = null;
         String schemaName = accessConfiguration.getSchemaName();
-        IConnectionFactory connectionFactory = null;
         Connection connectionPostgres = null;
         
         AccessConfiguration accessConfigurationPostgres = new AccessConfiguration();
@@ -370,8 +379,7 @@ public class DAORelational {
         accessConfigurationPostgres.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME+scenarioNo);
         accessConfigurationPostgres.setLogin(SpicyEngineConstants.ACCESS_CONFIGURATION_LOGIN);
         accessConfigurationPostgres.setPassword(SpicyEngineConstants.ACCESS_CONFIGURATION_PASS);      
-        connectionFactory = new SimpleDbConnectionFactory();
-        connectionPostgres = connectionFactory.getConnection(accessConfigurationPostgres); 
+        connectionPostgres = dataSourceDB.getConnection(accessConfigurationPostgres); 
         try{
             databaseMetaData = connection.getMetaData();
             catalog = connection.getCatalog();            
@@ -401,7 +409,7 @@ public class DAORelational {
                     instancesCount = countResult.getInt("instancesCount");
                 }                            
                 for (int i=0; i<=((instancesCount-1)/BATCH_SIZE); i++){
-                    ResultSet instancesSet = statement.executeQuery("SELECT * FROM " +tablePath+" LIMIT "+BATCH_SIZE+" OFFSET "+500*i+";");
+                    ResultSet instancesSet = statement.executeQuery("SELECT * FROM " +tablePath+" LIMIT "+BATCH_SIZE+" OFFSET "+BATCH_SIZE*i+";");
                     ResultSetMetaData rsmd = instancesSet.getMetaData();
                     int columnsNumber = rsmd.getColumnCount();
                     String sql_insert_stmnt="";
@@ -431,7 +439,7 @@ public class DAORelational {
            if (connection != null)
              dataSourceDB.close(connection);
            if (connectionPostgres != null)
-             connectionFactory.close(connectionPostgres);
+             dataSourceDB.close(connectionPostgres);
         }          
     }  
     
@@ -476,12 +484,24 @@ public class DAORelational {
             String[] tableTypes = new String[]{"TABLE"};
             ResultSet tableResultSet = databaseMetaData.getTables(catalog, schemaName, null, tableTypes);
             while (tableResultSet.next()) {
-                String tableName = tableResultSet.getString("TABLE_NAME");
+                String tableName = tableResultSet.getString("TABLE_NAME");                
                 if (!this.dataDescription.checkLoadTable(tableName)) {
                     continue;
                 }
-                INode setTable = new SetNode(DAORelationalUtility.getNode(tableName).getLabel(), getOID());
+                SetNode setTable = new SetNode(DAORelationalUtility.getNode(tableName).getLabel(), getOID());
                 ////INode setTable = new SetNode(tableName, getOID());
+
+                //keep the number of instances as information on the Set node
+                String tablePath = "\"" + schemaName + "\".\"" + tableName +"\"";
+                Statement statement = connection.createStatement();
+                ResultSet countResult = statement.executeQuery("SELECT COUNT(*) AS instancesCount FROM " +tablePath+";");
+                int noOfRows = 0;
+                while(countResult.next()){
+                    noOfRows = countResult.getInt("instancesCount");
+                } 
+                setTable.setFullSize(noOfRows);
+                countResult.close();
+                
                 if (logger.isDebugEnabled()) logger.debug("extracting value for table " + tableName + " ....");
                 getInstanceByTable(dataSourceDB, connection, schemaName, tableName, setTable);
                 root.addChild(setTable);

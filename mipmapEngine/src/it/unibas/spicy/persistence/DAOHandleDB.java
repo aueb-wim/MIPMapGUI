@@ -6,6 +6,7 @@ import it.unibas.spicy.persistence.relational.SimpleDbConnectionFactory;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import java.io.StringReader;
 import java.sql.Connection;
+import java.sql.Statement;
 
 public class DAOHandleDB {
     
@@ -28,15 +29,13 @@ public class DAOHandleDB {
         try  {
             connectionFactory = new SimpleDbConnectionFactory();
             connection = connectionFactory.getConnection(accessConfiguration);
-        
-            ScriptRunner scriptRunner = new ScriptRunner(connection, true, true);
-            scriptRunner.setLogWriter(null);
+            Statement statement = connection.createStatement();            
             StringBuilder createSchemasQuery = new StringBuilder(); 
             createSchemasQuery.append("drop database if exists ").append(SpicyEngineConstants.MAPPING_TASK_DB_NAME).append(no).append(";\n");
             if (create){
                 createSchemasQuery.append("create database ").append(SpicyEngineConstants.MAPPING_TASK_DB_NAME).append(no).append(";\n");
             }
-            scriptRunner.runScript(new StringReader(createSchemasQuery.toString()));
+            statement.executeUpdate(createSchemasQuery.toString());
         }
         catch (Exception ex) {
             throw new DAOException(ex);

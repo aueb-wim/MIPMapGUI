@@ -26,6 +26,7 @@ import it.unibas.spicy.model.datasource.operators.INodeVisitor;
 public class SetNode extends IntermediateNode {
 
     boolean cloned = false;
+    int fullSize;
 
     public SetNode(String label) {
         super(label);
@@ -49,6 +50,14 @@ public class SetNode extends IntermediateNode {
     
     public void accept(INodeVisitor visitor) {
         visitor.visitSetNode(this);
+    }
+    
+    public int getFullSize(){
+        return this.fullSize;
+    }
+    
+    public void setFullSize(int fullSize){
+        this.fullSize = fullSize;
     }
     
 }

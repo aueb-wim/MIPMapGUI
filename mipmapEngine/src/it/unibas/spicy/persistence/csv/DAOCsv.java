@@ -332,7 +332,7 @@ public class DAOCsv {
                 String tableName = (String)entry.getValue().get(0);
                 boolean colNames = (Boolean) entry.getValue().get(1);
 
-                INode setTable = new SetNode(getNode(tableName).getLabel(), getOID());
+                SetNode setTable = new SetNode(getNode(tableName).getLabel(), getOID());
                 if (logger.isDebugEnabled()) logger.debug("extracting value for table " + tableName + " ....");
                 
                 getInstanceByTable(tableName, setTable, filePath, colNames);
@@ -350,7 +350,7 @@ public class DAOCsv {
         }     
     }
     
-    private void getInstanceByTable(String tableName, INode setTable, String filepath, Boolean includesColNames) throws DAOException, FileNotFoundException, IOException {
+    private void getInstanceByTable(String tableName, SetNode setTable, String filepath, Boolean includesColNames) throws DAOException, FileNotFoundException, IOException {
         CSVReader reader = new CSVReader(new FileReader(filepath));
         try{
             //ignore the first line if file includes column names
@@ -376,7 +376,14 @@ public class DAOCsv {
                     }
                     sampleSize++;
                 }
-            }   
+            }
+            
+            int rowCount = sampleSize;
+            while ((nextLine = reader.readNext()) != null) {
+                rowCount++;
+            }
+            setTable.setFullSize(rowCount);
+            
             reader.close();
         }catch(FileNotFoundException e){
             e.printStackTrace();

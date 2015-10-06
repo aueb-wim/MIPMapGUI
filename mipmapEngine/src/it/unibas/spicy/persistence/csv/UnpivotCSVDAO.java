@@ -89,7 +89,7 @@ public class UnpivotCSVDAO {
     
     private String createTableQuery(String tableName) throws IOException{
         StringBuilder query = new StringBuilder();
-        query.append("create table ").append(tableName).append(" (");        
+        query.append("create table \"").append(tableName).append("\" (");        
         String columns = "";
         String[] firstline = this.csvTableColumns;
         for (int i=0; i<firstline.length; i++){
@@ -110,14 +110,14 @@ public class UnpivotCSVDAO {
         StringBuilder query = new StringBuilder();
         ArrayList<String> stmnt_list = getCsvTabledata(originalTableFile);
         for (String stmnmt : stmnt_list){
-            query.append("insert into ").append(tableName).append(" values ").append(stmnmt).append(";");
+            query.append("insert into \"").append(tableName).append("\" values ").append(stmnmt).append(";");
         }      
         return query.toString();
     }
     
     private String createUnpivotQuery(List<String> keepColNames, List<String> colNames, String newColName, String tableName){
         StringBuilder query = new StringBuilder();
-        query.append("create view unpivoted_").append(tableName).append(" as (SELECT ");
+        query.append("create view \"unpivoted_").append(tableName).append("\" as (SELECT ");
         for (String keepcolumn : keepColNames){
             query.append(keepcolumn).append(", ");
         }
@@ -133,7 +133,7 @@ public class UnpivotCSVDAO {
         }
         //delete the last comma character
         query.delete(query.length() - ", ".length(), query.length());
-        query.append("]) AS value FROM ").append(tableName).append(");");
+        query.append("]) AS value FROM \"").append(tableName).append("\");");
         return query.toString();
     }
     

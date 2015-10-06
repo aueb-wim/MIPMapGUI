@@ -24,6 +24,7 @@ import it.unibas.spicy.utility.SpicyEngineConstants;
 import it.unibas.spicy.model.mapping.MappingTask;
 import it.unibas.spicy.model.correspondence.ConstantValue;
 import it.unibas.spicy.model.correspondence.DateFunction;
+import it.unibas.spicy.model.correspondence.DatetimeFunction;
 import it.unibas.spicy.model.correspondence.ISourceValue;
 import it.unibas.spicy.model.correspondence.NewIdFunction;
 import it.unibas.spicy.model.correspondence.ValueCorrespondence;
@@ -503,7 +504,11 @@ public class DAOMappingTaskLines {
                 sourceValue = new DateFunction();
             } else if (sourceValueString.equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_NEWID_FUNCTION)) {
                 sourceValue = new NewIdFunction();
-            } else {
+            } 
+            else if (sourceValueString.equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_DATETIME_FUNCTION)) {
+                sourceValue = new DatetimeFunction();
+            }
+            else {
                 sourceValue = new ConstantValue(sourceValueString);
             }
         }

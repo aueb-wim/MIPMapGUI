@@ -84,9 +84,7 @@ public class GenerateValueGenerators {
             FunctionGenerator generator = new FunctionGenerator(correspondence.getTransformationFunction());
             attributeGenerators.put(targetPath.toString(), generator);
         }
-        if (logger.isDebugEnabled()) logger.debug("Function generators: " + SpicyEngineUtility.printMap(attributeGenerators));
         List<GeneratorWithPath> functionGeneratorsForSkolemFunctions = findGeneratorsForVariablesInJoin(tgd, attributeGenerators);
-        if (logger.isDebugEnabled()) logger.debug("Generators for variables in join: " + SpicyEngineUtility.printCollection(functionGeneratorsForSkolemFunctions));
         skolemGeneratorFinder.findGeneratorsForSkolems(tgd, mappingTask, attributeGenerators, functionGeneratorsForSkolemFunctions);
         return attributeGenerators;
     }
