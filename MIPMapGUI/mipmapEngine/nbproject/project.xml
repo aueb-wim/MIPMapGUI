@@ -135,6 +135,7 @@
                 <package>it.unibas.spicy.parser.output</package>
                 <package>it.unibas.spicy.persistence</package>
                 <package>it.unibas.spicy.persistence.csv</package>
+                <package>it.unibas.spicy.persistence.json</package>
                 <package>it.unibas.spicy.persistence.object</package>
                 <package>it.unibas.spicy.persistence.object.model</package>
                 <package>it.unibas.spicy.persistence.object.model.annotations</package>
