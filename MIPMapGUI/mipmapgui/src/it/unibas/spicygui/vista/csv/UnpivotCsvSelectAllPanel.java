@@ -5,28 +5,33 @@
  */
 package it.unibas.spicygui.vista.csv;
 
-public class UnpivotCsvColumnPanel extends javax.swing.JPanel {
+import java.awt.Font;
+
+public class UnpivotCsvSelectAllPanel extends javax.swing.JPanel {
     
-    public UnpivotCsvColumnPanel(String name) {
+    UnpivotCsvMainFrame mainFrame;
+    
+    public UnpivotCsvSelectAllPanel(UnpivotCsvMainFrame mainFrame ,String name) {
+        this.mainFrame = mainFrame;
         initComponents();
         initLabels(name);         
     }    
    
     private void initLabels(String name){
-        rowNameLabel.setText(name);     
-    }
-   
-    public String getColNameLabel(){
-        return this.rowNameLabel.getText();
+        rowNameLabel.setText(name); 
+        rowNameLabel.setFont(new Font(rowNameLabel.getFont().getName(), Font.BOLD, rowNameLabel.getFont().getSize()));
     }
     
     public boolean isColumnSelected(){
         return this.rowCheckBox.isSelected();
     }
     
-    public void setCheckboxSelected(boolean val){
-        this.rowCheckBox.setSelected(val);
+    private void selectAll(boolean val){
+        for (UnpivotCsvColumnPanel panel: mainFrame.getColumnsList()){
+            panel.setCheckboxSelected(val);
+        }
     }
+    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -42,7 +47,12 @@ public class UnpivotCsvColumnPanel extends javax.swing.JPanel {
 
         setPreferredSize(new java.awt.Dimension(100, 76));
 
-        org.openide.awt.Mnemonics.setLocalizedText(rowCheckBox, org.openide.util.NbBundle.getMessage(UnpivotCsvColumnPanel.class, "UnpivotCsvColumnPanel.rowCheckBox.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(rowCheckBox, org.openide.util.NbBundle.getMessage(UnpivotCsvSelectAllPanel.class, "UnpivotCsvColumnPanel.rowCheckBox.text")); // NOI18N
+        rowCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rowCheckBoxActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -51,7 +61,7 @@ public class UnpivotCsvColumnPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(rowNameLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(rowCheckBox)
                 .addContainerGap())
         );
@@ -64,6 +74,16 @@ public class UnpivotCsvColumnPanel extends javax.swing.JPanel {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void rowCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rowCheckBoxActionPerformed
+        if (this.rowCheckBox.isSelected()){
+            selectAll(true);
+        }
+        else{
+            //clear all
+            selectAll(false);
+        }
+    }//GEN-LAST:event_rowCheckBoxActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -109,8 +109,8 @@ public class Installer extends ModuleInstall {
     }
 
     private void menageTrayIcon() {
-        Image imageTray = ImageUtilities.loadImage(Costanti.ICONA_SPICY, true);
-        final TrayIcon trayIcon = new TrayIcon(imageTray, Costanti.SPICY_NAME);
+        Image imageTray = ImageUtilities.loadImage(Costanti.ICONA_MIPMAP, true);
+        final TrayIcon trayIcon = new TrayIcon(imageTray, Costanti.MIPMAP_NAME);
 //        trayIcon.addActionListener(new ActionListener() {
 //
 //
@@ -145,7 +145,7 @@ public class Installer extends ModuleInstall {
                         text = NbBundle.getMessage(Costanti.class, Costanti.INFORMATION_ON_TRAY_START) + " " +
                             scenarioCounter + " " + NbBundle.getMessage(Costanti.class, Costanti.INFORMATION_ON_TRAY_END_S);
                     }
-                    trayIcon.displayMessage(Costanti.SPICY_NAME,text,TrayIcon.MessageType.INFO);
+                    trayIcon.displayMessage(Costanti.MIPMAP_NAME,text,TrayIcon.MessageType.INFO);
                 }
             }
 

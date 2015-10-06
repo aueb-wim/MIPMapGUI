@@ -93,7 +93,7 @@ public class ActionViewSpicy extends CallableSystemAction implements Observer {
 
     @Override
     protected String iconResource() {
-        return Costanti.ICONA_SPICY;
+        return Costanti.ICONA_MIPMAP;
     }
 
     @Override

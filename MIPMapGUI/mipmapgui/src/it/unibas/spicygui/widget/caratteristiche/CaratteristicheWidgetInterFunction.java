@@ -39,8 +39,17 @@ public class CaratteristicheWidgetInterFunction implements ICaratteristicheWidge
     private VMDPinWidgetTarget targetWidget;
     private ConnectionInfo connectionInfo;
     private ValueCorrespondence valueCorrespondence;
+    private boolean tgdView;
 
     public CaratteristicheWidgetInterFunction() {
+    }
+    
+    public void setTgdView(boolean val){
+        this.tgdView = val;
+    }
+    
+    public boolean getTgdView(){
+        return this.tgdView;
     }
 
     public String getTreeType() {

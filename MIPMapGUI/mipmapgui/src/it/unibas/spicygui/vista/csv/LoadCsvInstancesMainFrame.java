@@ -27,7 +27,7 @@ public class LoadCsvInstancesMainFrame extends javax.swing.JDialog{
     public  LoadCsvInstancesMainFrame(IDataSourceProxy dataSource){
         this.dataSource = dataSource;
         
-        Image imageDefault = ImageUtilities.loadImage(Costanti.ICONA_SPICY, true);
+        Image imageDefault = ImageUtilities.loadImage(Costanti.ICONA_MIPMAP, true);
         setIconImage(imageDefault);
         setTitle(org.openide.util.NbBundle.getMessage(Costanti.class, Costanti.LOAD2));
         setSize(400, 300);

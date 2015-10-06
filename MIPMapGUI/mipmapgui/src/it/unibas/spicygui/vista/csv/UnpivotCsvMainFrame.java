@@ -5,7 +5,6 @@
  */
 package it.unibas.spicygui.vista.csv;
 
-import it.unibas.spicy.model.mapping.IDataSourceProxy;
 import it.unibas.spicygui.Costanti;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -16,6 +15,7 @@ import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import org.openide.util.ImageUtilities;
 
 public class UnpivotCsvMainFrame extends javax.swing.JDialog{
@@ -25,12 +25,11 @@ public class UnpivotCsvMainFrame extends javax.swing.JDialog{
     List<String> keepColumnNames = new ArrayList<String>();
     String newColumnName;
     
-    public  UnpivotCsvMainFrame(String[] columnNames){       
-        Image imageDefault = ImageUtilities.loadImage(Costanti.ICONA_SPICY, true);
+    public UnpivotCsvMainFrame(String[] columnNames){       
+        Image imageDefault = ImageUtilities.loadImage(Costanti.ICONA_MIPMAP, true);
         setIconImage(imageDefault);
         setTitle(org.openide.util.NbBundle.getMessage(Costanti.class, Costanti.ACTION_UNPIVOT_CSV));
-        setSize(400, 300);
-        setLocationRelativeTo(null);
+        setPreferredSize(new Dimension(400, 500));        
         setModal(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
@@ -38,7 +37,9 @@ public class UnpivotCsvMainFrame extends javax.swing.JDialog{
         JPanel mainPanel = new JPanel();
         GroupLayout layout = new GroupLayout(mainPanel);
         mainPanel.setLayout(layout);
-        add(mainPanel);               
+        //add(mainPanel);   
+        JScrollPane scroll = new JScrollPane(mainPanel);
+        add(scroll);
         
         ParallelGroup pl = layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING);
         SequentialGroup seq = layout.createSequentialGroup();        
@@ -51,6 +52,13 @@ public class UnpivotCsvMainFrame extends javax.swing.JDialog{
         upperPanel.add(rowLabel);        
         pl.addComponent(upperPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
         seq.addComponent(upperPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        
+        //Select all panel
+        JPanel selectAllPanel = new UnpivotCsvSelectAllPanel(this, org.openide.util.NbBundle.getMessage(Costanti.class, Costanti.SELECT_ALL_LABEL));
+        selectAllPanel.setPreferredSize(new Dimension(300, 20));    
+        pl.addComponent(selectAllPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        seq.addComponent(selectAllPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
         
         //for each column
@@ -86,6 +94,7 @@ public class UnpivotCsvMainFrame extends javax.swing.JDialog{
         );      
               
         pack();
+        setLocationRelativeTo(null);
         setVisible(true); 
     }
     
@@ -125,5 +134,9 @@ public class UnpivotCsvMainFrame extends javax.swing.JDialog{
     
     public String getNewColName(){
         return this.newColumnName;
-    }    
+    }  
+    
+    public List<UnpivotCsvColumnPanel> getColumnsList(){
+        return this.columnList;
+    }
 }

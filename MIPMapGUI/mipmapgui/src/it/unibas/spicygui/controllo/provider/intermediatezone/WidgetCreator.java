@@ -73,6 +73,9 @@ public class WidgetCreator {
         Widget widget = createConstantInterWidget(scene, mainLayer, connectionLayer, pannelloPrincipale, point, glassPane);
         CaratteristicheWidgetInterConst caratteristicheWidget = (CaratteristicheWidgetInterConst) mainLayer.getChildConstraint(widget);
         caratteristicheWidget.setCostante(sourceValue.toString());
+        //giannisk
+        caratteristicheWidget.setTgdView(false);
+        
         return widget;
     }
 
@@ -80,6 +83,9 @@ public class WidgetCreator {
         CaratteristicheWidgetInterConst caratteristicheWidget = new CaratteristicheWidgetInterConst();
         caratteristicheWidget.setTreeType(Costanti.INTERMEDIE);
         caratteristicheWidget.setFormValidation(new FormValidation(true));
+        //giannisk
+        caratteristicheWidget.setTgdView(false);
+        
         ConstantWidget rootWidget = new ConstantWidget(scene, point, caratteristicheWidget);
         rootWidget.getActions().addAction(ActionFactory.createEditAction(new MyEditProviderConst(caratteristicheWidget)));
         rootWidget.getActions().addAction(ActionFactory.createConnectAction(connectionLayer, new ActionConstantConnection(mainLayer, connectionLayer, caratteristicheWidget)));
@@ -106,6 +112,10 @@ public class WidgetCreator {
     public Widget createFunctionWidget(Scene scene, LayerWidget mainLayer, LayerWidget connectionLayer, JPanel pannelloPrincipale, Point point, GraphSceneGlassPane glassPane) {
         FunctionWidget rootWidget = new FunctionWidget(scene, point);
         CaratteristicheWidgetInterFunction caratteristicheWidget = new CaratteristicheWidgetInterFunction();
+        
+        //giannisk
+        caratteristicheWidget.setTgdView(false);
+        
         caratteristicheWidget.setTreeType(Costanti.INTERMEDIE);
         rootWidget.getActions().addAction(ActionFactory.createEditAction(new MyEditProviderFunction(caratteristicheWidget)));
         rootWidget.getActions().addAction(ActionFactory.createConnectAction(connectionLayer, new ActionFunctionConnection(connectionLayer, mainLayer, caratteristicheWidget)));

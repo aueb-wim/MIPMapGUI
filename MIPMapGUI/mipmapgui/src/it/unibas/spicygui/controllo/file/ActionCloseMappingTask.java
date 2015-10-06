@@ -90,6 +90,7 @@ public class ActionCloseMappingTask extends CallableSystemAction implements Obse
 //        modello.removeBean(Costanti.PROJECT);
     }
 
+    //closes all the corresponding components of the scenario closing
     private void closeInstancesView(Scenario scenario) {
         InstancesTopComponent topComponentViewInstances = scenario.getInstancesTopComponent();
         topComponentViewInstances.clear();
@@ -112,22 +113,28 @@ public class ActionCloseMappingTask extends CallableSystemAction implements Obse
         if (topComponentSql != null) {
             topComponentSql.clear();
             topComponentSql.close();
+        }        
+        TGDCorrespondencesTopComponent tgdCorrespondencesTopComponent = scenario.getTGDCorrespondencesTopComponent();
+        if (tgdCorrespondencesTopComponent != null) {
+            tgdCorrespondencesTopComponent.clear();
+            tgdCorrespondencesTopComponent.close();
         }
         TGDListTopComponent tgdListTopComponent = scenario.getTGDListTopComponent();
         if (tgdListTopComponent != null) {
             tgdListTopComponent.clear();
             tgdListTopComponent.close();
         }
-        TGDCorrespondencesTopComponent tgdCorrespondencesTopComponent = scenario.getTGDCorrespondencesTopComponent();
-        if (tgdCorrespondencesTopComponent != null) {
-            tgdCorrespondencesTopComponent.clear();
-            tgdCorrespondencesTopComponent.close();
-        }
         CompositionTopComponent compositionTopComponent = scenario.getCompositionTopComponent();
         if (compositionTopComponent != null) {
 //            compositionTopComponent.clear();
             compositionTopComponent.close();
+        }        
+        //giannisk
+        TGDEditorSupport tGDEditorSupport = scenario.getTGDEditor();
+        if (tGDEditorSupport != null) {
+            tGDEditorSupport.close();
         }
+        
 //        BestMappingsTopComponent bestMappingsTopComponent = BestMappingsTopComponent.findInstance();
 //        bestMappingsTopComponent.close();
 //        RankedTransformationsTopComponent rankedTransformationsTopComponent = RankedTransformationsTopComponent.findInstance();

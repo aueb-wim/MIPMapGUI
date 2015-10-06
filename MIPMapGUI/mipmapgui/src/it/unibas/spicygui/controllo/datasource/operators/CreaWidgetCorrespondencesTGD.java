@@ -147,6 +147,9 @@ public class CreaWidgetCorrespondencesTGD implements ICreaWidgetCorrespondences 
 
         CaratteristicheWidgetInterConst caratteristicheWidget = (CaratteristicheWidgetInterConst) mainLayer.getChildConstraint(sourceWidget);
         impostaTipo(sourceValue, caratteristicheWidget);
+        
+        //giannisk
+        caratteristicheWidget.setTgdView(true);
 
         ConnectionInfo connectionInfo = connectionCreator.createConnectionToTarget(sourceWidget, targetWidget, mainLayer, connectionLayer);
         connectionInfo.setVariableCorrespondence(variableCorrespondence);
@@ -187,6 +190,10 @@ public class CreaWidgetCorrespondencesTGD implements ICreaWidgetCorrespondences 
         Point point = calculateRandomPoint(glassPane);
         Widget functionWidget = widgetCreator.createFunctionWidget(scene, mainLayer, connectionLayer, pannelloPrincipale, point, glassPane);
         CaratteristicheWidgetInterFunction caratteristicheWidget = (CaratteristicheWidgetInterFunction) mainLayer.getChildConstraint(functionWidget);
+        
+        //giannisk
+        caratteristicheWidget.setTgdView(true);
+        
         caratteristicheWidget.setExpressionFunction(variableCorrespondence.getTransformationFunction().toString());
 //        caratteristicheWidget.setVariableCorrespondence(variableCorrespondence);
         IDataSourceProxy source = mappingTask.getSourceProxy();

@@ -224,7 +224,6 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
                 valSet.add(true);
                 instancePathList.put(path,valSet);
             }
-            ////daoCsv.loadInstance(dataSource, instancePathList, configuration.getDBName());
             daoCsv.loadInstance(Scenarios.lastScenarioNo, dataSource, instancePathList, configuration.getDBName(), source);
         }
         return dataSource;        

@@ -157,6 +157,11 @@ public class TreeNodeAdapter implements ITreeNodeAdapter {
             }
             if (this.node instanceof SetNode) {
                 nodeString.append(" - Children: ").append(this.node.getChildren().size());
+                SetNode setNode = (SetNode) this.node;
+                int fullsize = setNode.getFullSize();
+                if (fullsize != this.node.getChildren().size()){
+                    nodeString.append("/").append(fullsize);
+                }
             }
         }
         return nodeString.toString();

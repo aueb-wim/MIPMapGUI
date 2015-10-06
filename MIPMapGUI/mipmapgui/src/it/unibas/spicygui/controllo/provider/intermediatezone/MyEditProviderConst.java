@@ -66,21 +66,23 @@ public class MyEditProviderConst implements EditProvider {
             caratteristiche.getFormValidation().setButtonState(false);
         }
         rootNode = (ConstantWidget) widget;
-        dialog.clean();
-        CaratteristicheWidgetInterConst oldCaratteristiche = caratteristiche.clone();
-        boolean oldButtonState = dialog.getFormValidation().getButtonState();
-        dialog.setVisible(true);
-        try {
-            verificaDati();
-            if (dialog.getReturnStatus() == ConstantDialog.RET_CANCEL) {
+        if (!caratteristiche.getTgdView()) {
+            dialog.clean();
+            CaratteristicheWidgetInterConst oldCaratteristiche = caratteristiche.clone();
+            boolean oldButtonState = dialog.getFormValidation().getButtonState();
+            dialog.setVisible(true);
+            try {
+                verificaDati();
+                if (dialog.getReturnStatus() == ConstantDialog.RET_CANCEL) {
+                    ripristina(oldButtonState, oldCaratteristiche);
+                } else if (caratteristiche.getConnectionList().size() > 0) {
+                    updateCorrespondences(oldButtonState, oldCaratteristiche);
+                }
+            } catch (ExpressionSyntaxException e) {
+                DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.SYNTAX_WARNING) + " : " + e, DialogDescriptor.WARNING_MESSAGE));
+                StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(Costanti.class, Costanti.SYNTAX_WARNING));
                 ripristina(oldButtonState, oldCaratteristiche);
-            } else if (caratteristiche.getConnectionList().size() > 0) {
-                updateCorrespondences(oldButtonState, oldCaratteristiche);
             }
-        } catch (ExpressionSyntaxException e) {
-            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.SYNTAX_WARNING) + " : " + e, DialogDescriptor.WARNING_MESSAGE));
-            StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(Costanti.class, Costanti.SYNTAX_WARNING));
-            ripristina(oldButtonState, oldCaratteristiche);
         }
     }
 

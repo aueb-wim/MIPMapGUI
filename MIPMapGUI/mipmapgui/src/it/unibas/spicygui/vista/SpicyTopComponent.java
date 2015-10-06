@@ -66,7 +66,7 @@ public final class SpicyTopComponent extends TopComponent {
     private void createComponents(Image imageNumber) {
         setToolTipText(NbBundle.getMessage(Costanti.class, Costanti.VIEW_SPICY_TOP_COMPONENT_TOOLTIP));
 
-        Image imageDefault = ImageUtilities.loadImage(Costanti.ICONA_SPICY, true);
+        Image imageDefault = ImageUtilities.loadImage(Costanti.ICONA_MIPMAP, true);
         this.setIcon(ImageUtilities.mergeImages(imageDefault, imageNumber, Scenario.X_OFFSET_IMAGE_NUMBER, Scenario.Y_OFFSET_IMAGE_NUMBER));
 //                ImageIconUIResource i = new  ImageIconUIResource(imageDefault);
         this.setLayout(new BorderLayout());

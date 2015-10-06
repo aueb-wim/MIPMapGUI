@@ -27,6 +27,7 @@ import it.unibas.spicy.model.algebra.query.operators.sql.ExecuteSQL;
 import it.unibas.spicy.model.mapping.MappingTask;
 import it.unibas.spicy.persistence.DAOException;
 import it.unibas.spicy.persistence.csv.DAOCsv;
+import it.unibas.spicy.persistence.json.DAOJson;
 import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.controllo.datasource.ActionViewInstances;
 import it.unibas.spicygui.commons.LastActionBean;
@@ -40,6 +41,7 @@ import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openide.DialogDescriptor;
@@ -121,14 +123,27 @@ public class ActionTranslate extends CallableSystemAction implements Observer {
             NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Confirmation(NbBundle.getMessage(Costanti.class, Costanti.MESSAGE_PK_TABLES), DialogDescriptor.YES_NO_OPTION);
             DialogDisplayer.getDefault().notify(notifyDescriptor);
             if (notifyDescriptor.getValue().equals(NotifyDescriptor.YES_OPTION)) {
-                JFileChooser chooser = vista.getFileChooserSalvaFolder();
-                File file;
-                int returnVal = chooser.showDialog(WindowManager.getDefault().getMainWindow(), NbBundle.getMessage(Costanti.class, Costanti.EXPORT));
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    file = chooser.getSelectedFile();
-                    DAOCsv daoCsv = new DAOCsv();
-                    daoCsv.exportPKConstraintCSVinstances(mappingTask, pkTableNames, file.getAbsolutePath(), scenarioNo);
-                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.EXPORT_COMPLETED_OK)));
+                String[] format = {NbBundle.getMessage(Costanti.class, Costanti.OUTPUT_TYPE_CSV), 
+                    NbBundle.getMessage(Costanti.class, Costanti.OUTPUT_TYPE_JSON)};
+                int formatResponse = JOptionPane.showOptionDialog(null, NbBundle.getMessage(Costanti.class, Costanti.MESSAGE_PK_OUTPUT), NbBundle.getMessage(Costanti.class, Costanti.PK_OUTPUT_TITLE),
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, format, format[0]);
+                if (formatResponse != JOptionPane.CLOSED_OPTION){
+                    JFileChooser chooser = vista.getFileChooserSalvaFolder();
+                    File file;
+                    int returnVal = chooser.showDialog(WindowManager.getDefault().getMainWindow(), NbBundle.getMessage(Costanti.class, Costanti.EXPORT));
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        file = chooser.getSelectedFile();
+                        if (formatResponse == 0){
+                            DAOCsv daoCsv = new DAOCsv();
+                            daoCsv.exportPKConstraintCSVinstances(mappingTask, pkTableNames, file.getAbsolutePath(), scenarioNo);
+                            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.EXPORT_COMPLETED_OK)));
+                        }
+                        else if (formatResponse == 1){
+                            DAOJson daoJson = new DAOJson();
+                            daoJson.exportPKConstraintJsoninstances(mappingTask, pkTableNames, file.getAbsolutePath(), scenarioNo);
+                            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.EXPORT_COMPLETED_OK)));
+                        }
+                    }
                 }
             }
         }

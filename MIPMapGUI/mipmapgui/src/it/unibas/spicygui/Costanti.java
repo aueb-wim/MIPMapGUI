@@ -102,6 +102,7 @@ public class Costanti {
     public static final String ACTION_VIEW_TGD_TOOLTIP = "ACTION_VIEW_TGD_TOOLTIP";
     public static final String ACTION_EXPORT_TRANSLATED_INSTANCES_XML = "ACTION_EXPORT_TRANSLATED_INSTANCES_XML";
     //public static final String ACTION_EXPORT_TRANSLATED_INSTANCES_CSV = "ACTION_EXPORT_TRANSLATED_INSTANCES_CSV";
+    public static final String ACTION_EXPORT_TRANSLATED_INSTANCES_JSON = "ACTION_EXPORT_TRANSLATED_INSTANCES_JSON";
     public static final String ACTION_EXPORT_NEW_FILE_INSTANCES_CSV = "ACTION_EXPORT_NEW_FILE_INSTANCES_CSV";
     public static final String ACTION_EXPORT_APPEND_INSTANCES_CSV = "ACTION_EXPORT_APPEND_INSTANCES_CSV";
     public static final String ACTION_EXPORT_QUERY = "ACTION_EXPORT_QUERY";
@@ -125,6 +126,7 @@ public class Costanti {
     public static final String UNPIVOT_BUTTON = "Unpivot_button";
     //MESSAGGI
     public static final String SPICY_NAME = "++Spicy";
+    public static final String MIPMAP_NAME = "MIPMap";
     public static final String ECCEZIONE_SCHEMI = "EccezioneSchemi";
     public static final String CARICAMENTO_SCHEMI_OK = "CaricamentoSchemiOk";
     public static final String CAMPO_NULLO = "CampoNullo";
@@ -166,6 +168,8 @@ public class Costanti {
     public static final String REMOVE_FROM_LIST = "REMOVE_FROM_LIST";
     public static final String WARNING_NOT_TARGET_INSTANCES = "WARNING_NOT_TARGET_INSTANCES";
     public static final String MESSAGE_PK_TABLES = "MESSAGE_PK_TABLES";
+    public static final String MESSAGE_PK_OUTPUT = "MESSAGE_PK_OUTPUT";
+    public static final String PK_OUTPUT_TITLE = "PK_OUTPUT_TITLE";
     public static final String FIND_VALUE_CORRESPONDENCES = "WARNING_FIND_VALUE_CORRESPONDENCES";
     public static final String TOGGLE_MANDATORY = "TOGGLE_MANDATORY";
     public static final String TOGGLE_FOREIGN = "TOGGLE_FOREIGN";
@@ -275,6 +279,7 @@ public class Costanti {
     public static final String EXPORT_TGDS_OK= "EXPORT_TGDS_OK";
     //Unpivot table
     public static final String ROW_LABEL="ROW_LABEL";
+    public static final String SELECT_ALL_LABEL="SELECT_ALL_LABEL";
     public static final String EXPORT_UNPIVOTED_OK = "EXPORT_UNPIVOTED_OK";
     //ZONA SQLDIALOG
     public static final String SQL_DIALOG = "SQL_DIALOG";
@@ -415,6 +420,7 @@ public class Costanti {
     public static final String ICONA_SHOW_HIDE_JOIN_CONDITIONS = "misc/icons/layers_join_conditions.png";
     public static final String ICONA_SHOW_HIDE_FUNCTIONAL_DEPENDENCIES = "misc/icons/layers_functional_dependencies.png";
     public static final String ICONA_SPICY = "misc/icons/spicy.gif";
+    public static final String ICONA_MIPMAP = "misc/icons/dna16.png";
     public static final String ICONA_VIEW_BEST_MAPPINGS = "misc/icons/bestMappings.png";
     public static final String ICONA_VIEW_RANKED_TRANSFORMATIONS = "misc/icons/bestMappings.png";
     public static final String ICONA_GENERATE_QUERY = "misc/icons/generate_query.png";
@@ -473,6 +479,8 @@ public class Costanti {
     public static final String DATASOURCE_TYPE_RELATIONAL = "DATASOURCE_TYPE_RELATIONAL";
     public static final String DATASOURCE_TYPE_XML = "DATASOURCE_TYPE_XML";
     public static final String DATASOURCE_TYPE_CSV="DATASOURCE_TYPE_CSV";
+    public static final String OUTPUT_TYPE_CSV="OUTPUT_TYPE_CSV";
+    public static final String OUTPUT_TYPE_JSON="OUTPUT_TYPE_JSON";
     public static final String SOURCE = "Source";
     public static final String TARGET = "Target";
     public static final String SOLUTION = "SOLUTION";

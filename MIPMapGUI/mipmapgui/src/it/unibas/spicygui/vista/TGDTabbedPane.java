@@ -72,7 +72,7 @@ public class TGDTabbedPane extends JPanel {
 
             @Override
             public void componentShown(ComponentEvent e) {
-                scenario.setSelectedFORule(null);
+               scenario.setSelectedFORule(null);
                scenario.setSelectedConstantFORule(constantFORule);
                scenario.getTGDCorrespondencesTopComponent().drawConnections();
             }

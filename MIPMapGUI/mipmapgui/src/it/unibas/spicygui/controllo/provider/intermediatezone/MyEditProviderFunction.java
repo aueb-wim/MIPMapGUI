@@ -55,7 +55,8 @@ public class MyEditProviderFunction implements EditProvider {
 
     public void edit(Widget widget) {
         rootWidget = (FunctionWidget) widget;
-        if (caratteristiche.getSourceList().size() > 0) {
+        //if (caratteristiche.getSourceList().size() > 0) {
+        if ((caratteristiche.getSourceList().size() > 0)&&(!caratteristiche.getTgdView())) {
             dialog.clean();
             boolean oldButtonState = dialog.getFormValidation().getButtonState();
             String oldExpressionFunction = this.caratteristiche.getExpressionFunction();

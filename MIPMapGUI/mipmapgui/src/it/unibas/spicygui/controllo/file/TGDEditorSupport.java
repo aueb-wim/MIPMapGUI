@@ -107,6 +107,11 @@ public final class TGDEditorSupport extends DataEditorSupport implements OpenCoo
 //        obj.ic.remove(env);
 //        ic.remove(obj.getCookie(SaveCookie.class));
     }
+    
+    @Override
+    public boolean asynchronousOpen(){
+        return true;
+    }
 
     private static final class TGDEnv extends DataEditorSupport.Env implements SaveCookie {
 

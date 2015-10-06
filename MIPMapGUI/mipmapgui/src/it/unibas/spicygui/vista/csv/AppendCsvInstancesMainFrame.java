@@ -26,11 +26,10 @@ public class AppendCsvInstancesMainFrame extends javax.swing.JDialog{
     public  AppendCsvInstancesMainFrame(IDataSourceProxy dataSource){
         this.dataSource = dataSource;
         
-        Image imageDefault = ImageUtilities.loadImage(Costanti.ICONA_SPICY, true);
+        Image imageDefault = ImageUtilities.loadImage(Costanti.ICONA_MIPMAP, true);
         setIconImage(imageDefault);
         setTitle(org.openide.util.NbBundle.getMessage(Costanti.class, Costanti.APPEND));
         setSize(400, 300);
-        setLocationRelativeTo(null);
         setModal(true);
         setLayout(new GridLayout(0,1));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -46,6 +45,7 @@ public class AppendCsvInstancesMainFrame extends javax.swing.JDialog{
         JPanel instanceMain=new AppendCsvInstancesBottomPanel(this);
         add(instanceMain);  
         pack();
+        setLocationRelativeTo(null);
         setVisible(true); 
     }
     

@@ -44,6 +44,7 @@ public class CaratteristicheWidgetInterConst implements ICaratteristicheWidget, 
     private Object costante;
     private FormValidation formValidation;
     private List<ConnectionInfo> connectionList = new ArrayList<ConnectionInfo>();
+    private boolean tgdView;
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         support.addPropertyChangeListener(listener);
@@ -52,6 +53,15 @@ public class CaratteristicheWidgetInterConst implements ICaratteristicheWidget, 
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         support.removePropertyChangeListener(listener);
     }
+    
+        public void setTgdView(boolean val){
+        this.tgdView = val;
+    }
+    
+    public boolean getTgdView(){
+        return this.tgdView;
+    }
+
 
     public String getTreeType() {
         return this.treeType;

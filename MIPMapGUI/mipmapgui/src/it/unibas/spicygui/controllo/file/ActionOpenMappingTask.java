@@ -194,12 +194,14 @@ public class ActionOpenMappingTask extends CallableSystemAction implements Obser
             MappingTask mappingTask = scenario.getMappingTask();
             File f = chooser.getSelectedFile();
             FileObject fo = FileUtil.toFileObject(f);
-
-            TGDDataObject dobj = null;
+//            TGDDataObject dobj = null;
             try {
                 TGDEditorSupport tGDEditorSupport = new TGDEditorSupport(fo);
 //                dobj = tGDEditorSupport.getDataObject();
                 tGDEditorSupport.open();
+                //giannisk
+                scenario.setTGDEditor(tGDEditorSupport);
+                scenario.getMappingTaskTopComponent().requestActive();
 //    dobj = DataObject.find(fo);
             } catch (DataObjectNotFoundException ex) {
                 ex.printStackTrace();

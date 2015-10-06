@@ -28,6 +28,7 @@ import it.unibas.spicy.model.mapping.MappingTask;
 import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.Utility;
 import it.unibas.spicygui.commons.AbstractScenario;
+import it.unibas.spicygui.controllo.file.TGDEditorSupport;
 import it.unibas.spicygui.vista.BestMappingsTopComponent;
 import it.unibas.spicygui.vista.CompositionTopComponent;
 import it.unibas.spicygui.vista.InstancesTopComponent;
@@ -75,6 +76,7 @@ public class Scenario extends AbstractScenario  {
     private transient SqlTopComponent sqlTopComponent;
     private transient TGDListTopComponent tgdListTopComponent;
     private transient TGDCorrespondencesTopComponent tgdCorrespondencesTopComponent;
+    private transient TGDEditorSupport tGDEditorSupport;
     private transient SpicyTopComponent spicyTopComponent;
     private transient BestMappingsTopComponent bestMappingsTopComponent;
     private transient RankedTransformationsTopComponent rankedTransformationsTopComponent;
@@ -193,6 +195,16 @@ public class Scenario extends AbstractScenario  {
 
     public SpicyTopComponent getSpicyTopComponent() {
         return spicyTopComponent;
+    }
+    
+    public void setTGDEditor(TGDEditorSupport tGDEditorSupport) {
+        this.tGDEditorSupport = tGDEditorSupport;
+        setChanged();
+        notifyObservers(tGDEditorSupport);
+    }
+
+    public TGDEditorSupport getTGDEditor() {
+        return tGDEditorSupport;
     }
 
     public void setSpicyTopComponent(SpicyTopComponent spicyTopComponent) {

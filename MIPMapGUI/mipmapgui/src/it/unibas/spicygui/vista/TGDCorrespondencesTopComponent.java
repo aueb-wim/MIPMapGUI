@@ -46,8 +46,8 @@ public final class TGDCorrespondencesTopComponent extends TopComponent {
     private Scenario scenario;
     private Modello modello;
 
-    public TGDCorrespondencesTopComponent(Scenario scenrario) {
-        this.scenario = scenrario;
+    public TGDCorrespondencesTopComponent(Scenario scenario) {
+        this.scenario = scenario;
         executeInjection();
         createComponents();
         initComponentListener();

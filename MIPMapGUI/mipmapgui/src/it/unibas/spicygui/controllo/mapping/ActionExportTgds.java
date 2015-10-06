@@ -1,6 +1,6 @@
 package it.unibas.spicygui.controllo.mapping;
 
-//giannisk
+
 import it.unibas.spicy.model.mapping.MappingTask;
 import it.unibas.spicy.persistence.DAOException;
 import it.unibas.spicy.persistence.DAOMappingTaskTgds;
@@ -26,6 +26,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.windows.WindowManager;
 
+//giannisk
 public class ActionExportTgds extends CallableSystemAction implements Observer{
     private static Log logger = LogFactory.getLog(ActionExportTranslatedInstances.class);
     private LastActionBean lastActionBean;
