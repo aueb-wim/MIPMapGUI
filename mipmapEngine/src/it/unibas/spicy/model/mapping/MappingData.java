@@ -273,9 +273,9 @@ public class MappingData {
         return this.canonicalSolution;
     }
 
-    public String getSQLScript() {
+    public String getSQLScript(int scenarioNo) {
         if (this.sqlScript == null) {
-            this.sqlScript = new GenerateSQL().generateSQL(mappingTask);
+            this.sqlScript = new GenerateSQL().generateSQL(mappingTask, scenarioNo);
         }
         return sqlScript;
     }

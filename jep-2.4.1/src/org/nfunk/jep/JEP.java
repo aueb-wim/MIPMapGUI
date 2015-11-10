@@ -23,6 +23,8 @@ import org.nfunk.jep.function.Binomial;
 import org.nfunk.jep.function.Ceil;
 import org.nfunk.jep.function.ComplexPFMC;
 import org.nfunk.jep.function.Conjugate;
+import org.nfunk.jep.function.Contains;
+import org.nfunk.jep.function.ContainCount;
 import org.nfunk.jep.function.Cosine;
 import org.nfunk.jep.function.CosineH;
 import org.nfunk.jep.function.Date;
@@ -39,10 +41,12 @@ import org.nfunk.jep.function.Logarithm;
 import org.nfunk.jep.function.Modulus;
 import org.nfunk.jep.function.NaturalLogarithm;
 import org.nfunk.jep.function.NewId;
+import org.nfunk.jep.function.Null;
 import org.nfunk.jep.function.Polar;
 import org.nfunk.jep.function.PostfixMathCommandI;
 import org.nfunk.jep.function.Power;
 import org.nfunk.jep.function.Real;
+import org.nfunk.jep.function.Replace;
 import org.nfunk.jep.function.Round;
 import org.nfunk.jep.function.Sine;
 import org.nfunk.jep.function.SineH;
@@ -53,6 +57,7 @@ import org.nfunk.jep.function.Substring;
 import org.nfunk.jep.function.Sum;
 import org.nfunk.jep.function.TanH;
 import org.nfunk.jep.function.Tangent;
+import org.nfunk.jep.function.ToDate;
 import org.nfunk.jep.function.ToDouble;
 import org.nfunk.jep.function.ToInt;
 import org.nfunk.jep.function.ToLowercase;
@@ -261,6 +266,7 @@ public class JEP implements Cloneable {
         
         funTab.put("toint", new ToInt());
         funTab.put("todouble", new ToDouble());
+        funTab.put("todate", new ToDate());
 
         funTab.put("rand", new org.nfunk.jep.function.Random());
 
@@ -284,14 +290,18 @@ public class JEP implements Cloneable {
         funTab.put("tolower", new ToLowercase());
         funTab.put("tostring", new ToString());
         funTab.put("len", new Length());
+        funTab.put("replace", new Replace());
+        funTab.put("contains", new Contains());
+        funTab.put("containCount", new ContainCount());
     
         funTab.put("newId", new NewId());
         funTab.put("date", new Date());
         funTab.put("datetime", new DateTime());
-
+        
+        funTab.put("null", new Null());
         funTab.put("isNull", new IsNull());
-        funTab.put("isNotNull", new IsNotNull());
-    
+        funTab.put("isNotNull", new IsNotNull());     
+         
     }
 
     /**

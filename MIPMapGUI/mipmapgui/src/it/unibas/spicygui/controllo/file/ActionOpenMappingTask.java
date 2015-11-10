@@ -40,6 +40,9 @@ import it.unibas.spicygui.file.TGDDataObject;
 import it.unibas.spicygui.vista.CompositionTopComponent;
 import it.unibas.spicygui.vista.Vista;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.sql.Timestamp;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.JFileChooser;
@@ -58,6 +61,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.lookup.Lookups;
 import org.openide.windows.WindowManager;
+
 
 public class ActionOpenMappingTask extends CallableSystemAction implements Observer {
 
@@ -146,6 +150,8 @@ public class ActionOpenMappingTask extends CallableSystemAction implements Obser
     public Scenario openCompositionFile(String fileAbsoluteFile, File file, boolean isSelected) {
         Scenario scenario = null;
         try {
+            java.util.Date date= new java.util.Date();
+            System.out.println("Starting to load task at: "+new Timestamp(date.getTime()));
             if (logger.isDebugEnabled()) {
                 logger.debug("Apro il file : " + fileAbsoluteFile);
             }
@@ -170,6 +176,8 @@ public class ActionOpenMappingTask extends CallableSystemAction implements Obser
             }
             //giannisk open scenarios on the tree panel when loading mapping tasks
             this.actionProjectTree.performAction();
+            java.util.Date date2= new java.util.Date();
+            System.out.println("Task loaded at: "+new Timestamp(date2.getTime()));
         } catch (Exception ex) {
             logger.error(ex);
             Scenarios.releaseNumber();

@@ -22,6 +22,7 @@
  
 package it.unibas.spicygui.controllo.provider;
 
+import it.unibas.spicy.model.datasource.INode;
 import it.unibas.spicy.model.exceptions.ExpressionSyntaxException;
 import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.controllo.provider.intermediatezone.MyPopupProviderConnectionFunc;
@@ -31,9 +32,13 @@ import it.unibas.spicygui.widget.FunctionWidget;
 import it.unibas.spicygui.widget.VMDPinWidgetTarget;
 import it.unibas.spicygui.controllo.mapping.operators.CreateCorrespondencesMappingTask;
 import it.unibas.spicygui.controllo.mapping.operators.ReviewCorrespondences;
+import it.unibas.spicygui.widget.VMDPinWidgetSource;
+import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetTree;
 import java.awt.BasicStroke;
 import java.awt.Point;
 import java.awt.Stroke;
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.ConnectProvider;
 import org.netbeans.api.visual.action.ConnectorState;
@@ -93,9 +98,29 @@ public class ActionFunctionConnection implements ConnectProvider {
             connection.setTargetAnchor(AnchorFactory.createRectangularAnchor(targetWidget));
             Stroke stroke = Costanti.BASIC_STROKE;
             connection.setStroke(stroke);
+            
+            addConnectionAnnotation(targetWidget, connection);
+            
+            List<VMDPinWidgetSource> functionSourceWidgets = caratteristiche.getSourceList();
+            if (functionSourceWidgets!=null&&!functionSourceWidgets.isEmpty())
+                for (VMDPinWidgetSource functionSourceWidget : functionSourceWidgets){
+                    addConnectionAnnotation(functionSourceWidget, connection);
+                }
+            
+            for (Widget existingConnection : connectionLayer.getChildren()){
+                ConnectionInfo existingInfo = (ConnectionInfo) connectionLayer.getChildConstraint(existingConnection);
+                if (existingInfo!=null){
+                    Widget existingTargetWidget = existingInfo.getTargetWidget();
+                    if (existingTargetWidget!=null)
+                        if(existingTargetWidget.equals(sourceWidget))
+                            addConnectionAnnotation(targetWidget, (ConnectionWidget) existingConnection);                        
+                    }
+            }              
+
             connection.getActions().addAction(ActionFactory.createPopupMenuAction(new MyPopupProviderConnectionFunc(sourceWidget.getScene(), mainLayer, caratteristiche)));
             ConnectionInfo connectionInfo = new ConnectionInfo();
             connectionInfo.setTargetWidget(targetWidget);
+            connectionInfo.setSourceWidget(sourceWidget);
             connectionInfo.setConnectionWidget(connection);
             caratteristiche.setTargetWidget((VMDPinWidgetTarget) targetWidget);
          
@@ -119,5 +144,19 @@ public class ActionFunctionConnection implements ConnectProvider {
         connection.removeFromParent();
         StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(Costanti.class, Costanti.DELETE_CONNECTION));
     }
+    
+    //giannisk
+    private void addConnectionAnnotation(Widget widget, ConnectionWidget connection){
+        CaratteristicheWidgetTree caratteristicheWidgetTreeSource = (CaratteristicheWidgetTree) mainLayer.getChildConstraint(widget);
+        INode iNode = caratteristicheWidgetTreeSource.getINode();
+        List<ConnectionWidget> connections = (List<ConnectionWidget>) iNode.getAnnotation(Costanti.CONNECTION_LINE);
+        if (connections == null){
+            connections = new ArrayList<ConnectionWidget>();
+        }
+        connections.add(connection);
+        iNode.addAnnotation(Costanti.CONNECTION_LINE, connections);
+    }
+    
+    
     
 }

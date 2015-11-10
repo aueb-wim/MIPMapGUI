@@ -26,6 +26,8 @@ import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.commons.Modello;
 import java.awt.Color;
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.api.visual.action.SelectProvider;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
@@ -61,12 +63,19 @@ public class MySelectActionProvider implements SelectProvider {
 
     //TODO vedere se eliminarlo oppure no
     private void selezionaConnessione(ConnectionWidget connectionWidget) {
-        ConnectionWidget connectionWidgetOld = (ConnectionWidget) modello.getBean(Costanti.CONNECTION_SELECTED);
+        List<ConnectionWidget> connectionWidgetList = new ArrayList<ConnectionWidget>();
+        List<ConnectionWidget> connectionWidgetOldList = (List<ConnectionWidget>) modello.getBean(Costanti.CONNECTION_SELECTED);
+        if (connectionWidgetOldList!=null && !connectionWidgetOldList.isEmpty())
+            for(ConnectionWidget connectionWidgetOld: connectionWidgetOldList){
+                if (connectionWidgetOld == null) {
+                } else {
+                    connectionWidgetOld.setLineColor(Costanti.COLOR_CONNECTION_CONSTRAINT_DEFAULT_CORRESPONDENCE);
+                    connectionWidgetOld.setStroke(Costanti.BASIC_STROKE);
+                }
+            }
         connectionWidget.setLineColor(Costanti.COLOR_CONNECTION_CONSTRAINT_SELECTED);
-        if (connectionWidgetOld == null) {
-        } else {
-            connectionWidgetOld.setLineColor(Costanti.COLOR_CONNECTION_CONSTRAINT_DEFAULT_CORRESPONDENCE);
-        }
-        modello.putBean(Costanti.CONNECTION_SELECTED, connectionWidget);
+        connectionWidget.setStroke(Costanti.STROKE_THICK);
+        connectionWidgetList.add(connectionWidget);
+        modello.putBean(Costanti.CONNECTION_SELECTED, connectionWidgetList);
     }
 }

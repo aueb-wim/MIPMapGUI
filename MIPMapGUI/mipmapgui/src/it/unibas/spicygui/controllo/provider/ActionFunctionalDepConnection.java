@@ -22,6 +22,7 @@
  
 package it.unibas.spicygui.controllo.provider;
 
+import it.unibas.spicy.model.datasource.INode;
 import it.unibas.spicy.model.exceptions.ExpressionSyntaxException;
 import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.commons.Modello;
@@ -33,8 +34,11 @@ import it.unibas.spicygui.controllo.provider.intermediatezone.MyPopupProviderCon
 import it.unibas.spicygui.widget.FunctionalDependencyWidget;
 import it.unibas.spicygui.widget.VMDPinWidgetSource;
 import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetInterFunctionalDep;
+import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetTree;
 import java.awt.Point;
 import java.awt.Stroke;
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.ConnectProvider;
 import org.netbeans.api.visual.action.ConnectorState;
@@ -102,9 +106,29 @@ public class ActionFunctionalDepConnection implements ConnectProvider {
             connection.setTargetAnchor(AnchorFactory.createRectangularAnchor(targetWidget));
             Stroke stroke = Costanti.BASIC_STROKE;
             connection.setStroke(stroke);
+            
+            addConnectionAnnotation(targetWidget, connection);
+            
+            List<VMDPinWidget> functionSourceWidgets = caratteristiche.getSourceList();
+            if (functionSourceWidgets!=null&&!functionSourceWidgets.isEmpty())
+                for (VMDPinWidget functionSourceWidget : functionSourceWidgets){
+                    addConnectionAnnotation(functionSourceWidget, connection);
+                }
+            
+            for (Widget existingConnection : connectionLayer.getChildren()){
+                ConnectionInfo existingInfo = (ConnectionInfo) connectionLayer.getChildConstraint(existingConnection);
+                if (existingInfo!=null){
+                    Widget existingTargetWidget = existingInfo.getTargetWidget();
+                    if (existingTargetWidget!=null)
+                        if(existingTargetWidget.equals(sourceWidget))
+                            addConnectionAnnotation(targetWidget, (ConnectionWidget) existingConnection);                        
+                    }
+            } 
+            
             connection.getActions().addAction(ActionFactory.createPopupMenuAction(new MyPopupProviderConnectionFunctionalDep(sourceWidget.getScene(), mainLayer, caratteristiche)));
             ConnectionInfo connectionInfo = new ConnectionInfo();
             connectionInfo.setTargetWidget(targetWidget);
+            connectionInfo.setTargetWidget(sourceWidget);
             connectionInfo.setConnectionWidget(connection);
             if (!caratteristiche.getTargetList().isEmpty()) {
                 review.removeFunctionalDependency(caratteristiche.getFunctionalDependency(), caratteristiche.isSource());
@@ -117,6 +141,17 @@ public class ActionFunctionalDepConnection implements ConnectProvider {
         } catch (ExpressionSyntaxException e) {
             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.SYNTAX_WARNING) + " : " + e.getMessage(), DialogDescriptor.WARNING_MESSAGE));
         }
-
+    }
+    
+    //giannisk
+    private void addConnectionAnnotation(Widget widget, ConnectionWidget connection){
+        CaratteristicheWidgetTree caratteristicheWidgetTreeSource = (CaratteristicheWidgetTree) mainLayer.getChildConstraint(widget);
+        INode iNode = caratteristicheWidgetTreeSource.getINode();
+        List<ConnectionWidget> connections = (List<ConnectionWidget>) iNode.getAnnotation(Costanti.CONNECTION_LINE);
+        if (connections == null){
+            connections = new ArrayList<ConnectionWidget>();
+        }
+        connections.add(connection);
+        iNode.addAnnotation(Costanti.CONNECTION_LINE, connections);
     }
 }

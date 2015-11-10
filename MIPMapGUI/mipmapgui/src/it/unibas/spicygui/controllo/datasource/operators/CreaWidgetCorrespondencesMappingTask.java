@@ -51,6 +51,8 @@ import it.unibas.spicygui.widget.caratteristiche.ConnectionInfo;
 import it.unibas.spicygui.widget.caratteristiche.SelectionConditionInfo;
 import java.awt.Point;
 import java.awt.Stroke;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import javax.swing.JFrame;
@@ -82,6 +84,9 @@ public class CreaWidgetCorrespondencesMappingTask implements ICreaWidgetCorrespo
     private FindNode finder = new FindNode();
     private CreaWidgetEsisteSelectionCondition checker = new CreaWidgetEsisteSelectionCondition();
     private Random random = new Random();
+    private int offsetX = 0;
+    private int offsetY = 0;
+    private HashMap<String, Widget> sourceWidgetMap = new HashMap<String, Widget>();
 
     public CreaWidgetCorrespondencesMappingTask(JLayeredPaneCorrespondences jLayeredPane) {
         this.glassPane = jLayeredPane.getGlassPane();
@@ -135,16 +140,30 @@ public class CreaWidgetCorrespondencesMappingTask implements ICreaWidgetCorrespo
     public void creaWidgetCorrespondences() {
         MappingTask mappingTask = jLayeredPane.getMappingTaskTopComponent().getScenario().getMappingTask();
         MappingData mappingData = mappingTask.getMappingData();
+        List<String> sourceValueList = new ArrayList<String>();
         if (mappingTask.getValueCorrespondences().size() > 0) {
             for (int i = 0; i < mappingTask.getValueCorrespondences().size(); i++) {
                 ValueCorrespondence valueCorrespondence = mappingTask.getValueCorrespondences().get(i);
-                VariableCorrespondence variableCorrespondence = mappingData.getCorrespondences().get(i);
+                VariableCorrespondence variableCorrespondence = mappingData.getCorrespondences().get(i);                
+                //constant
                 if (valueCorrespondence.getSourceValue() != null) {
-                    creaSourceValue(valueCorrespondence, variableCorrespondence, mappingTask);
+                    ISourceValue sourceValue = valueCorrespondence.getSourceValue();
+                    if (!sourceValueList.contains(sourceValue.toString())){
+                        creaSourceValue(valueCorrespondence, variableCorrespondence, mappingTask, true, sourceValue);
+                        sourceValueList.add(sourceValue.toString());
+                    }
+                    else{
+                        //giannisk
+                        //do not create a new constant widget if a widget with the same value already exists
+                        //instead, create a connection from the existing one to the new target
+                        creaSourceValue(valueCorrespondence, variableCorrespondence, mappingTask, false, sourceValue);
+                    }
                 } else {
+                    //function
                     if (verificaFunzioneDiTrasformazione(valueCorrespondence)) {
                         creaFunzione(valueCorrespondence, variableCorrespondence, mappingTask);
                     } else {
+                        //simple 1:1 correspondence
                         creaCorrespondence(variableCorrespondence, valueCorrespondence, mappingTask);
                     }
                 }
@@ -152,33 +171,65 @@ public class CreaWidgetCorrespondencesMappingTask implements ICreaWidgetCorrespo
         }
     }
 
-    private Point calculateRandomPoint(GraphSceneGlassPane glassPane) {
+    /*private Point calculateRandomPoint(GraphSceneGlassPane glassPane) {
         JFrame frame = (JFrame) WindowManager.getDefault().getMainWindow();
         int x = (frame.getSize().width / 2) + 20;
         int y = random.nextInt((int) (frame.getSize().height * 0.5)) + (int) (frame.getSize().height * 0.2);
         Point point = SwingUtilities.convertPoint(frame, x, y, glassPane);
         return point;
+    }*/
+    
+    private Point calculatePoint(GraphSceneGlassPane glassPane) {
+        JFrame frame = (JFrame) WindowManager.getDefault().getMainWindow();
+        int x = (frame.getSize().width / 2) + offsetX;
+        int y = (frame.getSize().height / 8) + offsetY;
+        if (offsetX < 300)
+            offsetX += 20;        
+        else
+            offsetX = 0;
+        if (y <=(int)(frame.getSize().height * 0.9))
+            offsetY += 35;
+        Point point = SwingUtilities.convertPoint(frame, x, y, glassPane);
+        return point;
+    }
+    
+    //giannisk
+    public void addConnectionAnnotation(INode iNode, ConnectionWidget connection){
+        //CaratteristicheWidgetTree caratteristicheWidgetTreeSource = (CaratteristicheWidgetTree) mainLayer.getChildConstraint(widget);
+        //INode iNode = caratteristicheWidgetTreeSource.getINode();
+        List<ConnectionWidget> connections = (List<ConnectionWidget>) iNode.getAnnotation(Costanti.CONNECTION_LINE);
+        if (connections == null){
+            connections = new ArrayList<ConnectionWidget>();
+        }
+        connections.add(connection);
+        iNode.addAnnotation(Costanti.CONNECTION_LINE, connections);
     }
 
-    private void creaSourceValue(ValueCorrespondence valueCorrespondence, VariableCorrespondence variableCorrespondence, MappingTask mappingTask) {
-        ISourceValue sourceValue = valueCorrespondence.getSourceValue();
+    private void creaSourceValue(ValueCorrespondence valueCorrespondence, VariableCorrespondence variableCorrespondence, MappingTask mappingTask, boolean createNew, ISourceValue sourceValue) {
+        //ISourceValue sourceValue = valueCorrespondence.getSourceValue();
 
         Scene scene = glassPane.getScene();
         LayerWidget mainLayer = glassPane.getMainLayer();
         LayerWidget connectionLayer = glassPane.getConnectionLayer();
-        Point point = calculateRandomPoint(glassPane);
-        Widget sourceWidget = widgetCreator.createConstantWidgetFromSourceValue(scene, mainLayer, connectionLayer, pannelloPrincipale, point, sourceValue, glassPane);
+        Widget sourceWidget;
+        if (createNew){
+            //Point point = calculateRandomPoint(glassPane);
+            Point point = calculatePoint(glassPane);
+            sourceWidget = widgetCreator.createConstantWidgetFromSourceValue(scene, mainLayer, connectionLayer, pannelloPrincipale, point, sourceValue, glassPane);
 
-        IDataSourceProxy target = mappingTask.getTargetProxy();
-
+            CaratteristicheWidgetInterConst caratteristicheWidget = (CaratteristicheWidgetInterConst) mainLayer.getChildConstraint(sourceWidget);
+            impostaTipo(sourceValue, caratteristicheWidget); 
+            sourceWidgetMap.put(sourceValue.toString(), sourceWidget);
+        }
+        else {
+            sourceWidget = sourceWidgetMap.get(sourceValue.toString());
+        }
+        IDataSourceProxy target = mappingTask.getTargetProxy();   
         INode targetNode = finder.findNodeInSchema(valueCorrespondence.getTargetPath(), target);
         Widget targetWidget = (Widget) targetNode.getAnnotation(Costanti.PIN_WIDGET_TREE);
-
-        CaratteristicheWidgetInterConst caratteristicheWidget = (CaratteristicheWidgetInterConst) mainLayer.getChildConstraint(sourceWidget);
-        impostaTipo(sourceValue, caratteristicheWidget);
-
         ConnectionInfo connectionInfo = connectionCreator.createConnectionToTarget(sourceWidget, targetWidget, mainLayer, connectionLayer);
         connectionInfo.setValueCorrespondence(valueCorrespondence);
+        addConnectionAnnotation(targetNode, connectionInfo.getConnectionWidget());        
 //        analisiFiltro.creaWidgetEsisteFiltro(connectionInfo.getConnectionWidget(), connectionInfo);
         scene.validate();
     }
@@ -212,25 +263,35 @@ public class CreaWidgetCorrespondencesMappingTask implements ICreaWidgetCorrespo
         Scene scene = glassPane.getScene();
         LayerWidget mainLayer = glassPane.getMainLayer();
         LayerWidget connectionLayer = glassPane.getConnectionLayer();
-        Point point = calculateRandomPoint(glassPane);
+        //Point point = calculateRandomPoint(glassPane);
+        Point point = calculatePoint(glassPane);
         Widget functionWidget = widgetCreator.createFunctionWidget(scene, mainLayer, connectionLayer, pannelloPrincipale, point, glassPane);
         CaratteristicheWidgetInterFunction caratteristicheWidget = (CaratteristicheWidgetInterFunction) mainLayer.getChildConstraint(functionWidget);
         caratteristicheWidget.setExpressionFunction(valueCorrespondence.getTransformationFunction().toString());
         caratteristicheWidget.setValueCorrespondence(valueCorrespondence);
         IDataSourceProxy source = mappingTask.getSourceProxy();
-
+        IDataSourceProxy target = mappingTask.getTargetProxy();
+        INode targetNode = finder.findNodeInSchema(valueCorrespondence.getTargetPath(), target);
+        List<INode> sourceNodes = new ArrayList<INode>();
         for (PathExpression pathExpression : valueCorrespondence.getSourcePaths()) {
             INode sourceNode = finder.findNodeInSchema(pathExpression, source);
             Widget sourceWidget = (Widget) sourceNode.getAnnotation(Costanti.PIN_WIDGET_TREE);
-            connectionCreator.createConnectionToFunction(sourceWidget, functionWidget, mainLayer, connectionLayer);
+            sourceNodes.add(sourceNode);
+            ConnectionWidget connection = connectionCreator.createConnectionToFunction(sourceWidget, functionWidget, mainLayer, connectionLayer);
+            addConnectionAnnotation(sourceNode, connection);
+            addConnectionAnnotation(targetNode, connection);
         }
-
-        IDataSourceProxy target = mappingTask.getTargetProxy();
-        INode targetNode = finder.findNodeInSchema(valueCorrespondence.getTargetPath(), target);
+        
         Widget targetWidget = (Widget) targetNode.getAnnotation(Costanti.PIN_WIDGET_TREE);
         caratteristicheWidget.setTargetWidget((VMDPinWidgetTarget) targetWidget);
         ConnectionInfo connectionInfo = connectionCreator.createConnectionFromFunction(functionWidget, targetWidget, mainLayer, connectionLayer);
         connectionInfo.setValueCorrespondence(valueCorrespondence);
+        
+        addConnectionAnnotation(targetNode, connectionInfo.getConnectionWidget());
+        for (INode sourceNode : sourceNodes){
+            addConnectionAnnotation(sourceNode, connectionInfo.getConnectionWidget());
+        }
+        
 //        analisiFiltro.creaWidgetEsisteFiltro(connectionInfo.getConnectionWidget(), connectionInfo);
         scene.validate();
     }
@@ -239,22 +300,36 @@ public class CreaWidgetCorrespondencesMappingTask implements ICreaWidgetCorrespo
         Scene scene = glassPane.getScene();
         LayerWidget mainLayer = glassPane.getMainLayer();
         LayerWidget connectionLayer = glassPane.getConnectionLayer();
-        Point point = calculateRandomPoint(glassPane);
+        //Point point = calculateRandomPoint(glassPane);
+        Point point = calculatePoint(glassPane);
         Widget functionalDependenciesWidget = widgetCreator.createFunctionalDependencyWidget(scene, mainLayer, connectionLayer, pannelloPrincipale, point, glassPane);
         CaratteristicheWidgetInterFunctionalDep caratteristicheWidget = (CaratteristicheWidgetInterFunctionalDep) mainLayer.getChildConstraint(functionalDependenciesWidget);
         caratteristicheWidget.setFunctionalDependency(functionalDependency);
         caratteristicheWidget.setSource(isSource);
 
+        List<ConnectionInfo> connections = new ArrayList<ConnectionInfo>();
+        ConnectionInfo connectionInfo;
+        HashMap<Widget,INode> sourceMap = new HashMap<Widget,INode>();
         for (PathExpression pathExpression : functionalDependency.getLeftPaths()) {
             INode sourceNode = finder.findNodeInSchema(pathExpression, dataSource);
             Widget sourceWidget = (Widget) sourceNode.getAnnotation(Costanti.PIN_WIDGET_TREE);
-            connectionCreator.createConnectionToFunctionalDependecy(sourceWidget, functionalDependenciesWidget, mainLayer, connectionLayer);
+            connectionInfo = connectionCreator.createConnectionToFunctionalDependecy(sourceWidget, functionalDependenciesWidget, mainLayer, connectionLayer);
+            addConnectionAnnotation(sourceNode, connectionInfo.getConnectionWidget());
+            connections.add(connectionInfo);
+            sourceMap.put(sourceWidget, sourceNode);
         }
 
         for (PathExpression pathExpression : functionalDependency.getRightPaths()) {
             INode targetNode = finder.findNodeInSchema(pathExpression, dataSource);
             Widget targetWidget = (Widget) targetNode.getAnnotation(Costanti.PIN_WIDGET_TREE);
-            connectionCreator.createConnectionFromFunctionalDependecy(functionalDependenciesWidget, targetWidget, mainLayer, connectionLayer);
+            connectionInfo = connectionCreator.createConnectionFromFunctionalDependecy(functionalDependenciesWidget, targetWidget, mainLayer, connectionLayer);
+            addConnectionAnnotation(targetNode, connectionInfo.getConnectionWidget());
+            for (ConnectionInfo connectionInfoSource : connections)
+                if (connectionInfoSource.getTargetWidget().equals(functionalDependenciesWidget)){
+                    INode sourceNode = (INode) sourceMap.get(connectionInfoSource.getSourceWidget());
+                    addConnectionAnnotation(sourceNode, connectionInfo.getConnectionWidget());
+                    addConnectionAnnotation(targetNode, connectionInfoSource.getConnectionWidget());
+                }
         }
 
 
@@ -284,6 +359,10 @@ public class CreaWidgetCorrespondencesMappingTask implements ICreaWidgetCorrespo
         connection.getActions().addAction(ActionFactory.createPopupMenuAction(new MyPopupProviderConnectionMappingTask(glassPane.getScene())));
         connection.getActions().addAction(ActionFactory.createSelectAction(new MySelectConnectionActionProvider(glassPane.getConnectionLayer())));
 //        analisiFiltro.creaWidgetEsisteFiltro(connection, connectionInfo);
+        
+        addConnectionAnnotation(iNodeSource, connection);
+        addConnectionAnnotation(iNodeTarget, connection);
+        
         glassPane.getScene().validate();
     }
 

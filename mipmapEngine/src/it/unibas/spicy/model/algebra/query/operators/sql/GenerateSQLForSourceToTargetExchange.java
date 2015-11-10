@@ -314,7 +314,7 @@ public class GenerateSQLForSourceToTargetExchange {
     private String projectionOnValues(MappingTask mappingTask, FORule tgd, String fromClause, String whereClause) {
         StringBuilder result = new StringBuilder();
         result.append(INDENT).append("select distinct \n");
-
+        
         List<SetAlias> generators = tgd.getTargetView().getGenerators();
         for (int i = 0; i < generators.size(); i++) {
             SetAlias generator = generators.get(i);
@@ -349,7 +349,13 @@ public class GenerateSQLForSourceToTargetExchange {
                                 sourcePathName = SpicyEngineConstants.POSTGRES_DATETIME_FUNCTION;
                             }                            
                             else if (sourcePathName.equalsIgnoreCase("newId()")){
-                                sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION;
+                                if(GenerateSQL.newSequence){
+                                    sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION;
+                                    GenerateSQL.newSequence = false;
+                                }
+                                else{
+                                   sourcePathName = SpicyEngineConstants.POSTGRES_CURRENTID_FUNCTION;
+                                }
                             }
                             result.append(DOUBLE_INDENT).append(sourcePathName);
                         }
@@ -372,9 +378,15 @@ public class GenerateSQLForSourceToTargetExchange {
                                 sourcePathName = SpicyEngineConstants.POSTGRES_DATE_FUNCTION;
                             }else if (sourcePathName.equalsIgnoreCase("datetime()")){
                                 sourcePathName = SpicyEngineConstants.POSTGRES_DATETIME_FUNCTION;
-                            }                              
+                            }                                                        
                             else if (sourcePathName.equalsIgnoreCase("newId()")){
-                                sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION;
+                                if(GenerateSQL.newSequence){
+                                    sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION;
+                                    GenerateSQL.newSequence = false;
+                                }
+                                else{
+                                   sourcePathName = SpicyEngineConstants.POSTGRES_CURRENTID_FUNCTION;
+                                }
                             }
                             result.append(DOUBLE_INDENT).append(sourcePathName);
                         }
@@ -394,6 +406,7 @@ public class GenerateSQLForSourceToTargetExchange {
 
             }
         }
+        GenerateSQL.newSequence = true;
         result.append("\n");
         result.append(INDENT).append(fromClause);
         if (!whereClause.equals("")) {
@@ -618,7 +631,7 @@ public class GenerateSQLForSourceToTargetExchange {
     private String projectionOnValues(MappingTask mappingTask, ConstantFORule tgd) {
         StringBuilder result = new StringBuilder();
         result.append(INDENT).append("select distinct \n");
-
+        
         List<SetAlias> generators = tgd.getTargetView().getGenerators();
         for (int i = 0; i < generators.size(); i++) {
             SetAlias generator = generators.get(i);
@@ -640,7 +653,13 @@ public class GenerateSQLForSourceToTargetExchange {
                         sourcePathName = SpicyEngineConstants.POSTGRES_DATETIME_FUNCTION;
                     }                              
                     else if (sourcePathName.equalsIgnoreCase("newId()")){
-                        sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION;
+                        if(GenerateSQL.newSequence){
+                            sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION;
+                            GenerateSQL.newSequence = false;
+                        }
+                        else{
+                           sourcePathName = SpicyEngineConstants.POSTGRES_CURRENTID_FUNCTION;
+                        }
                     }
                     result.append(DOUBLE_INDENT).append(sourcePathName);                    
                 } else if (leafGenerator instanceof NullValueGenerator) {
@@ -655,6 +674,7 @@ public class GenerateSQLForSourceToTargetExchange {
                 }
             }
         }
+        GenerateSQL.newSequence = true;
         result.append("\n");        
         return result.toString();
     }

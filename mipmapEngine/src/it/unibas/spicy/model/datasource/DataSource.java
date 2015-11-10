@@ -99,7 +99,7 @@ public class DataSource implements Cloneable {
         //this.instances.add(new DuplicateSet().generateInstanceClone(duplications, instance, intermediateSchema));
         this.instances.add(instanceClone);
     }
-
+    
     public int getSize() {
         CalculateSize calculator = new CalculateSize();
         return calculator.getSchemaSize(this);

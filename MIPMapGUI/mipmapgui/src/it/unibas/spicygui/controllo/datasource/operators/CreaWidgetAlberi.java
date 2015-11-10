@@ -70,6 +70,7 @@ import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.anchor.AnchorShapeFactory;
 import org.netbeans.api.visual.vmd.VMDPinWidget;
+import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
@@ -389,10 +390,10 @@ public class CreaWidgetAlberi {
                 pin.setEnabled(false);
             }
 
-        }
+        }        
         scene.validate();
     }
-
+    
     private void executeInjection() {
         if (this.modello == null) {
             this.modello = Lookup.getDefault().lookup(Modello.class);

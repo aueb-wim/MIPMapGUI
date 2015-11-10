@@ -33,11 +33,11 @@ public class UnpivotCSVDAO {
     public void unpivotTable(List<String> keepColNames, List<String> colNames, String newColName, File file) throws DAOException, SQLException, IOException{
         //create temp database "mipmaptask0" for storing values temporarily
         int databaseNo = 0;
-        daoHandleDB.createNewDatabase(databaseNo);
+        daoHandleDB.createSchema(databaseNo);
         
         IConnectionFactory connectionFactory;
         Connection connection = null;
-        AccessConfiguration accessConfiguration = getAccessConfigurationForUnpivotDB(databaseNo);
+        AccessConfiguration accessConfiguration = getAccessConfigurationForUnpivotDB();
         
         String tableName = file.getName();                
         //exclude filename extension
@@ -45,9 +45,9 @@ public class UnpivotCSVDAO {
             tableName = tableName.substring(0, tableName.lastIndexOf("."));
         }
         
-        String createTableQuery = createTableQuery(tableName);
-        String insertToTableQuery = insertToTableQuery(file, tableName);
-        String createviewQuery = createUnpivotQuery(keepColNames, colNames, newColName, tableName);
+        String createTableQuery = createTableQuery(tableName, databaseNo);
+        String insertToTableQuery = insertToTableQuery(file, tableName, databaseNo);
+        String createviewQuery = createUnpivotQuery(keepColNames, colNames, newColName, tableName, databaseNo);
         try
         {
             connectionFactory = new SimpleDbConnectionFactory();
@@ -56,7 +56,6 @@ public class UnpivotCSVDAO {
             statement.executeUpdate(createTableQuery);
             statement.executeUpdate(insertToTableQuery);
             statement.executeUpdate(createviewQuery);        
-        
             //export un-pivoted table to csv
             ExportCSVInstances export = new ExportCSVInstances();
             String[] newTableColumns = new String [keepColNames.size()+2];
@@ -66,8 +65,8 @@ public class UnpivotCSVDAO {
                 i++;
             }
             newTableColumns[keepColNames.size()] = newColName;
-            newTableColumns[keepColNames.size()+1] = "value";
-            export.createCSVDocument("unpivoted_"+tableName, "", null, file.getParent(), statement, newTableColumns);
+            newTableColumns[keepColNames.size()+1] = "Value";
+            export.createCSVDocument("unpivoted_"+tableName, SpicyEngineConstants.TARGET_SCHEMA_NAME+databaseNo, null, file.getParent(), statement, newTableColumns);
         }     
         finally
         {
@@ -75,28 +74,26 @@ public class UnpivotCSVDAO {
               connection.close();
         } 
         //drop temporary database
-        daoHandleDB.dropDatabase(databaseNo);
+        daoHandleDB.dropSchema(databaseNo);
     }
     
-    private AccessConfiguration getAccessConfigurationForUnpivotDB(int databaseNo){
+    private AccessConfiguration getAccessConfigurationForUnpivotDB(){
         AccessConfiguration accessConfiguration = new AccessConfiguration();
         accessConfiguration.setDriver(SpicyEngineConstants.ACCESS_CONFIGURATION_DRIVER);
-        accessConfiguration.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME+databaseNo);
+        accessConfiguration.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME);
         accessConfiguration.setLogin(SpicyEngineConstants.ACCESS_CONFIGURATION_LOGIN);
         accessConfiguration.setPassword(SpicyEngineConstants.ACCESS_CONFIGURATION_PASS);
         return accessConfiguration;
     }
     
-    private String createTableQuery(String tableName) throws IOException{
+    private String createTableQuery(String tableName, int no) throws IOException{
         StringBuilder query = new StringBuilder();
-        query.append("create table \"").append(tableName).append("\" (");        
+        query.append("create table ").append(SpicyEngineConstants.SOURCE_SCHEMA_NAME).append(no).append(".\"").append(tableName).append("\" (");        
         String columns = "";
         String[] firstline = this.csvTableColumns;
         for (int i=0; i<firstline.length; i++){
-            //remove quotes                
-            String columnName = firstline[i].replace("\"","");
             String typeOfColumn = Types.POSTGRES_STRING;
-            columns += columnName + " " + typeOfColumn + ",";
+            columns += "\""+firstline[i] + "\" " + typeOfColumn + ",";
         }
         //take out the last ',' character
         columns = columns.substring(0, columns.length()-1);
@@ -106,20 +103,20 @@ public class UnpivotCSVDAO {
         return query.toString();
     }
     
-    private String insertToTableQuery(File originalTableFile, String tableName) throws IOException{
+    private String insertToTableQuery(File originalTableFile, String tableName, int no) throws IOException{
         StringBuilder query = new StringBuilder();
         ArrayList<String> stmnt_list = getCsvTabledata(originalTableFile);
         for (String stmnmt : stmnt_list){
-            query.append("insert into \"").append(tableName).append("\" values ").append(stmnmt).append(";");
+            query.append("insert into ").append(SpicyEngineConstants.SOURCE_SCHEMA_NAME).append(no).append(".\"").append(tableName).append("\" values ").append(stmnmt).append(";");
         }      
         return query.toString();
     }
     
-    private String createUnpivotQuery(List<String> keepColNames, List<String> colNames, String newColName, String tableName){
+    private String createUnpivotQuery(List<String> keepColNames, List<String> colNames, String newColName, String tableName,int no){
         StringBuilder query = new StringBuilder();
-        query.append("create view \"unpivoted_").append(tableName).append("\" as (SELECT ");
+        query.append("create view ").append(SpicyEngineConstants.TARGET_SCHEMA_NAME).append(no).append(".\"unpivoted_").append(tableName).append("\" as (SELECT ");
         for (String keepcolumn : keepColNames){
-            query.append(keepcolumn).append(", ");
+            query.append("\"").append(keepcolumn).append("\", ");
         }
         query.append("UNNEST(ARRAY[");
         for (String column : colNames){
@@ -129,11 +126,11 @@ public class UnpivotCSVDAO {
         query.delete(query.length() - ", ".length(), query.length());
         query.append("]) AS ").append(newColName).append(", UNNEST(ARRAY[");
         for (String column : colNames){
-            query.append(column).append(", ");
+            query.append("\"").append(column).append("\", ");
         }
         //delete the last comma character
         query.delete(query.length() - ", ".length(), query.length());
-        query.append("]) AS value FROM \"").append(tableName).append("\");");
+        query.append("]) AS Value FROM ").append(SpicyEngineConstants.SOURCE_SCHEMA_NAME).append(no).append(".\"").append(tableName).append("\");");
         return query.toString();
     }
     

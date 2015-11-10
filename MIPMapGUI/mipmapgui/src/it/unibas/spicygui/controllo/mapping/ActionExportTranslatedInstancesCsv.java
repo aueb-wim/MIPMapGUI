@@ -86,9 +86,7 @@ public class ActionExportTranslatedInstancesCsv extends CallableSystemAction imp
             try {
                 file = chooser.getSelectedFile();
                 DAOCsv daoCsv = new DAOCsv();
-                ////daoCsv.exportTranslatedCSVinstances(mappingTask.getMappingData().getSolution().getDataSource(), file.getAbsolutePath());
-                daoCsv.exportTranslatedCSVinstances(mappingTask, file.getAbsolutePath(), scenario.getNumber());
-                
+                daoCsv.exportTranslatedCSVinstances(mappingTask, file.getAbsolutePath(), scenario.getNumber());                
                 //giannisk canonical tree not needed
                 ////daoCsv.exportCanonicalCSVinstances(mappingTask.getMappingData().getCanonicalSolution().getDataSource(), file.getAbsolutePath());
                 DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.EXPORT_COMPLETED_OK)));

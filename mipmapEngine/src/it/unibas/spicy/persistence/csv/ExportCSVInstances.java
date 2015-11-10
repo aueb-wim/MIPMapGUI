@@ -2,12 +2,11 @@ package it.unibas.spicy.persistence.csv;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
-import it.unibas.spicy.model.algebra.query.operators.sql.GenerateSQL;
 import it.unibas.spicy.model.datasource.INode;
+import it.unibas.spicy.model.mapping.IDataSourceProxy;
 import it.unibas.spicy.model.mapping.MappingTask;
 import it.unibas.spicy.persistence.AccessConfiguration;
 import it.unibas.spicy.persistence.DAOException;
-import it.unibas.spicy.persistence.Types;
 import it.unibas.spicy.persistence.relational.IConnectionFactory;
 import it.unibas.spicy.persistence.relational.SimpleDbConnectionFactory;
 import it.unibas.spicy.utility.SpicyEngineConstants;
@@ -24,7 +23,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.logging.Log;
@@ -34,10 +32,10 @@ import org.apache.commons.logging.LogFactory;
 public class ExportCSVInstances {
     private static Log logger = LogFactory.getLog(ExportCSVInstances.class);
     
-    private Connection getConnectionToPostgres(IConnectionFactory connectionFactory, int scenarioNo) throws DAOException{
+    private Connection getConnectionToPostgres(IConnectionFactory connectionFactory) throws DAOException{
         AccessConfiguration accessConfiguration = new AccessConfiguration();
         accessConfiguration.setDriver(SpicyEngineConstants.ACCESS_CONFIGURATION_DRIVER);
-        accessConfiguration.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME+scenarioNo);
+        accessConfiguration.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME);
         accessConfiguration.setLogin(SpicyEngineConstants.ACCESS_CONFIGURATION_LOGIN);
         accessConfiguration.setPassword(SpicyEngineConstants.ACCESS_CONFIGURATION_PASS);
         
@@ -45,12 +43,13 @@ public class ExportCSVInstances {
     }
     
     public void exportCSVInstances(MappingTask mappingTask, String directoryPath, String suffix, int scenarioNo) throws DAOException, SQLException, IOException{          
-        String folderPath = generateFolderPath(mappingTask.getTargetProxy().getIntermediateSchema(), directoryPath, suffix, 0);     
+        IDataSourceProxy dataSourceTarget = mappingTask.getTargetProxy();
+        String folderPath = generateFolderPath(dataSourceTarget.getIntermediateSchema(), directoryPath, suffix, 0);     
         //create CSV Folder
         new File(folderPath).mkdir(); 
         //connection to Postgres
         IConnectionFactory connectionFactory = new SimpleDbConnectionFactory();
-        Connection connection = getConnectionToPostgres(connectionFactory, scenarioNo);
+        Connection connection = getConnectionToPostgres(connectionFactory);
         try{
             Statement statement = connection.createStatement();
             
@@ -58,10 +57,10 @@ public class ExportCSVInstances {
             DatabaseMetaData databaseMetaData = connection.getMetaData();          
             String[] tableTypes = new String[]{"TABLE"};
 
-            ResultSet tableResultSet = databaseMetaData.getTables(SpicyEngineConstants.MAPPING_TASK_DB_NAME+scenarioNo, GenerateSQL.TARGET_SCHEMA_NAME, null, tableTypes);
+            ResultSet tableResultSet = databaseMetaData.getTables(SpicyEngineConstants.MAPPING_TASK_DB_NAME, SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo, null, tableTypes);
             while (tableResultSet.next()) { 
                 String tableName = tableResultSet.getString("TABLE_NAME");
-                createCSVDocument(tableName, GenerateSQL.TARGET_SCHEMA_NAME+".", mappingTask.getTargetProxy().getIntermediateSchema().getChild(tableName), folderPath, statement, null);           
+                createCSVDocument(tableName, SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo, dataSourceTarget, folderPath, statement, null);           
             }  
         }finally{        
             //close connection
@@ -80,9 +79,10 @@ public class ExportCSVInstances {
         return folderPath;
     }
     
-    public void createCSVDocument(String tableName, String schema, INode tableNode, String folderPath, Statement statement, String[] columnNames) throws SQLException, IOException{
+    public void createCSVDocument(String tableName, String schema, IDataSourceProxy dataSourceTarget, String folderPath, Statement statement, String[] columnNames) throws SQLException, IOException{
+        INode tableNode = dataSourceTarget.getIntermediateSchema().getChild(tableName);
         File file = new File(folderPath+File.separator+tableName+".csv"); 
-        ResultSet allRows = statement.executeQuery("SELECT * FROM "+schema+"\""+tableName+"\";");
+        ResultSet allRows = statement.executeQuery("SELECT * FROM "+schema+".\""+tableName+"\";");
         int columnCount = allRows.getMetaData().getColumnCount();                
         
         if(columnNames==null){
@@ -91,8 +91,14 @@ public class ExportCSVInstances {
             int i = 0;
             //get column names from the first table tuple only           
             for (INode column: tableNode.getChild(0).getChildren()){
-                //columnNames[i] = "\""+column.getLabel()+"\"";
-                columnNames[i] = column.getLabel();                
+                String columnLabel = column.getLabel();
+                String oldValue = dataSourceTarget.getChangedValue(tableName+"."+columnLabel);
+                if (oldValue!=null){
+                    columnNames[i] = oldValue;
+                }
+                else{
+                    columnNames[i] = columnLabel; 
+                }
                 i++;
             }        
         }
@@ -132,21 +138,21 @@ public class ExportCSVInstances {
     public void appendCSVInstances(MappingTask mappingTask, HashMap<String,String>  directoryPaths, int scenarioNo) throws SQLException, DAOException, IOException {         
         //connection to Postgres
         IConnectionFactory connectionFactory = new SimpleDbConnectionFactory();
-        Connection connection = getConnectionToPostgres(connectionFactory, scenarioNo);
+        Connection connection = getConnectionToPostgres(connectionFactory);
         try{
             Statement statement = connection.createStatement();
 
             //get table names from target database
             DatabaseMetaData databaseMetaData = connection.getMetaData();          
             String[] tableTypes = new String[]{"TABLE"}; 
-            ResultSet tableResultSet = databaseMetaData.getTables(SpicyEngineConstants.MAPPING_TASK_DB_NAME+scenarioNo, GenerateSQL.TARGET_SCHEMA_NAME, null, tableTypes);
+            ResultSet tableResultSet = databaseMetaData.getTables(SpicyEngineConstants.MAPPING_TASK_DB_NAME, SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo, null, tableTypes);
             //for each table
             while (tableResultSet.next()) {
                 String tableName = tableResultSet.getString("TABLE_NAME");
                 String filePath = directoryPaths.get(tableName);
 
                 if ((filePath!=null)&&(!filePath.equals(""))){
-                    ResultSet allRows = statement.executeQuery("SELECT * FROM " +GenerateSQL.TARGET_SCHEMA_NAME+".\""+tableName+"\";");                
+                    ResultSet allRows = statement.executeQuery("SELECT * FROM " +SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo+".\""+tableName+"\";");                
                     //no of columns
                     int columnCount = allRows.getMetaData().getColumnCount();                
                     //column names
@@ -237,17 +243,18 @@ public class ExportCSVInstances {
     }
     
     public void exportPKConstraintCSVInstances(MappingTask mappingTask, String directoryPath, HashSet<String> tableNames, String suffix, int scenarioNo) throws DAOException, SQLException, IOException{
-        String folderPath = generateFolderPath(mappingTask.getTargetProxy().getIntermediateSchema(), directoryPath, suffix, 0);     
+        IDataSourceProxy dataSourceTarget = mappingTask.getTargetProxy();
+        String folderPath = generateFolderPath(dataSourceTarget.getIntermediateSchema(), directoryPath, suffix, 0);     
         //create Folder
         new File(folderPath).mkdir();    
         //connection to Postgres
         IConnectionFactory connectionFactory = new SimpleDbConnectionFactory();
-        Connection connection = getConnectionToPostgres(connectionFactory, scenarioNo);
+        Connection connection = getConnectionToPostgres(connectionFactory);
         
         try{
             Statement statement = connection.createStatement();
             for (String tableName : tableNames) {
-                createCSVDocument(tableName, GenerateSQL.WORK_SCHEMA_NAME+".", mappingTask.getTargetProxy().getIntermediateSchema().getChild(tableName), folderPath, statement, null);           
+                createCSVDocument(tableName, SpicyEngineConstants.WORK_SCHEMA_NAME, dataSourceTarget, folderPath, statement, null);           
             }  
         }finally{        
             //close connection

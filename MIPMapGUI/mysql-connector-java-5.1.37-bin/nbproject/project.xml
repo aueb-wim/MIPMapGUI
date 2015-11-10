@@ -7,19 +7,30 @@
             <suite-component/>
             <module-dependencies/>
             <public-packages>
+                <package>com.mysql.fabric</package>
+                <package>com.mysql.fabric.hibernate</package>
+                <package>com.mysql.fabric.jdbc</package>
+                <package>com.mysql.fabric.proto.xmlrpc</package>
+                <package>com.mysql.fabric.xmlrpc</package>
+                <package>com.mysql.fabric.xmlrpc.base</package>
+                <package>com.mysql.fabric.xmlrpc.exceptions</package>
                 <package>com.mysql.jdbc</package>
+                <package>com.mysql.jdbc.authentication</package>
                 <package>com.mysql.jdbc.exceptions</package>
+                <package>com.mysql.jdbc.exceptions.jdbc4</package>
                 <package>com.mysql.jdbc.integration.c3p0</package>
                 <package>com.mysql.jdbc.integration.jboss</package>
+                <package>com.mysql.jdbc.interceptors</package>
                 <package>com.mysql.jdbc.jdbc2.optional</package>
+                <package>com.mysql.jdbc.jmx</package>
                 <package>com.mysql.jdbc.log</package>
                 <package>com.mysql.jdbc.profiler</package>
                 <package>com.mysql.jdbc.util</package>
                 <package>org.gjt.mm.mysql</package>
             </public-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/mysql-connector-java-5.0.3-bin.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/mysql-connector-java-5.0.3-bin.jar</binary-origin>
+                <runtime-relative-path>ext/mysql-connector-java-5.1.37-bin.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/mysql-connector-java-5.1.37-bin.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

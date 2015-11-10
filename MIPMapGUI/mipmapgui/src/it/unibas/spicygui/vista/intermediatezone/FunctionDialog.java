@@ -43,7 +43,9 @@ public class FunctionDialog extends javax.swing.JDialog {
         initCombobox();
         initBinding();
         initListener();
+        //this.jTextAreaFunction.setEditable(false);
     }
+   
 
     private void initCombobox(){
         ArrayList<String> tooltips = new ArrayList<String>();

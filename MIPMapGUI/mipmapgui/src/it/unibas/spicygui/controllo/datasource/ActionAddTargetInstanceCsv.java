@@ -30,14 +30,11 @@ import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.commons.Modello;
 import it.unibas.spicygui.commons.LastActionBean;
 import it.unibas.spicygui.controllo.Scenario;
-import it.unibas.spicygui.controllo.Scenarios;
 import it.unibas.spicygui.vista.InstancesTopComponent;
 import it.unibas.spicygui.vista.Vista;
 import it.unibas.spicygui.vista.csv.LoadCsvInstancesMainFrame;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -47,7 +44,6 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
-import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -76,32 +72,29 @@ public class ActionAddTargetInstanceCsv extends CallableSystemAction implements 
         InstancesTopComponent viewInstancesTopComponent = scenario.getInstancesTopComponent();
         HashMap<String,String> absolutePaths = jd.getResponse();
         if (!absolutePaths.isEmpty())
-            if(!scenario.getMappingTask().getSourceProxy().getType().equalsIgnoreCase("XML")){
+            if(!scenario.getMappingTask().getTargetProxy().getType().equalsIgnoreCase("XML")){
                 try{  
-                    DAOCsv daoCsv = new DAOCsv();
                     //pathHashMap is a multimap set with the tablename String as key
-                    //and an arraylist with two values: a)the file path and 
-                    //b)a boolean value that represents if the file contains column names
+                    //and an arraylist with two values: a)the tablename
+                    //b)a boolean value that represents if the file contains column names and
+                    //c)a boolean that contains the info if the instance file has been already loaded
                     HashMap<String,ArrayList<Object>> pathHashMap = new HashMap<String,ArrayList<Object>>();
                     for (Map.Entry<String, String> entry : absolutePaths.entrySet()){
                         ArrayList<Object> valSet = new ArrayList<Object>();
                         valSet.add(entry.getValue());
                         valSet.add(jd.getColNames());
+                        valSet.add(false);
                         pathHashMap.put(entry.getKey(),valSet);
-                    }
-                    try {
-                        ////daoCsv.loadInstance(dataSource, pathHashMap, dataSource.getSchema().getLabel());
-                        daoCsv.loadInstance(scenario.getNumber(), dataSource, pathHashMap, dataSource.getSchema().getLabel(), false);
+                    }                   
+                    DAOCsv daoCsv = new DAOCsv();
+                    daoCsv.addInstances(dataSource, pathHashMap);
                     
-                        if (!viewInstancesTopComponent.isRipulito()) {
-                            viewInstancesTopComponent.createTargetInstanceTree();
-                            viewInstancesTopComponent.requestActive();
-                            StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(Costanti.class, Costanti.ADD_INSTANCE_OK));
-                        }
-                    } catch (SQLException ex) {
-                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.OPEN_ERROR) + " : " + ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
-                    logger.error(ex);
+                    if (!viewInstancesTopComponent.isRipulito()) {
+                        viewInstancesTopComponent.createTargetInstanceTree();
+                        viewInstancesTopComponent.requestActive();
+                        StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(Costanti.class, Costanti.ADD_INSTANCE_OK));
                     }
+                     
                 } catch (DAOException ex) {
                     DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.OPEN_ERROR) + " : " + ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
                     logger.error(ex);

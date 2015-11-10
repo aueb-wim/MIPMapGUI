@@ -74,9 +74,6 @@ public class ActionCloseMappingTask extends CallableSystemAction implements Obse
 
     private void clearModelloLight() {
         //TODO Cancellare tutti questi componenti dal modello porta ad avere nelle altre sessioni errori vista la non presenza di questi bean
-
-//        modello.removeBean(Costanti.MAPPINGTASK);
-//        modello.removeBean(Costanti.ACTUAL_SAVE_FILE);
         modello.removeBean(Costanti.BEST_MAPPING_TASKS);
         modello.removeBean(Costanti.CONNECTION_SELECTED);
         modello.removeBean(Costanti.LINE_COORDINATES_COLLECTIONS);
@@ -135,15 +132,7 @@ public class ActionCloseMappingTask extends CallableSystemAction implements Obse
             tGDEditorSupport.close();
         }
         
-//        BestMappingsTopComponent bestMappingsTopComponent = BestMappingsTopComponent.findInstance();
-//        bestMappingsTopComponent.close();
-//        RankedTransformationsTopComponent rankedTransformationsTopComponent = RankedTransformationsTopComponent.findInstance();
-//        rankedTransformationsTopComponent.close();
-//        SelectedTransformationTopComponent selectedTransformationTopComponent = SelectedTransformationTopComponent.findInstance();
-//        selectedTransformationTopComponent.clear();
-//        selectedTransformationTopComponent.close();
         Utility.closeOutputWindow();
-//        bestMappingsTopComponent.clear();
         try {
             IOProvider.getDefault().getIO(Costanti.FLUSSO_SPICY, false).getOut().reset();
         } catch (IOException ex) {
@@ -222,8 +211,8 @@ public class ActionCloseMappingTask extends CallableSystemAction implements Obse
         }
         scenarios.removeScenario(scenario);
         try{
-            //drop the corresponding Postgres database
-            daoDropDB.dropDatabase(scenario.getNumber());            
+            //drop the corresponding Postgres schema
+            daoDropDB.dropSchema(scenario.getNumber());            
         } catch (DAOException ex) {
             logger.error(ex);
             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.NEW_ERROR) + " : " + ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));       

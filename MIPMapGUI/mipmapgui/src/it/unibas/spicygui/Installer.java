@@ -25,6 +25,8 @@ package it.unibas.spicygui;
 import it.unibas.spicygui.commons.Modello;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.jgoodies.looks.plastic.theme.LightGray;
+import it.unibas.spicy.persistence.DAOException;
+import it.unibas.spicy.persistence.DAOHandleDB;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import it.unibas.spicygui.commons.LastActionBean;
 import it.unibas.spicygui.controllo.Scenario;
@@ -37,11 +39,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.sql.Timestamp;
 import java.util.Properties;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
@@ -68,10 +73,26 @@ import org.openide.windows.WindowManager;
 public class Installer extends ModuleInstall {
 
     public static final String LOG4J_CONFIGURATION_FILE = "/conf/spicyGUI-log4j.properties";
-    public static final String POSTGRESDB_CONFIGURATION_FILE = "/conf/postgresdb.properties";
+    //public static final String POSTGRESDB_CONFIGURATION_FILE = "/conf/postgresdb.properties";
+    public static final String POSTGRESDB_CONFIGURATION_FILE = "postgresdb.properties";
+    public static final String INSTALL_FOLDER_NAME = "mipmap";
 //    private ActionExitApplication actionExitApplication = new ActionExitApplication();
     private boolean close;
+    private static String OS = System.getProperty("os.name").toLowerCase();
 
+    
+    public static boolean isWindows() {
+        return (OS.contains("win"));
+    }
+
+    public static boolean isMac() {
+        return (OS.contains("mac"));
+    }
+
+    public static boolean isUnix() {
+        return (OS.contains("nix") || OS.contains("nux") || OS.contains("aix") );
+    }
+    
     @Override
     public void close() {
 
@@ -196,35 +217,65 @@ public class Installer extends ModuleInstall {
 //        ClassLoader classLoader = this.getClass().getClassLoader();
 //         new URLClassLoader(new URL[]{}, classLoader);
         System.setProperty("netbeans.buildnumber", "");
+        java.util.Date date= new java.util.Date();
+        System.out.println("MIPMap starting to load: "+new Timestamp(date.getTime()));
         setLookAndFeel();
         configureLog4j();        
         configuraObservable();
         configureFavoriteWindow();
         //giannisk
         configureDatabaseProperties();
+        createDB();
+        java.util.Date date2= new java.util.Date();
+        System.out.println("MIPMap loaded: "+new Timestamp(date2.getTime()));
+    }
+    
+    private void createDB(){
+        DAOHandleDB daoCreateDB = new DAOHandleDB();
+        try {
+            daoCreateDB.createNewDatabase();
+        } catch (DAOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
     
     //giannisk
     //reads the properties file with database configuration and sets the appropriate variables
-    private void configureDatabaseProperties(){
-        
+    private void configureDatabaseProperties() {        
         Properties dbproperties = new Properties();            
-        InputStream stream = Installer.class.getResourceAsStream(POSTGRESDB_CONFIGURATION_FILE);
+        //TO RUN PROPERLY AS AN APPLICATION:
+        //uncomment the following block and comment the first two lines right after the block
+        /*
+        String userDirectory = System.getProperty("user.dir");
+        if (isUnix()){
+            userDirectory = new File(userDirectory).getParent();
+        }
+        
+        String configFilePath = userDirectory+File.separator+INSTALL_FOLDER_NAME+File.separator+POSTGRESDB_CONFIGURATION_FILE;
+        InputStream stream = new InputStream() {
+            @Override
+            public int read() throws IOException {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
+        try {
+            stream = new FileInputStream(configFilePath);*/
+        InputStream stream = Installer.class.getResourceAsStream("/conf/"+POSTGRESDB_CONFIGURATION_FILE);        
         try {
             dbproperties.load(stream);
             SpicyEngineConstants.setDatabaseParameters(dbproperties.getProperty("driver"),dbproperties.getProperty("uri"),
                     dbproperties.getProperty("username"), dbproperties.getProperty("password"),dbproperties.getProperty("mappingTask-DatabaseName"));
         } catch (IOException ex) {
-            Logger.getLogger(Installer.class.getName()).severe("Unable to...");
+            Logger.getLogger(Installer.class.getName()).severe("Unable to load database configuration file");
         } finally {
             try {
                 stream.close();
             } catch (IOException ex) {
-                Logger.getLogger(Installer.class.getName()).severe("Unable to...");
-            }
+                Logger.getLogger(Installer.class.getName()).severe("Unable to load database configuration file");
+            } 
         }        
     }
-
+  
     private void configuraObservable() {
         LastActionBean lastActionBean = new LastActionBean();
         Lookup.getDefault().lookup(Modello.class).putBean(Costanti.LAST_ACTION_BEAN, lastActionBean);
@@ -315,7 +366,7 @@ public class Installer extends ModuleInstall {
             method.setAccessible(true);
             method.invoke(urlClassLoader, new Object[]{u});
         } catch (Throwable throwable) {
-            System.out.println("ERRORE");
+            System.out.println("ERROR");
         }
     }
 }

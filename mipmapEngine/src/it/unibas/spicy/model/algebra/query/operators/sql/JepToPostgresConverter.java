@@ -52,8 +52,12 @@ public class JepToPostgresConverter {
                     functionExpression = functionExpression.replaceAll(vpe.toString(), newAttrName);
                 }              
             }
-        } 
-        return replaceExpression(functionExpression);
+        }
+        //giannisk
+        //in order to avoid considering postgres values separated by commas as different parameters
+        //a COMMA_REPLACEMENT pattern is used instead of commas and it is replaced after the final statement has been completed
+        //current COMMA_REPLACEMENT string is "#COMMA_CHAR#", a string that is unlikely to be used as user input
+        return replaceExpression(functionExpression).replaceAll(SpicyEngineConstants.COMMA_REPLACEMENT, ",");
     }
     
     private String replaceExpression(String functionExpression){
@@ -66,11 +70,11 @@ public class JepToPostgresConverter {
             
             startIndex = textToReplace.indexOf('>') + 1;
             endIndex = findEndIndex(textToReplace, startIndex);
-            String parametersString = textToReplace.substring(startIndex, endIndex);                     
+            String parametersString = textToReplace.substring(startIndex, endIndex); 
             parametersString = replaceExpression(parametersString);
             //split into parameters - if there is a comma character inside double quotes ignore it
             //(split on the comma only if that comma has zero, or an even number of quotes ahead of it)
-            String[] parameters = parametersString.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");          
+            String[] parameters = parametersString.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"); 
             if (parameters!=null){
                 for (int i=0; i<parameters.length;i++){
                     //trim first
@@ -124,7 +128,7 @@ public class JepToPostgresConverter {
                 output = "atan(cast(" + parameters[0] + " as float))";
                 break;
             case "atan2":
-                output = "atan2(cast(" + parameters[0] + " as float), cast(" + parameters[1] + " as float))";
+                output = "atan2(cast(" + parameters[0] + " as float)"+SpicyEngineConstants.COMMA_REPLACEMENT+" cast(" + parameters[1] + " as float))";
                 break;
             case "arg":
                 //TODO
@@ -141,6 +145,13 @@ public class JepToPostgresConverter {
             case "conj":
                 //TODO
                 break;
+            case "contains":
+                output = parameters[0]+" like '%"+parameters[1].replaceAll("\'", "")+"%'";
+                break;
+            case "containCount":
+                output = "(length("+parameters[0]+")-length(regexp_replace("+parameters[0]+SpicyEngineConstants.COMMA_REPLACEMENT+
+                        parameters[1]+SpicyEngineConstants.COMMA_REPLACEMENT+"''"+SpicyEngineConstants.COMMA_REPLACEMENT+"'g'))) / length("+parameters[1]+")";
+                break; 
             case "cos":
                 output = "cos(cast(" + parameters[0] + " as float))";
                 break;
@@ -151,7 +162,7 @@ public class JepToPostgresConverter {
                 output = SpicyEngineConstants.POSTGRES_DATE_FUNCTION;
                 break;
             case "datetime":
-                output = "date_trunc('second',localtimestamp)";
+                output = "date_trunc('second'" + SpicyEngineConstants.COMMA_REPLACEMENT + "localtimestamp)";
                 break;
             case "exp":
                 output = "exp(cast(" + parameters[0] + " as float))";
@@ -187,24 +198,36 @@ public class JepToPostgresConverter {
                 output = "ln(cast(" + parameters[0] + " as float))";
                 break;
             case "mod":
-                output = "mod(round(cast(" + parameters[0] +" as numeric)), round(cast(" + parameters[1] + " as numeric)))";
+                output = "mod(round(cast(" + parameters[0] +" as numeric))"+SpicyEngineConstants.COMMA_REPLACEMENT+" round(cast(" + parameters[1] + " as numeric)))";
                 break;
             case "newId":
-                output = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION;
+                if(GenerateSQL.newSequence){
+                    output = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION;
+                    GenerateSQL.newSequence = false;
+                }
+                else{
+                    output = SpicyEngineConstants.POSTGRES_CURRENTID_FUNCTION;
+                }
+                break;
+            case "null":
+                output = "null";
                 break;
             case "polar":
                 //TODO
                 break;
             case "pow":
-                output = "power(cast(" + parameters[0] +" as float), cast(" + parameters[1] + " as float))";
+                output = "power(cast(" + parameters[0] +" as float)"+SpicyEngineConstants.COMMA_REPLACEMENT+" cast(" + parameters[1] + " as float))";
                 break;
             case "re":
                 //TODO
                 break;
+            case "replace":
+                output = "replace("+parameters[0]+SpicyEngineConstants.COMMA_REPLACEMENT+" "+parameters[1]+SpicyEngineConstants.COMMA_REPLACEMENT+" "+parameters[2]+")";
+                break;                    
             case "round":
                 //optional second parameter
                 if (parameters.length==2){
-                    output = "round(cast(" + parameters[0] +" as numeric), cast(cast(" + parameters[1] + " as numeric) as integer))";
+                    output = "round(cast(" + parameters[0] +" as numeric)"+SpicyEngineConstants.COMMA_REPLACEMENT+" cast(cast(" + parameters[1] + " as numeric) as integer))";
                 }
                 else{
                     output = "round(cast(" + parameters[0] + " as float))";
@@ -233,7 +256,11 @@ public class JepToPostgresConverter {
                 output = "tan(cast(" + parameters[0] + " as float))";
                 break;
             case "tanh":
-                output = "(exp(cast(" + parameters[0] + " as float))-exp(-cast(" + parameters[0] + " as float)))/(exp(cast(" + parameters[0] + " as float))+exp(-cast(" + parameters[0] + " as float)))";
+                output = "(exp(cast(" + parameters[0] + " as float))-exp(-cast(" + parameters[0] +
+                        " as float)))/(exp(cast(" + parameters[0] + " as float))+exp(-cast(" + parameters[0] + " as float)))";
+                break;
+            case "todate":
+                output = "to_date(" + parameters[0] + SpicyEngineConstants.COMMA_REPLACEMENT + parameters[1] + ")";
                 break;
             case "todouble":
                 output = "cast(" + parameters[0] + " as float)";

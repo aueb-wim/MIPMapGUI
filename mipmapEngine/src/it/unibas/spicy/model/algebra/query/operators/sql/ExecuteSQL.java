@@ -88,8 +88,8 @@ public class ExecuteSQL {
             //giannisk
             if (sourceSQLScriptReader!=null && sourceInstanceSQLScriptReader!=null && targetSQLScriptReader!=null){
                 StringBuilder createSchemasQuery = new StringBuilder();
-                createSchemasQuery.append("create schema " + GenerateSQL.SOURCE_SCHEMA_NAME + ";\n");
-                createSchemasQuery.append("create schema " + GenerateSQL.TARGET_SCHEMA_NAME + ";\n");
+                createSchemasQuery.append("create schema " + SpicyEngineConstants.SOURCE_SCHEMA_NAME + scenarioNo + ";\n");
+                createSchemasQuery.append("create schema " + SpicyEngineConstants.TARGET_SCHEMA_NAME + scenarioNo + ";\n");
                 //createSchemasQuery.append("create schema " + GenerateSQL.WORK_SCHEMA_NAME + ";\n");
 
                 scriptRunner.runScript(new StringReader(createSchemasQuery.toString()));
@@ -147,7 +147,7 @@ public class ExecuteSQL {
         ) throws DAOException {
         AccessConfiguration accessConfiguration = new AccessConfiguration();
         accessConfiguration.setDriver(SpicyEngineConstants.ACCESS_CONFIGURATION_DRIVER);
-        accessConfiguration.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME+scenarioNo);
+        accessConfiguration.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME);
         accessConfiguration.setLogin(SpicyEngineConstants.ACCESS_CONFIGURATION_LOGIN);
         accessConfiguration.setPassword(SpicyEngineConstants.ACCESS_CONFIGURATION_PASS);
         
@@ -163,11 +163,11 @@ public class ExecuteSQL {
     }
 
     private Reader getSourceSchemaReader() {
-        return getSchemaReader(GenerateSQL.SOURCE_SCHEMA_NAME);
+        return getSchemaReader(SpicyEngineConstants.SOURCE_SCHEMA_NAME);
     }
 
     private Reader getTargetSchemaReader() {
-        return getSchemaReader(GenerateSQL.TARGET_SCHEMA_NAME);
+        return getSchemaReader(SpicyEngineConstants.TARGET_SCHEMA_NAME);
     }
 
     private Reader getIntermediateSchemaReader() {

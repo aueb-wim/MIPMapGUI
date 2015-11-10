@@ -56,7 +56,12 @@ public class ActionOkMultipleJoin extends AbstractAction {
         List<INode> fromPathNodes = (List<INode>) this.modello.getBean(Costanti.FROM_PATH_NODES);
         MappingTask mappingTask = (MappingTask) this.modello.getBean(Costanti.MAPPINGTASK_SHOWED);
         for (INode iNode : fromPathNodes) {
-            iNode.addAnnotation(Costanti.JOIN_CONNECTION_CONSTRAINT, joinConstraint);
+            List <JoinConstraint> joinConstraints = (List <JoinConstraint>) iNode.getAnnotation(Costanti.JOIN_CONNECTION_CONSTRAINT);
+            if (joinConstraints == null){
+                joinConstraints = new ArrayList<JoinConstraint>();
+            }
+            joinConstraints.add(joinConstraint);
+            iNode.addAnnotation(Costanti.JOIN_CONNECTION_CONSTRAINT, joinConstraints);
         }
         if (this.modello.getBean(Costanti.JOIN_SESSION_SOURCE) != null) {
             mappingTask.getSourceProxy().addJoinCondition(joinCondition);

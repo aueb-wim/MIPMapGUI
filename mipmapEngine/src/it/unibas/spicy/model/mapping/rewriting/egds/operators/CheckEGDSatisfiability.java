@@ -39,9 +39,11 @@ public class CheckEGDSatisfiability {
 
     public void checkEGDSatisfiability(MappingTask mappingTask) throws UnsatisfiableEGDException {
         for (ValueCorrespondence correspondence : mappingTask.getValueCorrespondences()) {
-            if (correspondence.getSourcePaths().size() > 1) {
-                throw new UnsatisfiableEGDException("Unable to enforce EGDs. Mapping task contains n:1 correspondences: " + correspondence);
-            }
+            //if(correspondence.getSourcePaths()!=null){
+                if (correspondence.getSourcePaths().size() > 1) {
+                    throw new UnsatisfiableEGDException("Unable to enforce EGDs. Mapping task contains n:1 correspondences: " + correspondence);
+                }
+            //}
         }
         checkExistentialVariableImplicants(mappingTask);
         checkUniversalVariableDependencies(mappingTask);

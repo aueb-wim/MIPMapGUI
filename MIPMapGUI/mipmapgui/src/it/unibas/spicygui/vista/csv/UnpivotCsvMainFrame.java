@@ -65,7 +65,7 @@ public class UnpivotCsvMainFrame extends javax.swing.JDialog{
         columnList = new ArrayList<UnpivotCsvColumnPanel>();
         for (String columnName : columnNames){
             UnpivotCsvColumnPanel columnPanel = new UnpivotCsvColumnPanel(columnName);
-            columnPanel.setPreferredSize(new Dimension(300, 20));
+            columnPanel.setPreferredSize(new Dimension(300, 25));
             pl.addComponent(columnPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
             seq.addComponent(columnPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);

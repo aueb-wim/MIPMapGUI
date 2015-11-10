@@ -38,10 +38,15 @@ public class SpicyEngineConstants {
     public static final String TYPE_ALGEBRA_RESULT = "algebra result";
     public static final String TYPE_XML = "XML";
     public static final String TYPE_CSV = "CSV";
+    public static final String TYPE_RELATIONAL = "Relational";
     
     public static final String PROVIDER_TYPE_CHAINING = "CHAINING";
     public static final String PROVIDER_TYPE_CONSTANT = "CONSTANT";
     public static final String PROVIDER_TYPE_MERGE = "MERGE";
+    
+    public final static String SOURCE_SCHEMA_NAME = "source";
+    public final static String TARGET_SCHEMA_NAME = "target";
+    public final static String WORK_SCHEMA_NAME = "work";
 
     public static final String DATASOURCE_ROOT_LABEL = "dataSource";
     public static final String MERGE_ROOT_LABEL = "merge";
@@ -52,10 +57,10 @@ public class SpicyEngineConstants {
 
     public static final String CSV_DB_NAME = "CSV database name";
     public static final String CSV_TABLE_FILE_LIST = "CSV table file list";
-    public static final String CSV_INSTANCES_INFO_LIST = "CSV instances info list";
-    public static final String TYPE_RELATIONAL = "relational";
+    public static final String CSV_INSTANCES_INFO_LIST ="CSV instance file list";
+    public static final String INSTANCE_PATH_LIST = "CSV instance table file list";
     public static final String ACCESS_CONFIGURATION = "access configuration";
-    public static final String TARGET_SCHEMA_NAME = "target";
+    public static final String LOADED_INSTANCES_FLAG = "loaded instances";
     public static final String TYPE_OBJECT = "object";
     public static final String CLASSPATH_FOLDER = "classpath folder";
     public static final String OBJECT_MODEL_FACTORY = "object model factory";
@@ -67,6 +72,7 @@ public class SpicyEngineConstants {
     public static final String POSTGRES_DATETIME_FUNCTION = "date_trunc('second',localtimestamp)";
     public static final String SOURCEVALUE_NEWID_FUNCTION = "newId()";
     public static final String POSTGRES_NEWID_FUNCTION = "nextval('idsequence')";
+    public static final String POSTGRES_CURRENTID_FUNCTION = "currval('idsequence')";
 
     public static final String MORE_COMPACT = "more compact";
     public static final String MORE_INFORMATIVE = "more informative";
@@ -79,11 +85,21 @@ public class SpicyEngineConstants {
     public static final String SUBSUMES = " subsumes ";
 
     public static final String ALGEBRA_SEPARATOR = "§#§";
+    
+    //giannisk
+    public static final String COMMA_REPLACEMENT = "#COMMA_CHAR#";
+    public static final String DOUBLE_QUOTES = "#DOUBLE_QUOTES#";
 
     public static final String LEAF = "LEAF";
 
     public static final String INCL_COL_NAMES = "true";
     public static final String NOT_INCL_COL_NAMES = "false";
+    
+    public static final String POSTGRES_DRIVER = "org.postgresql.Driver";
+    public static final String MYSQL_DRIVER = "com.mysql.jdbc.Driver";
+    public static final String DERBY_DRIVER = "org.apache.derby.jdbc.ClientDriver";
+    
+    public static final String MYSQL_DRIVER_NAME = "MySQL Connector Java";
     
     public static String ACCESS_CONFIGURATION_LOGIN;
     public static String ACCESS_CONFIGURATION_PASS;

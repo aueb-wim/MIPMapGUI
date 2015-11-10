@@ -214,6 +214,7 @@ public class CreaWidgetCorrespondencesTGD implements ICreaWidgetCorrespondences 
 //        connectionInfo.setVariableCorrespondence(variableCorrespondence);
         connectionInfo.setVariableCorrespondence(variableCorrespondence);
 //        analisiFiltro.creaWidgetEsisteFiltro(connectionInfo.getConnectionWidget(), connectionInfo);
+        functionWidget.setToolTipText(variableCorrespondence.getTransformationFunction().toString());
         scene.validate();
     }
 

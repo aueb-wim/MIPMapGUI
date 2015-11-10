@@ -316,7 +316,7 @@ public class JLayeredPaneCorrespondences extends JLayeredPane {
 
     public void initTreeSelectionListnerMappingTask() {
         this.sourceSchemaTree.addTreeSelectionListener(new ConstraintColoringTreeSelectionListener(Costanti.CONNECTION_CONSTRAINT_SOURCE, Costanti.CONNECTION_CONSTRAINT, Costanti.JOIN_CONNECTION_CONSTRAINT_SOURCE, Costanti.JOIN_CONNECTION_CONSTRAINT));
-        this.targetSchemaTree.addTreeSelectionListener(new ConstraintColoringTreeSelectionListener(Costanti.CONNECTION_CONSTRAINT_TARGET, Costanti.CONNECTION_CONSTRAINT, Costanti.JOIN_CONNECTION_CONSTRAINT_TARGET, Costanti.JOIN_CONNECTION_CONSTRAINT));
+        this.targetSchemaTree.addTreeSelectionListener(new ConstraintColoringTreeSelectionListener(Costanti.CONNECTION_CONSTRAINT_TARGET, Costanti.CONNECTION_CONSTRAINT, Costanti.JOIN_CONNECTION_CONSTRAINT_SOURCE, Costanti.JOIN_CONNECTION_CONSTRAINT));
     }
 
     public void initTreeSelectionListnerMatcher() {

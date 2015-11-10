@@ -56,6 +56,7 @@ public abstract class AbstractDataSourceProxy implements IDataSourceProxy {
     protected INode intermediateSchema;
     protected List<INode> intermediateInstances = new ArrayList<INode>();
     protected Map<String, Object> annotations = new HashMap<String, Object>();
+    protected Map<String, String> changedColumnNames = new HashMap<String, String>();
     protected boolean modified;
     protected boolean toBeSaved;
 
@@ -269,6 +270,14 @@ public abstract class AbstractDataSourceProxy implements IDataSourceProxy {
 
     public void setAnnotations(Map<String, Object> annotations) {
         this.annotations = annotations;
+    }
+    
+    public void putChangedValue(String key, String value){
+        this.changedColumnNames.put(key, value);
+    }
+    
+    public String getChangedValue(String key){
+        return this.changedColumnNames.get(key);
     }
 
     public List<PathExpression> getAbsoluteSetPaths() {

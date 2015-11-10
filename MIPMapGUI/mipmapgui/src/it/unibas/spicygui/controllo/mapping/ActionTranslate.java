@@ -24,10 +24,17 @@ package it.unibas.spicygui.controllo.mapping;
 
 
 import it.unibas.spicy.model.algebra.query.operators.sql.ExecuteSQL;
+import it.unibas.spicy.model.mapping.IDataSourceProxy;
 import it.unibas.spicy.model.mapping.MappingTask;
+import it.unibas.spicy.persistence.AccessConfiguration;
 import it.unibas.spicy.persistence.DAOException;
 import it.unibas.spicy.persistence.csv.DAOCsv;
 import it.unibas.spicy.persistence.json.DAOJson;
+import it.unibas.spicy.persistence.relational.DAORelational;
+import it.unibas.spicy.persistence.relational.DBFragmentDescription;
+import it.unibas.spicy.persistence.relational.IConnectionFactory;
+import it.unibas.spicy.persistence.relational.SimpleDbConnectionFactory;
+import it.unibas.spicy.utility.SpicyEngineConstants;
 import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.controllo.datasource.ActionViewInstances;
 import it.unibas.spicygui.commons.LastActionBean;
@@ -36,6 +43,7 @@ import it.unibas.spicygui.controllo.Scenario;
 import it.unibas.spicygui.vista.InstancesTopComponent;
 import it.unibas.spicygui.vista.Vista;
 import java.io.File;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Observable;
@@ -105,17 +113,30 @@ public class ActionTranslate extends CallableSystemAction implements Observer {
         lastActionBean.addObserver(this);
     }
     
-    private void translateToDatabase() throws DAOException{
+    private void translateToDatabase(MappingTask mappingTask, int scenarioNo) throws DAOException{
         ExecuteSQL exSQL = new ExecuteSQL();
-        Scenario scenario = (Scenario) modello.getBean(Costanti.CURRENT_SCENARIO);
-        int scenarioNo = scenario.getNumber();
-        MappingTask mappingTask = scenario.getMappingTask();
-        String sqltext = mappingTask.getMappingData().getSQLScript();            
+
+        String sqltext = mappingTask.getMappingData().getSQLScript(scenarioNo);            
         exSQL.executeScript(mappingTask, sqltext, null, null, null, null,scenarioNo);
         DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.TRANSLATION_OK)));
         
         //in case there were any instances that violated the Primary Key constraints, ask the user to export those instances
         checkForPKConstraints(mappingTask, exSQL.getPKConstraintsTables(), scenarioNo);        
+    }
+    
+    private void loadSourceInstancesBeforeTranslation(IDataSourceProxy dataSource, int scenarioNo) throws DAOException, SQLException{
+        String datasourceType = dataSource.getType();
+        if(datasourceType.equalsIgnoreCase(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_CSV))){
+            DAOCsv daoCsv = new DAOCsv();
+            daoCsv.loadInstance(scenarioNo, dataSource, true);
+        }
+        else if(datasourceType.equalsIgnoreCase(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_RELATIONAL))){
+            DAORelational daoRelational = new DAORelational();
+            DBFragmentDescription dataDescription = new DBFragmentDescription();
+            IConnectionFactory dataSourceDB = new SimpleDbConnectionFactory();
+            AccessConfiguration accessConfiguration = (AccessConfiguration) dataSource.getAnnotation(SpicyEngineConstants.ACCESS_CONFIGURATION);
+            daoRelational.loadInstance(scenarioNo, accessConfiguration, dataSource, dataDescription, dataSourceDB, true);
+        }
     }
     
     private void checkForPKConstraints(MappingTask mappingTask, HashSet<String> pkTableNames, int scenarioNo) throws DAOException{
@@ -152,12 +173,20 @@ public class ActionTranslate extends CallableSystemAction implements Observer {
     @Override
     @SuppressWarnings("unchecked")
     public void performAction() {
+        Scenario scenario = (Scenario) modello.getBean(Costanti.CURRENT_SCENARIO);
+        int scenarioNo = scenario.getNumber();
+        MappingTask mappingTask = scenario.getMappingTask();
         try {            
-            //giannisk
-            translateToDatabase();            
+            //giannisk - load instances for source schema according to datasource type, if they haven't been loaded already
+            if(!(Boolean) mappingTask.getSourceProxy().getAnnotation(SpicyEngineConstants.LOADED_INSTANCES_FLAG))
+                loadSourceInstancesBeforeTranslation(mappingTask.getSourceProxy(), scenarioNo);
+            //giannisk - execute translation script on temporary database
+            translateToDatabase(mappingTask, scenarioNo);            
             openWindows();
             enableActions();            
         } catch (DAOException ex) {  
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
+        } catch (SQLException ex) {
             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
         }
     }

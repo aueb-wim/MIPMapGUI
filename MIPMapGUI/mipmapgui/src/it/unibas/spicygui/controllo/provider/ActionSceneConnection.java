@@ -39,6 +39,7 @@ import it.unibas.spicygui.vista.Vista;
 import it.unibas.spicygui.widget.FunctionalDependencyWidget;
 import it.unibas.spicygui.widget.JoinConstraint;
 import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetInterFunctionalDep;
+import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetTree;
 import java.awt.Point;
 import java.awt.Stroke;
 import java.util.ArrayList;
@@ -115,16 +116,30 @@ public class ActionSceneConnection implements ConnectProvider {
         connection.setSourceAnchor(AnchorFactory.createCenterAnchor(sourceWidget));
         connection.setTargetAnchor(AnchorFactory.createRectangularAnchor(targetWidget));
         Stroke stroke = creator.getStroke();
-        connection.setStroke(stroke);
+        connection.setStroke(stroke); 
         if (targetWidget instanceof FunctionWidget) {
             setWidget(sourceWidget, targetWidget, connection);
-            connectionLayer.addChild(connection);
+            addConnectionAnnotation(sourceWidget, connection);
+            ConnectionInfo connectionInfo = new ConnectionInfo();
+            connectionInfo.setSourceWidget(sourceWidget);
+            connectionInfo.setTargetWidget(targetWidget);
+            connectionInfo.setConnectionWidget(connection);
+            connectionLayer.addChild(connection, connectionInfo);
         }
         if (targetWidget instanceof FunctionalDependencyWidget) {
             setWidgetFunctionalDependency(sourceWidget, targetWidget, connection);
-            connectionLayer.addChild(connection);
+            addConnectionAnnotation(sourceWidget, connection);
+            ConnectionInfo connectionInfo = new ConnectionInfo();
+            connectionInfo.setSourceWidget(sourceWidget);
+            connectionInfo.setTargetWidget(targetWidget);
+            connectionInfo.setConnectionWidget(connection);
+            connectionLayer.addChild(connection, connectionInfo);
         }
         if (targetWidget instanceof VMDPinWidgetTarget) {
+            //giannisk
+            //add annotation to node, so that when it is selected its correspondences are highlighted with red color
+            addConnectionAnnotation(sourceWidget, connection);
+            addConnectionAnnotation(targetWidget, connection);
             createCorrespondence(connection, sourceWidget, targetWidget);
         }
         if (targetWidget instanceof VMDPinWidgetSource) {
@@ -133,6 +148,18 @@ public class ActionSceneConnection implements ConnectProvider {
             }
         }
 
+    }
+    
+    //giannisk
+    public void addConnectionAnnotation(Widget widget, ConnectionWidget connection){
+        CaratteristicheWidgetTree caratteristicheWidgetTreeSource = (CaratteristicheWidgetTree) mainLayer.getChildConstraint(widget);
+        INode iNode = caratteristicheWidgetTreeSource.getINode();
+        List<ConnectionWidget> connections = (List<ConnectionWidget>) iNode.getAnnotation(Costanti.CONNECTION_LINE);
+        if (connections == null){
+            connections = new ArrayList<ConnectionWidget>();
+        }
+        connections.add(connection);
+        iNode.addAnnotation(Costanti.CONNECTION_LINE, connections);
     }
 
     // <editor-fold defaultstate="collapsed" desc="metodi di creazione connessioni">

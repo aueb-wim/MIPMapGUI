@@ -56,7 +56,7 @@ public final class SqlTopComponent extends TopComponent {
     public void createQueryTabs() {
         executeInjection();
         MappingTask mappingTask = scenario.getMappingTask();
-        String query = mappingTask.getMappingData().getSQLScript();
+        String query = mappingTask.getMappingData().getSQLScript(scenario.getNumber());
         QueryTabbedPane xQueryTabbedPane = new QueryTabbedPane(query, scenario, false);
         this.tabbedSql.addTab("Sql Script", xQueryTabbedPane);
     }
@@ -90,7 +90,7 @@ public final class SqlTopComponent extends TopComponent {
 
     private boolean sqlEquals() {
         MappingTask mappingTask = scenario.getMappingTask();
-        String newQuery = mappingTask.getMappingData().getSQLScript();
+        String newQuery = mappingTask.getMappingData().getSQLScript(scenario.getNumber());
         if(this.tabbedSql.getTabCount() <= 0) {
             return false;
         }

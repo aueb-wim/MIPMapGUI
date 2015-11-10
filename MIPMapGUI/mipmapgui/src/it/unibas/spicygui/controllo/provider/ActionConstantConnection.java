@@ -22,6 +22,7 @@
  
 package it.unibas.spicygui.controllo.provider;
 
+import it.unibas.spicy.model.datasource.INode;
 import it.unibas.spicy.model.exceptions.ExpressionSyntaxException;
 import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.controllo.provider.intermediatezone.MyPopupProviderConnectionConst;
@@ -30,9 +31,12 @@ import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetInterConst
 import it.unibas.spicygui.widget.ConstantWidget;
 import it.unibas.spicygui.widget.VMDPinWidgetTarget;
 import it.unibas.spicygui.controllo.mapping.operators.CreateCorrespondencesMappingTask;
+import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetTree;
 import it.unibas.spicygui.widget.caratteristiche.ConnectionInfo;
 import java.awt.Point;
 import java.awt.Stroke;
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.ConnectProvider;
 import org.netbeans.api.visual.action.ConnectorState;
@@ -91,7 +95,9 @@ public class ActionConstantConnection implements ConnectProvider {
             connection.setTargetAnchor(AnchorFactory.createRectangularAnchor(targetWidget));
             Stroke stroke = Costanti.BASIC_STROKE;
             connection.setStroke(stroke);
-
+            
+            addConnectionAnnotation(targetWidget, connection);
+        
             connection.getActions().addAction(ActionFactory.createPopupMenuAction(new MyPopupProviderConnectionConst(sourceWidget.getScene(), caratteristicheWidget)));
             ConnectionInfo connectionInfo = new ConnectionInfo();
             connectionInfo.setTargetWidget(targetWidget);
@@ -107,4 +113,17 @@ public class ActionConstantConnection implements ConnectProvider {
         }
 
     }
+    
+    //giannisk
+    private void addConnectionAnnotation(Widget widget, ConnectionWidget connection){
+        CaratteristicheWidgetTree caratteristicheWidgetTreeSource = (CaratteristicheWidgetTree) mainLayer.getChildConstraint(widget);
+        INode iNode = caratteristicheWidgetTreeSource.getINode();
+        List<ConnectionWidget> connections = (List<ConnectionWidget>) iNode.getAnnotation(Costanti.CONNECTION_LINE);
+        if (connections == null){
+            connections = new ArrayList<ConnectionWidget>();
+        }
+        connections.add(connection);
+        iNode.addAnnotation(Costanti.CONNECTION_LINE, connections);
+    }
+    
 }

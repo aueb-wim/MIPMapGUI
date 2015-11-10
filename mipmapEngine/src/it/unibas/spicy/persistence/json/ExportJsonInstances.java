@@ -31,7 +31,7 @@ public class ExportJsonInstances {
     private Connection getConnectionToPostgres(IConnectionFactory connectionFactory, int scenarioNo) throws DAOException{
         AccessConfiguration accessConfiguration = new AccessConfiguration();
         accessConfiguration.setDriver(SpicyEngineConstants.ACCESS_CONFIGURATION_DRIVER);
-        accessConfiguration.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME+scenarioNo);
+        accessConfiguration.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME);
         accessConfiguration.setLogin(SpicyEngineConstants.ACCESS_CONFIGURATION_LOGIN);
         accessConfiguration.setPassword(SpicyEngineConstants.ACCESS_CONFIGURATION_PASS);
         
@@ -52,10 +52,10 @@ public class ExportJsonInstances {
             DatabaseMetaData databaseMetaData = connection.getMetaData();          
             String[] tableTypes = new String[]{"TABLE"};
 
-            ResultSet tableResultSet = databaseMetaData.getTables(SpicyEngineConstants.MAPPING_TASK_DB_NAME+scenarioNo, GenerateSQL.TARGET_SCHEMA_NAME, null, tableTypes);
+            ResultSet tableResultSet = databaseMetaData.getTables(SpicyEngineConstants.MAPPING_TASK_DB_NAME+scenarioNo, SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo, null, tableTypes);
             while (tableResultSet.next()) { 
                 String tableName = tableResultSet.getString("TABLE_NAME");
-                createJsonDocument(tableName, GenerateSQL.TARGET_SCHEMA_NAME+".", mappingTask.getTargetProxy().getIntermediateSchema().getChild(tableName), folderPath, statement, null);           
+                createJsonDocument(tableName, SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo, mappingTask.getTargetProxy().getIntermediateSchema().getChild(tableName), folderPath, statement);           
             }  
         }finally{        
             //close connection
@@ -74,7 +74,7 @@ public class ExportJsonInstances {
         return folderPath;
     }
     
-    public void createJsonDocument(String tableName, String schema, INode tableNode, String folderPath, Statement statement, String[] columnNames) throws SQLException, IOException{
+    public void createJsonDocument(String tableName, String schema, INode tableNode, String folderPath, Statement statement) throws SQLException, IOException{
         BufferedWriter bw = null;
         ResultSet instancesSet = null;        
         try{
@@ -84,7 +84,7 @@ public class ExportJsonInstances {
             if (!file.exists()) {
                 file.createNewFile();
             }            
-            instancesSet =  statement.executeQuery("SELECT row_to_json(\""+tableName+"\") FROM "+schema+"\""+tableName+"\";");
+            instancesSet =  statement.executeQuery("SELECT row_to_json(\""+tableName+"\") FROM "+schema+".\""+tableName+"\";");
             //check to see if the result set is empty
             if (instancesSet.isBeforeFirst() ){
                 bw.write("[");
@@ -122,7 +122,7 @@ public class ExportJsonInstances {
         try{
             Statement statement = connection.createStatement();
             for (String tableName : tableNames) {
-                createJsonDocument(tableName, GenerateSQL.WORK_SCHEMA_NAME+".", mappingTask.getTargetProxy().getIntermediateSchema().getChild(tableName), folderPath, statement, null);           
+                createJsonDocument(tableName, SpicyEngineConstants.WORK_SCHEMA_NAME, mappingTask.getTargetProxy().getIntermediateSchema().getChild(tableName), folderPath, statement);           
             }  
         }finally{        
             //close connection

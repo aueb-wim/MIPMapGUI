@@ -384,13 +384,8 @@ public class DAOMappingTaskLines {
             dataDescription.addExclusionPath(exclusion);
         }
         IConnectionFactory dataSourceDB = new SimpleDbConnectionFactory();
-       
-        if (source){
-            daoCreateDB.createNewDatabase(scenarioNo);
-        }
         IDataSourceProxy dataSource = daoRelational.loadSchema(scenarioNo, accessConfiguration, dataDescription, dataSourceDB, source);
-        daoRelational.loadInstance(scenarioNo, accessConfiguration, dataSource, dataDescription, dataSourceDB, source);
-        //dataSource.addInstanceWithCheck(daoRelational.loadInstanceSample(accessConfiguration, dataDescription, dataSourceDB, null));
+        daoRelational.loadInstanceSample(accessConfiguration, dataSource, dataDescription, dataSourceDB, null, false);
         return dataSource;
     }
 
@@ -445,15 +440,13 @@ public class DAOMappingTaskLines {
                 boolean csvInstColNames = Boolean.valueOf(sourceCsvInstColNamesElement.getTextTrim());
                 valSet.add(tableName);
                 valSet.add(csvInstColNames);
+                valSet.add(false);
                 csvFullInstAbsoluteFilePath.put(csvInstAbsoluteFilePath,valSet);
             }
         }
-        if (source){
-            daoCreateDB.createNewDatabase(scenarioNo);
-        }
-        IDataSourceProxy dataSource = daoCSV.loadSchema(scenarioNo, csvFullTableAbsoluteFilePath, csvDatabaseName, source);
+        IDataSourceProxy dataSource = daoCSV.loadSchema(scenarioNo, csvFullTableAbsoluteFilePath, csvDatabaseName, source, csvFullInstAbsoluteFilePath);
         if (!csvFullInstAbsoluteFilePath.isEmpty()){
-            daoCSV.loadInstance(scenarioNo, dataSource, csvFullInstAbsoluteFilePath, csvDatabaseName, source);
+            daoCSV.loadInstanceSample(dataSource, csvFullInstAbsoluteFilePath, csvDatabaseName);
         }
         return dataSource;
     }

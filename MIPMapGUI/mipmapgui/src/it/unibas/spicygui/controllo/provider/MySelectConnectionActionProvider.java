@@ -26,6 +26,8 @@ import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.commons.Modello;
 import it.unibas.spicygui.widget.caratteristiche.ConnectionInfo;
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.netbeans.api.visual.action.SelectProvider;
@@ -61,21 +63,22 @@ public class MySelectConnectionActionProvider implements SelectProvider {
     }
 
     private void selezionaConnessione(ConnectionWidget connectionWidget) {
-        ConnectionWidget connectionWidgetOld = (ConnectionWidget) modello.getBean(Costanti.CONNECTION_SELECTED);
-        connectionWidget.setLineColor(Costanti.COLOR_CONNECTION_CONSTRAINT_SELECTED);
-        if (connectionWidgetOld == null) {
-        } else if (!connectionWidget.equals(connectionWidgetOld)) {
-            LayerWidget connectionLayer = (LayerWidget) connectionWidgetOld.getParentWidget();
-            if (connectionLayer != null) {
-                ConnectionInfo connectionInfo = (ConnectionInfo) connectionLayer.getChildConstraint(connectionWidgetOld);
-                if (connectionInfo.getConfidence() != 1) {
-                    connectionWidgetOld.setLineColor(Costanti.COLOR_CONNECTION_CONSTRAINT_DEFAULT);
-                } else {
+        List<ConnectionWidget> connectionWidgetList = new ArrayList<ConnectionWidget>();
+        List<ConnectionWidget> connectionWidgetOldList = (List<ConnectionWidget>) modello.getBean(Costanti.CONNECTION_SELECTED);
+        //reset the line colour and thickness to default
+        if (connectionWidgetOldList!=null && !connectionWidgetOldList.isEmpty())
+            for (ConnectionWidget connectionWidgetOld: connectionWidgetOldList){
+                LayerWidget connectionLayer = (LayerWidget) connectionWidgetOld.getParentWidget();
+                if (connectionLayer != null) {     
                     connectionWidgetOld.setLineColor(Costanti.COLOR_CONNECTION_CONSTRAINT_DEFAULT_CORRESPONDENCE);
-                }
-            }
-        }
-        modello.putBean(Costanti.CONNECTION_SELECTED, connectionWidget);
+                    connectionWidgetOld.setStroke(Costanti.BASIC_STROKE);
+                }                        
+            } 
+        //make the selected connection' line red and thick
+        connectionWidget.setLineColor(Costanti.COLOR_CONNECTION_CONSTRAINT_SELECTED);
+        connectionWidget.setStroke(Costanti.STROKE_THICK);
+        connectionWidgetList.add(connectionWidget);
+        modello.putBean(Costanti.CONNECTION_SELECTED, connectionWidgetList);        
     }
 
     private void executeInjection() {

@@ -85,7 +85,7 @@ public final class InstancesTopComponent extends TopComponent {
             sourceInstancesName = String
         }
         else{ //xml*/
-            if (source.getType().equalsIgnoreCase(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_XML))){
+        if (source.getType().equalsIgnoreCase(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_XML))){
             sourceInstancesName = (List<String>) source.getAnnotation(SpicyEngineConstants.XML_INSTANCE_FILE_LIST);
         }
         if (sourceInstancesName != null && sourceInstancesName.size() > 0) {
@@ -113,7 +113,7 @@ public final class InstancesTopComponent extends TopComponent {
         List<String> targetInstanceNames = null;
        /*
         if (target.getType().equalsIgnoreCase(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_CSV))){
-            HashMap<String,ArrayList<Object>> targetInstanceInfo = (HashMap<String,ArrayList<Object>>) target.getAnnotation(SpicyEngineConstants.CSV_INSTANCES_INFO_LIST);       
+            HashMap<String,ArrayList<Object>> targetInstanceInfo = (HashMap<String,ArrayList<Object>>) target.getAnnotation(SpicyEngineConstants.INSTANCE_PATH_LIST);       
             Set targetInstanceNamesSet = (Set<String>) targetInstanceInfo.keySet();
             targetInstanceNames.addAll(targetInstanceNamesSet);
         }
@@ -159,12 +159,8 @@ public final class InstancesTopComponent extends TopComponent {
             solution.getInstances().clear();
             daoRelational.loadTranslatedInstanceSample(scenario.getNumber(), solution, dataDescription, dataSourceDB, rootLabel);
             mappingTask.getMappingData().verifySolution(solution);
-            ////solution = mappingTask.getMappingData().getSolution();
-            ////mappingTask.getMappingData().verifySolution();
-//        } catch (UnsatisfiableEGDException ex) {
         } catch (Exception ex) {
-            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
-            //solution = mappingTask.getMappingData().getSolution();
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));                    
         }
         if (solution != null && solution.getInstances() != null) {
             int i = 1;

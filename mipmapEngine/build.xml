@@ -18,7 +18,7 @@
             <pathelement location="${lib.dir}/jdom.jar" />
             <pathelement location="${lib.dir}/postgresql-8.1-407.jdbc3.jar" />
             <pathelement location="${lib.dir}/derbyclient.jar" />
-            <pathelement location="${lib.dir}/mysql-connector-java-5.0.3-bin.jar" /> 
+            <pathelement location="${lib.dir}/mysql-connector-java-5.1.37-bin.jar" /> 
             <pathelement location="${lib.dir}/xercesImpl.jar" />
             <pathelement location="${lib.dir}/saxon9.jar" />
             <pathelement location="${lib.dir}/saxon9-xqj.jar" />

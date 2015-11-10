@@ -208,6 +208,7 @@ public class Costanti {
     //MESSAGGI MULTIPL JOIN CONDITION
     public static final String MULTIPLE_JOIN_DIALOG_TITLE = "MULTIPLE_JOIN_DIALOG_TITLE";
     //INFO CONNESSIONI
+    public static final String CONNECTION_LINE = "connectionLine";
     public static final String CONNECTION_CONSTRAINT = "connectionConstraint";
     public static final String CONNECTION_CONSTRAINT_TGD = "connectionConstraintTGD";
     public static final String CONNECTION_CONSTRAINT_SPICY = "connectionConstraintSpicy";
@@ -344,6 +345,7 @@ public class Costanti {
     public static final Stroke BASIC_STROKE = new BasicStroke(0.5f);
     public static final Stroke DASHED_STROKE = new BasicStroke(0.8f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 0, new float[]{3}, 0);
     public static final Stroke DASHED_STROKE_THICK = new BasicStroke(2f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 0, new float[]{3}, 0);
+    public static final Stroke STROKE_THICK = new BasicStroke(2f);
     public static final AnchorShape ANCHOR_SHAPE = AnchorShapeFactory.createTriangleAnchorShape(5, false, false);
     public static final Stroke CONSTRAINTS_STROKE = new BasicStroke(0.4f);    //OFFSET
     public static final int OFF_SET_X_WIDGET_BARRA = 13;

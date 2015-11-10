@@ -131,6 +131,10 @@ public interface IDataSourceProxy {
     public void setAnnotations(Map<String, Object> annotations);
 
     public void addAnnotation(String key, Object value);
+    
+    public void putChangedValue(String key, String value);
+    
+    public String getChangedValue(String key);
 
     public List<PathExpression> getAbsoluteSetPaths();
 

@@ -171,7 +171,12 @@ public class CreaWidgetAlberiLogic {
             fromPathNodes.add(iNodeFromPath);
         }
         for (INode iNode : fromPathNodes) {
-            iNode.addAnnotation(joinConnectionConstraintConstant, joinConstraint);
+            List <JoinConstraint> joinConstraints = (List <JoinConstraint>) iNode.getAnnotation(Costanti.JOIN_CONNECTION_CONSTRAINT);
+            if (joinConstraints == null){
+                joinConstraints = new ArrayList<JoinConstraint>();
+            }
+            joinConstraints.add(joinConstraint);
+            iNode.addAnnotation(Costanti.JOIN_CONNECTION_CONSTRAINT, joinConstraints);
         }
         //TODO vedere se sia meglio rimanerlo in questo metodo oppure in createSingleJoin()
         joinConstraint.changeForeignkey(joinCondition.isMonodirectional());

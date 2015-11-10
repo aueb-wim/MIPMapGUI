@@ -167,7 +167,7 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
     private IDataSourceProxy loadDataSource(String type, boolean source) throws DAOException, SQLException {
         if (type.equals(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_RELATIONAL))) {
             if (source) {
-                daoCreateDB.createNewDatabase(Scenarios.lastScenarioNo);
+                ////daoCreateDB.createNewDatabase(Scenarios.lastScenarioNo);
                 return loadRelationalDataSource((RelationalConfigurationPM) modello.getBean(Costanti.RELATIONAL_CONFIGURATION_SOURCE), source);
             }
             return loadRelationalDataSource((RelationalConfigurationPM) modello.getBean(Costanti.RELATIONAL_CONFIGURATION_TARGET), source);
@@ -180,7 +180,7 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
         }
         if (source) {
             
-            daoCreateDB.createNewDatabase(Scenarios.lastScenarioNo);
+            ////daoCreateDB.createNewDatabase(Scenarios.lastScenarioNo);
             return loadCSVDataSource((CSVConfigurationPM) modello.getBean(Costanti.CSV_CONFIGURATION_SOURCE), source);
         }
         return loadCSVDataSource((CSVConfigurationPM) modello.getBean(Costanti.CSV_CONFIGURATION_TARGET), source);  
@@ -190,10 +190,7 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
         DBFragmentDescription dataDescription = new DBFragmentDescription();
         IConnectionFactory dataSourceDB = new SimpleDbConnectionFactory();
         IDataSourceProxy dataSource = daoRelational.loadSchema(Scenarios.lastScenarioNo, configuration.getAccessConfiguration(), dataDescription, dataSourceDB, source);
-        daoRelational.loadInstance(Scenarios.lastScenarioNo, configuration.getAccessConfiguration(), dataSource, dataDescription, dataSourceDB, source);
-        //INode node = daoRelational.loadInstanceSample(configuration.getAccessConfiguration(), dataDescription, dataSourceDB, null);
-//        dataSource.generateIntermediateSchema();
-        //dataSource.addInstanceWithCheck(node);
+        daoRelational.loadInstanceSample(configuration.getAccessConfiguration(), dataSource, dataDescription, dataSourceDB, null, false);
         return dataSource;
     }
 
@@ -206,10 +203,9 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
     }
     
     //giannisk  
-    private IDataSourceProxy loadCSVDataSource(CSVConfigurationPM configuration, boolean source) throws DAOException, SQLException {
-        IDataSourceProxy dataSource = daoCsv.loadSchema(Scenarios.lastScenarioNo, configuration.getSchemaPathList(), configuration.getDBName(), source);
-        if(!configuration.getSchemaOnly()){
-            HashMap<String,ArrayList<Object>> instancePathList = new HashMap<String,ArrayList<Object>>();
+    private IDataSourceProxy loadCSVDataSource(CSVConfigurationPM configuration, boolean source) throws DAOException, SQLException {        
+        HashMap<String,ArrayList<Object>> instancePathList = new HashMap<String,ArrayList<Object>>();
+        if(!configuration.getSchemaOnly()){            
             for (String path : configuration.getSchemaPathList()){
                 //tablename is the name of the csv schema file 
                 //since schema and instance are loaded from the same file in this case
@@ -222,10 +218,12 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
                 ArrayList<Object> valSet = new ArrayList<Object>();
                 valSet.add(tableName);
                 valSet.add(true);
+                valSet.add(false);
                 instancePathList.put(path,valSet);
             }
-            daoCsv.loadInstance(Scenarios.lastScenarioNo, dataSource, instancePathList, configuration.getDBName(), source);
         }
+        IDataSourceProxy dataSource = daoCsv.loadSchema(Scenarios.lastScenarioNo, configuration.getSchemaPathList(), configuration.getDBName(), source, instancePathList);
+        daoCsv.loadInstanceSample(dataSource, instancePathList, configuration.getDBName());        
         return dataSource;        
     }
 

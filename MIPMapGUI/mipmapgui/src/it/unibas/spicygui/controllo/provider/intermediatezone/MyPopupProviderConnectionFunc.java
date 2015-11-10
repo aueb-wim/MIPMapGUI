@@ -22,15 +22,19 @@
  
 package it.unibas.spicygui.controllo.provider.intermediatezone;
 
+import it.unibas.spicy.model.datasource.INode;
 import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.widget.caratteristiche.ConnectionInfo;
 import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetInterFunction;
 import it.unibas.spicygui.widget.operators.ConnectionInfoCreator;
 import it.unibas.spicygui.controllo.mapping.operators.CreateCorrespondencesMappingTask;
 import it.unibas.spicygui.controllo.mapping.operators.ReviewCorrespondences;
+import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetTree;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
+import java.util.List;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -133,17 +137,51 @@ public class MyPopupProviderConnectionFunc implements PopupMenuProvider, ActionL
                 creator.createCorrespondenceWithFunction(mainLayer, caratteristicheWidget.getTargetWidget(), caratteristicheWidget, caratteristicheWidget.getConnectionInfo());
             } else if (caratteristicheWidget.getSourceList().isEmpty()) {
                 //TODO vedere se sia opportuno elimanare la connessione verso il target nel momento non ci siano connessioni dal source
-            }
-            connection.removeFromParent();
+            }            
+            removeConnectionAnnotations(connection.getSourceAnchor().getRelatedWidget(), connection.getTargetAnchor().getRelatedWidget(), connection, true);
+            connection.removeFromParent(); 
         } else {
             if (logger.isDebugEnabled()) {
                 logger.debug("rimuovo target");
             }
             review.removeCorrespondence(caratteristicheWidget.getValueCorrespondence());
-            caratteristicheWidget.setTargetWidget(null);
+            caratteristicheWidget.setTargetWidget(null);           
+            removeConnectionAnnotations(connection.getSourceAnchor().getRelatedWidget(), connection.getTargetAnchor().getRelatedWidget(), connection, false);
             connection.removeFromParent();
         }
         StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(Costanti.class, Costanti.DELETE_CONNECTION));
+    }
+    
+    //giannisk
+    private void removeConnectionAnnotations(Widget sourceWidget, Widget targetWidget, ConnectionWidget connection, boolean target){
+        CaratteristicheWidgetTree caratteristicheWidgetTreeSource;
+        if (target){
+            caratteristicheWidgetTreeSource = (CaratteristicheWidgetTree) mainLayer.getChildConstraint(sourceWidget);
+        }
+        else{
+            caratteristicheWidgetTreeSource = (CaratteristicheWidgetTree) mainLayer.getChildConstraint(targetWidget);
+        }
+        INode iNode = caratteristicheWidgetTreeSource.getINode();
+        List<ConnectionWidget> connections = (List<ConnectionWidget>) iNode.getAnnotation(Costanti.CONNECTION_LINE);
+        connections.remove(connection);
+        Iterator<ConnectionWidget> iterator = connections.iterator();
+        while (iterator.hasNext()){
+            ConnectionWidget conn = iterator.next();
+            ConnectionInfo connectionInfo = (ConnectionInfo) connection.getParentWidget().getChildConstraint(conn);
+            if (connectionInfo!=null){
+                if (target){
+                    if(connectionInfo.getSourceWidget()!=null)
+                        if (connectionInfo.getSourceWidget().equals(targetWidget))
+                            iterator.remove();
+                }
+                else{
+                   if(connectionInfo.getTargetWidget()!=null)
+                        if (connectionInfo.getTargetWidget().equals(sourceWidget))
+                            iterator.remove();
+                }
+            }
+        }
+        iNode.addAnnotation(Costanti.CONNECTION_LINE, connections);
     }
 
 }

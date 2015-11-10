@@ -28,12 +28,19 @@ import it.unibas.spicygui.commons.Modello;
 import it.unibas.spicygui.vista.treepm.TreeNodeAdapter;
 import it.unibas.spicygui.widget.ConnectionConstraint;
 import it.unibas.spicygui.widget.JoinConstraint;
+import it.unibas.spicygui.widget.caratteristiche.ConnectionInfo;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.netbeans.api.visual.widget.ConnectionWidget;
+import org.netbeans.api.visual.widget.LayerWidget;
 import org.openide.util.Lookup;
 
 public class ConstraintColoringTreeSelectionListener implements TreeSelectionListener {
@@ -63,6 +70,7 @@ public class ConstraintColoringTreeSelectionListener implements TreeSelectionLis
         INode node = adapter.getINode();
         analyzeConnectionConstraints(node);
         analyzeJoinConditions(node);
+        analyzeConnections(node);
     }
 
     private void analyzeConnectionConstraints(INode node) {
@@ -79,16 +87,48 @@ public class ConstraintColoringTreeSelectionListener implements TreeSelectionLis
     }
 
     private void analyzeJoinConditions(INode node) {
-        JoinConstraint joinConstrainOld = (JoinConstraint) modello.getBean(joinConnectionConst);
-        if (joinConstrainOld != null) {
-            joinConstrainOld.changeLineColor(Costanti.COLOR_CONNECTION_CONSTRAINT_DEFAULT);
+        List <JoinConstraint> joinConstraintOldList = (List<JoinConstraint>) modello.getBean(joinConnectionConst);
+        List <JoinConstraint> joinConstraintList = (List<JoinConstraint>) node.getAnnotation(this.joinNodeConnectionAnnotation);
+        if (joinConstraintOldList!=null && !joinConstraintOldList.isEmpty())
+            for (JoinConstraint joinConstraintOld: joinConstraintOldList){
+                if (joinConstraintOld != null) {
+                    if (joinConstraintOld.getJoinCondition().isMatchString()){
+                        joinConstraintOld.changeLineColor(Costanti.COLOR_CONNECTION_CONSTRAINT_MATCHSTRING);
+                    }
+                    else{
+                        joinConstraintOld.changeLineColor(Costanti.COLOR_CONNECTION_CONSTRAINT_DEFAULT);
+                    }
+                }
         }
-        JoinConstraint joinConstraints = (JoinConstraint) node.getAnnotation(this.joinNodeConnectionAnnotation);
-        if (joinConstraints == null) {
-            return;
-        }
-        joinConstraints.changeLineColor(Costanti.COLOR_CONNECTION_CONSTRAINT_SELECTED);
-        modello.putBean(joinConnectionConst, joinConstraints);
+        if (joinConstraintList!=null && !joinConstraintList.isEmpty())
+            for (JoinConstraint joinConstraint: joinConstraintList){
+                if (joinConstraint == null) {
+                    return;
+                }
+                joinConstraint.changeLineColor(Costanti.COLOR_CONNECTION_CONSTRAINT_SELECTED);
+        }        
+        modello.putBean(joinConnectionConst, joinConstraintList);
+    }
+    
+    private void analyzeConnections(INode node) {
+        List<ConnectionWidget> connectionWidgetOldList = (List<ConnectionWidget>) modello.getBean(Costanti.CONNECTION_SELECTED);
+        List<ConnectionWidget> connectionWidgetList = (List<ConnectionWidget>) node.getAnnotation(Costanti.CONNECTION_LINE);
+        //reset the line colour and thickness to default
+        if (connectionWidgetOldList!=null && !connectionWidgetOldList.isEmpty())
+            for (ConnectionWidget connectionWidgetOld: connectionWidgetOldList){
+                LayerWidget connectionLayer = (LayerWidget) connectionWidgetOld.getParentWidget();
+                if (connectionLayer != null) {     
+                    connectionWidgetOld.setLineColor(Costanti.COLOR_CONNECTION_CONSTRAINT_DEFAULT_CORRESPONDENCE);
+                    connectionWidgetOld.setStroke(Costanti.BASIC_STROKE);
+                }                        
+            } 
+        //make the selected connections' lines red and thick
+        if (connectionWidgetList!=null && !connectionWidgetList.isEmpty())
+            for (ConnectionWidget connectionWidget: connectionWidgetList){ 
+                connectionWidget.setLineColor(Costanti.COLOR_CONNECTION_CONSTRAINT_SELECTED);
+                connectionWidget.setStroke(Costanti.STROKE_THICK);
+            }
+        modello.putBean(Costanti.CONNECTION_SELECTED, connectionWidgetList);
     }
 
     private void executeInjection() {

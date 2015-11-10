@@ -85,7 +85,6 @@ public class ActionExportTranslatedInstances extends CallableSystemAction implem
             try {
                 file = chooser.getSelectedFile();
                 DAOXsd daoXsd = new DAOXsd();
-                //TODO check if changing method because the solution of a mappingdata is IDataSource
                 daoXsd.exportTranslatedXMLinstances(mappingTask.getMappingData().getSolution().getDataSource(), file.getAbsolutePath());
                 //giannisk canonical tree not needed
                 ////daoXsd.exportCanonicalXMLinstances(mappingTask.getMappingData().getCanonicalSolution().getDataSource(), file.getAbsolutePath());

@@ -33,7 +33,6 @@ import it.unibas.spicygui.controllo.Scenario;
 import it.unibas.spicygui.vista.InstancesTopComponent;
 import it.unibas.spicygui.vista.Vista;
 import it.unibas.spicygui.vista.csv.LoadCsvInstancesMainFrame;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -74,35 +73,33 @@ public class ActionAddSourceInstanceCsv extends CallableSystemAction implements 
         //jd.getResponse() returns the file path and the table name
         HashMap<String,String> absolutePaths = jd.getResponse();
         if (!absolutePaths.isEmpty())
-            if(!scenario.getMappingTask().getSourceProxy().getType().equalsIgnoreCase("XML")){
-                try{                
-                    DAOCsv daoCsv = new DAOCsv();
+            if(!scenario.getMappingTask().getSourceProxy().getType().equalsIgnoreCase("XML")){ 
+                try {
                     //pathHashMap is a multimap set with the file path String as key
-                    //and an arraylist with two values: a)the tablename and 
-                    //b)a boolean value that represents if the file contains column names
+                    //and an arraylist with two values: a)the tablename
+                    //b)a boolean value that represents if the file contains column names and
+                    //c)a boolean that contains the info if the instance file has been already loaded
                     HashMap<String,ArrayList<Object>> pathHashMap = new HashMap<String,ArrayList<Object>>();
                     for (Map.Entry<String, String> entry : absolutePaths.entrySet()){
                         ArrayList<Object> valSet = new ArrayList<Object>();
                         //table name
                         valSet.add(entry.getValue());
                         valSet.add(jd.getColNames());
+                        valSet.add(false);
                         pathHashMap.put(entry.getKey(),valSet);
                     }
-                    try {
-                        ////daoCsv.loadInstance(dataSource, pathHashMap, dataSource.getSchema().getLabel());
-                        daoCsv.loadInstance(scenario.getNumber(), dataSource, pathHashMap, dataSource.getSchema().getLabel(), true);
-                    
-                        if (!viewInstancesTopComponent.isRipulito()) {
-                            viewInstancesTopComponent.clearSource();
-                            viewInstancesTopComponent.createSourceInstanceTree();
-                            viewInstancesTopComponent.requestActive();
-                            StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(Costanti.class, Costanti.ADD_INSTANCE_OK));
-                        }
-                    } catch (SQLException ex) {
-                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.OPEN_ERROR) + " : " + ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
-                    logger.error(ex);
+                    //dataSource.getInstances().clear();
+                    //dataSource.getOriginalInstances().clear();
+                    DAOCsv daoCsv = new DAOCsv();
+                    daoCsv.addInstances(dataSource, pathHashMap);
+
+                    if (!viewInstancesTopComponent.isRipulito()) {
+                        viewInstancesTopComponent.clearSource();
+                        viewInstancesTopComponent.createSourceInstanceTree();
+                        viewInstancesTopComponent.requestActive();
                     }
-                }catch (DAOException ex) {
+                    StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(Costanti.class, Costanti.ADD_INSTANCE_OK));
+                } catch (DAOException ex) {
                     DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.OPEN_ERROR) + " : " + ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
                     logger.error(ex);
                 }

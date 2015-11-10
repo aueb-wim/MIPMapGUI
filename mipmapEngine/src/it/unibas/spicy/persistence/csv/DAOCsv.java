@@ -56,7 +56,7 @@ public class DAOCsv {
     //////////////////////// SCHEMA
     //////////////////////////////////////////////////////////   
    
-    public IDataSourceProxy loadSchema(int scenarioNo, HashSet<String> tablefullPathList, String catalog, boolean source) throws DAOException {
+    public IDataSourceProxy loadSchema(int scenarioNo, HashSet<String> tablefullPathList, String catalog, boolean source, HashMap<String,ArrayList<Object>> instancePathList) throws DAOException {
         INode root = null;
         IDataSourceProxy dataSource = null;
 
@@ -65,7 +65,7 @@ public class DAOCsv {
         Connection connection = null;
         AccessConfiguration accessConfiguration = new AccessConfiguration();
         accessConfiguration.setDriver(SpicyEngineConstants.ACCESS_CONFIGURATION_DRIVER);
-        accessConfiguration.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME+scenarioNo);
+        accessConfiguration.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME);
         accessConfiguration.setLogin(SpicyEngineConstants.ACCESS_CONFIGURATION_LOGIN);
         accessConfiguration.setPassword(SpicyEngineConstants.ACCESS_CONFIGURATION_PASS);
         try  {
@@ -74,9 +74,9 @@ public class DAOCsv {
             Statement statement = connection.createStatement();
             //giannisk postgres create schemas
             if(source){                        
-                String createSchemasQuery = "create schema if not exists " + GenerateSQL.SOURCE_SCHEMA_NAME + ";\n";
+                String createSchemasQuery = "create schema if not exists " + SpicyEngineConstants.SOURCE_SCHEMA_NAME+scenarioNo + ";\n";
                 //createSchemasQuery += "create schema if not exists " + GenerateSQL.WORK_SCHEMA_NAME + ";\n";                        
-                createSchemasQuery += "create schema if not exists " + GenerateSQL.TARGET_SCHEMA_NAME + ";";
+                createSchemasQuery += "create schema if not exists " + SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo + ";";
                 statement.executeUpdate(createSchemasQuery);
             }
             try {
@@ -95,6 +95,8 @@ public class DAOCsv {
                     dataSource = new ConstantDataSourceProxy(new DataSource(SpicyEngineConstants.TYPE_CSV, root));
                     dataSource.addAnnotation(SpicyEngineConstants.CSV_DB_NAME, catalog);
 
+                    dataSource.addAnnotation(SpicyEngineConstants.INSTANCE_PATH_LIST, instancePathList);
+                    
                     dataSource.addAnnotation(SpicyEngineConstants.CSV_TABLE_FILE_LIST, tableFiles);
                     tableFiles.add(tablefullPath);                    
                     
@@ -108,7 +110,16 @@ public class DAOCsv {
                         String columns = "";
                         for (int i=0; i<nextLine.length; i++){
                             //trim and remove quotes                
-                            String columnName = nextLine[i].trim().replace("\"","");
+                            String columnName = nextLine[i].trim();
+                            if (!(columnName.startsWith("\"") && columnName.endsWith("\""))){
+                                columnName = "\""+columnName+"\"";
+                            }
+                            //the "-" character is replaced since it cannot be accepted by JEP and MIMap
+                            if (columnName.contains("-")){
+                                String oldColumnName = columnName;
+                                columnName = oldColumnName.replace("-","_");
+                                dataSource.putChangedValue(filename+"."+columnName.replaceAll("\"", ""), oldColumnName.replaceAll("\"", ""));
+                            }
                             String typeOfColumn = Types.POSTGRES_STRING;
                             columns += columnName + " " + typeOfColumn + ",";
                         }
@@ -118,14 +129,14 @@ public class DAOCsv {
                         //giannisk postgres create table
                         String table;
                         if (source){
-                            table = GenerateSQL.SOURCE_SCHEMA_NAME+".\""+filename+"\"";
+                            table = SpicyEngineConstants.SOURCE_SCHEMA_NAME+scenarioNo+".\""+filename+"\"";
                         }
                         else{
-                            table = GenerateSQL.TARGET_SCHEMA_NAME+".\""+filename+"\"";    
+                            table = SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo+".\""+filename+"\"";    
                         }
                         statement.executeUpdate("drop table if exists "+ table);
                         statement.executeUpdate("create table "+ table +" ("+ columns+ ")");
-                        
+                        dataSource.addAnnotation(SpicyEngineConstants.LOADED_INSTANCES_FLAG, false);
                     } catch(FileNotFoundException e){
                         e.printStackTrace();
                     } 
@@ -185,6 +196,10 @@ public class DAOCsv {
             for (int i=0; i<nextLine.length; i++){
                 //trim and remove quotes                
                 String columnName = nextLine[i].trim().replace("\"","");
+                //the "-" character is replaced since it cannot be accepted by JEP and MIMap
+                if (columnName.contains("-")){
+                    columnName = columnName.replace("-","_");
+                }
                 String keyColumn = tableName + "." + columnName;
                 INode columnNode = new AttributeNode(columnName);
                 addNode(keyColumn, columnNode);
@@ -221,12 +236,12 @@ public class DAOCsv {
     //////////////////////// INSTANCE
     /////////////////////////////////////////////////////////////
     @SuppressWarnings("unchecked")
-    public void loadInstance(int scenarioNo, IDataSourceProxy dataSource, HashMap<String,ArrayList<Object>> strfullPath, String catalog, boolean source) throws DAOException, SQLException {
+    public void loadInstance(int scenarioNo, IDataSourceProxy dataSource, boolean source) throws DAOException, SQLException {
         IConnectionFactory connectionFactory = null;
         Connection connection = null;
         AccessConfiguration accessConfiguration = new AccessConfiguration();
         accessConfiguration.setDriver(SpicyEngineConstants.ACCESS_CONFIGURATION_DRIVER);
-        accessConfiguration.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME+scenarioNo);
+        accessConfiguration.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME);
         accessConfiguration.setLogin(SpicyEngineConstants.ACCESS_CONFIGURATION_LOGIN);
         accessConfiguration.setPassword(SpicyEngineConstants.ACCESS_CONFIGURATION_PASS);
 
@@ -236,86 +251,95 @@ public class DAOCsv {
             connection = connectionFactory.getConnection(accessConfiguration);
             Statement statement = connection.createStatement();
         
+            HashMap<String,ArrayList<Object>> strfullPath = (HashMap<String,ArrayList<Object>>) dataSource.getAnnotation(SpicyEngineConstants.INSTANCE_PATH_LIST);
+            
             for (Map.Entry<String, ArrayList<Object>> entry : strfullPath.entrySet()) {
-               String filePath = entry.getKey();                 
+               String filePath = entry.getKey();
                //the list entry.getValue() contains a)the table name 
-               //and  b)a boolean that contains the info if the instance file includes column names                
-               String tableName = (String)entry.getValue().get(0);
-               if (source){
-                   tableName =  GenerateSQL.SOURCE_SCHEMA_NAME+".\""+tableName+"\"";
-               }
-               else{
-                   tableName =  GenerateSQL.TARGET_SCHEMA_NAME+".\""+tableName+"\"";
-               }
-               boolean colNames = (Boolean) entry.getValue().get(1);
-
-               CSVReader reader = new CSVReader(new FileReader(filePath));
-            try{
-                //ignore the first line if file includes column names
-                if (colNames){
-                    reader.readNext();
+               //b)a boolean that contains the info if the instance file includes column names 
+               //and c) a boolean that contains the info if the instance file has been already loaded 
+               boolean loaded = (Boolean) entry.getValue().get(2);
+               if (!loaded){               
+                String tableName = (String) entry.getValue().get(0);
+                if (source){
+                    tableName =  SpicyEngineConstants.SOURCE_SCHEMA_NAME+scenarioNo+".\""+tableName+"\"";
                 }
-                String [] nextLine;
-                String values;
+                else{
+                    tableName =  SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo+".\""+tableName+"\"";
+                }
+                boolean colNames = (Boolean) entry.getValue().get(1);
 
-                ArrayList<String> stmnt_list = new ArrayList<String>();
-                String sql_insert_stmnt ="";
-                int line = 0;
-                while ((nextLine = reader.readNext()) != null) {//for each line in the file   
-                    line++;
-                    //skip empty lines at the end of the csv file
-                    if (nextLine.length != 1 || !nextLine[0].isEmpty()){
-                        //insert into batches (of 500 rows)
-                        if (line%BATCH_SIZE==0){
-                            //take out the last ',' character           
-                            sql_insert_stmnt = sql_insert_stmnt.substring(0, sql_insert_stmnt.length()-1);
-                            stmnt_list.add(sql_insert_stmnt);
-                            sql_insert_stmnt = "";
-                        }
-                        values = "";
-                        for (int i=0; i<nextLine.length; i++){
-                            if (!nextLine[i].equalsIgnoreCase("null")){
-                                //replace double quotes with single quotes
-                                //while first escape the character ' for SQL (the "replaceAll" method call)
-                                values += "'"+ nextLine[i].trim().replaceAll("'", "''") + "',";
-                            }
-                            //do not put quotes if value is the string null
-                            else{
-                                values += nextLine[i].trim().replaceAll("'", "''") + ",";   
-                            }
-                        }
-                        //take out the last ',' character
-                        values = values.substring(0, values.length()-1);
-                        sql_insert_stmnt += "("+values+"),";   
+                CSVReader reader = new CSVReader(new FileReader(filePath));
+                try{
+                     //ignore the first line if file includes column names
+                     if (colNames){
+                         reader.readNext();
+                     }
+                     String [] nextLine;
+                     String values;
+
+                     ArrayList<String> stmnt_list = new ArrayList<String>();
+                     String sql_insert_stmnt ="";
+                     int line = 0;
+                     while ((nextLine = reader.readNext()) != null) {//for each line in the file   
+                         line++;
+                         //skip empty lines at the end of the csv file
+                         if (nextLine.length != 1 || !nextLine[0].isEmpty()){
+                             //insert into batches (of 500 rows)
+                             if (line%BATCH_SIZE==0){
+                                 //take out the last ',' character           
+                                 sql_insert_stmnt = sql_insert_stmnt.substring(0, sql_insert_stmnt.length()-1);
+                                 stmnt_list.add(sql_insert_stmnt);
+                                 sql_insert_stmnt = "";
+                             }
+                             values = "";
+                             for (int i=0; i<nextLine.length; i++){
+                                 if (!nextLine[i].equalsIgnoreCase("null")){
+                                     //replace double quotes with single quotes
+                                     //while first escape the character ' for SQL (the "replaceAll" method call)
+                                     values += "'"+ nextLine[i].trim().replaceAll("'", "''") + "',";
+                                 }
+                                 //do not put quotes if value is the string null
+                                 else{
+                                     values += nextLine[i].trim().replaceAll("'", "''") + ",";   
+                                 }
+                             }
+                             //take out the last ',' character
+                             values = values.substring(0, values.length()-1);
+                             sql_insert_stmnt += "("+values+"),";   
+                         }
                     }
-                }
-                reader.close();                  
-                if (sql_insert_stmnt != ""){
-                    //take out the last ',' character
-                    sql_insert_stmnt = sql_insert_stmnt.substring(0, sql_insert_stmnt.length()-1);
-                    stmnt_list.add(sql_insert_stmnt);
-                    for (String stmnmt : stmnt_list){
-                        statement.executeUpdate("insert into "+tableName+" values "+stmnmt+";");
-                    } 
-                }                                         
-            }   catch (IOException ex) {     
-                    Logger.getLogger(DAOCsv.class.getName()).log(Level.SEVERE, null, ex);
-                    throw new DAOException(ex);
-                }     
+                     reader.close();                  
+                     if (sql_insert_stmnt != ""){
+                         //take out the last ',' character
+                         sql_insert_stmnt = sql_insert_stmnt.substring(0, sql_insert_stmnt.length()-1);
+                         stmnt_list.add(sql_insert_stmnt);
+                         for (String stmnmt : stmnt_list){
+                             statement.executeUpdate("insert into "+tableName+" values "+stmnmt+";");
+                         } 
+                     } 
 
-            }            
-            //load only a sample of the instances to memory to show on MIPMap interface
-            loadInstanceSample(dataSource, strfullPath, catalog);  
-        }
-     catch (FileNotFoundException ex) {
+                     //change the "loaded" value of the entry by replacing it in the hashmap
+                     ArrayList<Object> valSet = new ArrayList<Object>();
+                     valSet.add(tableName);
+                     valSet.add(colNames);
+                     valSet.add(true);
+                     strfullPath.put(filePath, valSet);
+
+                    }catch (IOException ex) {     
+                         Logger.getLogger(DAOCsv.class.getName()).log(Level.SEVERE, null, ex);
+                         throw new DAOException(ex);
+                    }     
+                dataSource.addAnnotation(SpicyEngineConstants.LOADED_INSTANCES_FLAG, true);
+                }  
+            } 
+        } catch (FileNotFoundException ex) {
             Logger.getLogger(DAOCsv.class.getName()).log(Level.SEVERE, null, ex);
             throw new DAOException(ex);
-        }        
-      finally
-      {
+        } finally {
           if(connection != null)
             connection.close();
-      }               
+        }               
     }  
         
     @SuppressWarnings("unchecked")
@@ -328,7 +352,7 @@ public class DAOCsv {
             for (Map.Entry<String, ArrayList<Object>> entry : strfullPath.entrySet()) {
                  String filePath = entry.getKey();                 
                 //the list entry.getValue() contains a)the table name 
-                //and  b)a boolean that contains the info if the instance file includes column names                
+                //b)a boolean that contains the info if the instance file includes column names             
                 String tableName = (String)entry.getValue().get(0);
                 boolean colNames = (Boolean) entry.getValue().get(1);
 
@@ -395,11 +419,24 @@ public class DAOCsv {
         String type = leafNodeInSchema.getLabel();
         Object typedValue = Types.getTypedValue(type, untypedValue);
         return new LeafNode(type, typedValue);
-        //return new LeafNode(type, untypedValue);
     }
     
-
-    
+    @SuppressWarnings("unchecked")
+    public void addInstances(IDataSourceProxy dataSource, HashMap<String,ArrayList<Object>> newFilesMap) throws DAOException{
+        //merge previous map with the new one
+        HashMap<String,ArrayList<Object>> mergeMap = new HashMap<String,ArrayList<Object>>();
+        HashMap<String,ArrayList<Object>> previousMap = (HashMap) dataSource.getAnnotation(SpicyEngineConstants.INSTANCE_PATH_LIST);
+        mergeMap.putAll(previousMap);
+        mergeMap.putAll(newFilesMap);
+        //replace annotation
+        dataSource.addAnnotation(SpicyEngineConstants.INSTANCE_PATH_LIST, mergeMap);
+        //change flag so that new instances will be loaded to the temporary DB
+        dataSource.addAnnotation(SpicyEngineConstants.LOADED_INSTANCES_FLAG, false);        
+        String catalog = (String) dataSource.getAnnotation(SpicyEngineConstants.CSV_DB_NAME);
+        //load instance sample of the new files
+        loadInstanceSample(dataSource, newFilesMap, catalog);
+    }
+       
     public void exportTranslatedCSVinstances(MappingTask mappingTask, String directoryPath, int scenarioNo) throws DAOException {
         try{
             ExportCSVInstances exporter = new ExportCSVInstances();        
