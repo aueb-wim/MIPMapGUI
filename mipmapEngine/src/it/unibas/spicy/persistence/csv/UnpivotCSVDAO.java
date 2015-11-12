@@ -180,8 +180,9 @@ public class UnpivotCSVDAO {
             sql_insert_stmnt += "("+values+"),";
         }
     reader.close();
-    //take out the last ',' character           
-    sql_insert_stmnt = sql_insert_stmnt.substring(0, sql_insert_stmnt.length()-1);
+    //take out the last ',' character
+    if(!sql_insert_stmnt.equals(""))
+        sql_insert_stmnt = sql_insert_stmnt.substring(0, sql_insert_stmnt.length()-1);
     stmnt_list.add(sql_insert_stmnt);
     return stmnt_list;
     }

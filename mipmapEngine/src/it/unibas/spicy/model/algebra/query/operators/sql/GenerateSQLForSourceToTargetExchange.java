@@ -299,8 +299,7 @@ public class GenerateSQLForSourceToTargetExchange {
         StringBuilder result = new StringBuilder();
         String viewName = GenerateSQL.tgdFinalSQLName(tgd);
         //giannisk
-        result.append(DELETE_EXISTING_TABLE).append(viewName).append(";\n");
-        
+        result.append(DELETE_EXISTING_TABLE).append(viewName).append(";\n");        
         result.append(CREATE_TABLE_OR_VIEW).append(viewName).append(" AS \n");
         String fromClause = "";
         fromClause = GenerateSQL.generateFromClause(tgd.getComplexSourceQuery().getVariables(), chainingStep);

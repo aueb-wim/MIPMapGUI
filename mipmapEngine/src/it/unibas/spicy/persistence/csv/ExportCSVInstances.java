@@ -79,8 +79,7 @@ public class ExportCSVInstances {
         return folderPath;
     }
     
-    public void createCSVDocument(String tableName, String schema, IDataSourceProxy dataSourceTarget, String folderPath, Statement statement, String[] columnNames) throws SQLException, IOException{
-        INode tableNode = dataSourceTarget.getIntermediateSchema().getChild(tableName);
+    public void createCSVDocument(String tableName, String schema, IDataSourceProxy dataSourceTarget, String folderPath, Statement statement, String[] columnNames) throws SQLException, IOException{        
         File file = new File(folderPath+File.separator+tableName+".csv"); 
         ResultSet allRows = statement.executeQuery("SELECT * FROM "+schema+".\""+tableName+"\";");
         int columnCount = allRows.getMetaData().getColumnCount();                
@@ -89,18 +88,22 @@ public class ExportCSVInstances {
             //first write column names
             columnNames = new String[columnCount];
             int i = 0;
-            //get column names from the first table tuple only           
-            for (INode column: tableNode.getChild(0).getChildren()){
-                String columnLabel = column.getLabel();
-                String oldValue = dataSourceTarget.getChangedValue(tableName+"."+columnLabel);
-                if (oldValue!=null){
-                    columnNames[i] = oldValue;
+            //datasource is null when exporting the unpivoted csv table
+            if(dataSourceTarget != null){
+                INode tableNode = dataSourceTarget.getIntermediateSchema().getChild(tableName);
+                //get column names from the first table tuple only           
+                for (INode column: tableNode.getChild(0).getChildren()){
+                    String columnLabel = column.getLabel();
+                    String oldValue = dataSourceTarget.getChangedValue(tableName+"."+columnLabel);
+                    if (oldValue!=null){
+                        columnNames[i] = oldValue;
+                    }
+                    else{
+                        columnNames[i] = columnLabel; 
+                    }
+                    i++;
                 }
-                else{
-                    columnNames[i] = columnLabel; 
-                }
-                i++;
-            }        
+            }
         }
         CSVWriter csvWriter = new CSVWriter(new FileWriter(file), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.NO_ESCAPE_CHARACTER);
         csvWriter.writeNext(columnNames, false);        
