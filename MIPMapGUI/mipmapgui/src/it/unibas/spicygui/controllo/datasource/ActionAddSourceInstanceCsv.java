@@ -73,7 +73,7 @@ public class ActionAddSourceInstanceCsv extends CallableSystemAction implements 
         //jd.getResponse() returns the file path and the table name
         HashMap<String,String> absolutePaths = jd.getResponse();
         if (!absolutePaths.isEmpty())
-            if(!scenario.getMappingTask().getSourceProxy().getType().equalsIgnoreCase("XML")){ 
+            if(scenario.getMappingTask().getSourceProxy().getType().equalsIgnoreCase("CSV")){ 
                 try {
                     //pathHashMap is a multimap set with the file path String as key
                     //and an arraylist with two values: a)the tablename

@@ -66,7 +66,6 @@ public class ActionSettingEngineConfiguration extends AbstractAction {
     }
 
     private void ripristinaConfigurazione(EngineConfigurationPM engineConfigurationCanceled, EngineConfigurationPM engineConfiguration) {
-        engineConfigurationCanceled.setDebugMode(engineConfiguration.isDebugMode());
         engineConfigurationCanceled.setRewriteCoverages(engineConfiguration.isRewriteCoverages());
         engineConfigurationCanceled.setRewriteEGDs(engineConfiguration.isRewriteEGDs());
         engineConfigurationCanceled.setRewriteSelfJoins(engineConfiguration.isRewriteSelfJoins());
@@ -77,7 +76,8 @@ public class ActionSettingEngineConfiguration extends AbstractAction {
         engineConfigurationCanceled.setSkolemTableStrategy(engineConfiguration.getSkolemTableStrategy());
 
         engineConfigurationCanceled.setUseCreateTableInSTExchange(engineConfiguration.isUseCreateTableInSTExchange());
-        engineConfigurationCanceled.setUseCreateTableInTargetExchange(engineConfiguration.isUseCreateTableInTargetExchange());
+        //engineConfigurationCanceled.setUseCreateTableInTargetExchange(engineConfiguration.isUseCreateTableInTargetExchange());
+        //engineConfigurationCanceled.setDebugMode(engineConfiguration.isDebugMode());
         engineConfigurationCanceled.setUseHashTextForSkolems(engineConfiguration.isUseHashTextForSkolems());
     }
 

@@ -7,6 +7,7 @@
   </NonVisualComponents>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
   </SyntheticProperties>
   <Events>
     <EventHandler event="windowClosing" listener="java.awt.event.WindowListener" parameters="java.awt.event.WindowEvent" handler="closeDialog"/>
@@ -34,37 +35,41 @@
                           <Component id="checkRewriteSubsumptions" min="-2" max="-2" attributes="0"/>
                           <Component id="checkRewriteSelfJoins" min="-2" max="-2" attributes="0"/>
                           <Component id="checkRewriteCoverages" min="-2" max="-2" attributes="0"/>
-                          <Component id="checkRewriteEDGs" min="-2" max="-2" attributes="0"/>
                           <Component id="checkRewriteAllHomomorphisms" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="labelUseSortStrategy" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="comboBoxUseSortStrategy" min="-2" pref="122" max="-2" attributes="1"/>
-                          </Group>
                       </Group>
-                      <EmptySpace pref="13" max="32767" attributes="0"/>
+                      <EmptySpace pref="55" max="32767" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="checkUseCreateTableTargetExchange" alignment="0" max="32767" attributes="1"/>
-                              <Component id="checkDebugMode" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="checkUseCreateTableSTExchange" alignment="0" pref="173" max="32767" attributes="1"/>
-                              <Component id="checkUseSkolemStrings" alignment="0" min="-2" max="-2" attributes="1"/>
-                              <Component id="checkUseHashTextForSkolems" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Group type="102" alignment="1" attributes="0">
-                                  <Component id="labelUseSkolemTableStrategy" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="comboBoxUseSkolemTableStrategy" min="-2" pref="122" max="-2" attributes="1"/>
-                              </Group>
-                          </Group>
-                          <Component id="checkUseLocalSkolems" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkUseCreateTableSTExchange" alignment="0" min="-2" pref="239" max="-2" attributes="1"/>
+                          <Component id="checkUseSkolemStrings" alignment="0" min="-2" max="-2" attributes="1"/>
+                          <Component id="checkUseHashTextForSkolems" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkRewriteEDGs" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="1" attributes="0">
-                      <Component id="okButton" linkSize="1" min="-2" pref="67" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="cancelButton" linkSize="1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="checkUseLocalSkolems" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="labelUseSortStrategy" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="comboBoxUseSortStrategy" min="-2" pref="122" max="-2" attributes="1"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="labelUseSkolemTableStrategy" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Component id="okButton" linkSize="1" min="-2" pref="67" max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
+                              <Component id="cancelButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="comboBoxUseSkolemTableStrategy" min="-2" pref="122" max="-2" attributes="1"/>
+                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
           </Group>
@@ -74,53 +79,44 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="checkRewriteSubsumptions" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
-                      <Component id="checkRewriteCoverages" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="checkRewriteSelfJoins" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="checkRewriteEDGs" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="checkUseCreateTableTargetExchange" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="checkUseCreateTableSTExchange" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="checkDebugMode" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="checkUseSkolemStrings" min="-2" max="-2" attributes="0"/>
-                  </Group>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="checkRewriteSubsumptions" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="checkUseCreateTableSTExchange" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="checkRewriteCoverages" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="checkRewriteEDGs" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Component id="checkUseHashTextForSkolems" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="labelUseSkolemTableStrategy" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="comboBoxUseSkolemTableStrategy" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="checkRewriteSelfJoins" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="checkUseSkolemStrings" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="checkRewriteAllHomomorphisms" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="checkUseHashTextForSkolems" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="labelUseSkolemTableStrategy" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="comboBoxUseSkolemTableStrategy" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" attributes="0">
-                      <Component id="checkRewriteAllHomomorphisms" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="labelUseSortStrategy" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="comboBoxUseSortStrategy" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="comboBoxUseSortStrategy" min="-2" max="-2" attributes="0"/>
+                      <Component id="labelUseSortStrategy" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="15" max="32767" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="checkUseLocalSkolems" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="okButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="cancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -145,13 +141,6 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cancelButtonActionPerformed"/>
       </Events>
-    </Component>
-    <Component class="javax.swing.JCheckBox" name="checkDebugMode">
-      <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="it/unibas/spicygui/Bundle.properties" key="check_debugMode_text" replaceFormat="org.openide.util.NbBundle.getMessage(Costanti.class, &quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="checkRewriteCoverages">
       <Properties>
@@ -187,13 +176,9 @@
           <ResourceString bundle="it/unibas/spicygui/Bundle.properties" key="check_UseCreateTableSTExchange_text" replaceFormat="org.openide.util.NbBundle.getMessage(Costanti.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
-    </Component>
-    <Component class="javax.swing.JCheckBox" name="checkUseCreateTableTargetExchange">
-      <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="it/unibas/spicygui/Bundle.properties" key="check_UseCreateTableTargetExchange_text" replaceFormat="org.openide.util.NbBundle.getMessage(Costanti.class, &quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="checkUseCreateTableSTExchange.setEnabled (false);"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="labelUseSortStrategy">
       <Properties>

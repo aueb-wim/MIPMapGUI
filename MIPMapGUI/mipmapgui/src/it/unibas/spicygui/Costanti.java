@@ -429,6 +429,7 @@ public class Costanti {
     public static final String ICONA_PROJECT = "misc/icons/project.png";
     public static final String ICONA_VIEW_TGD = "misc/icons/table_tgd.png";
     public static final String ICONA_VIEW_COMPOSITION = "misc/icons/composition.png";
+    public static final String SOUND_FILE = "/misc/sounds/mipmap_theme.wav";
     //ICONE NUMERI
     public static final String ICONA_NUMBER_1 = "misc/icons/numbers/number1.png";
     public static final String ICONA_NUMBER_2 = "misc/icons/numbers/number2.png";

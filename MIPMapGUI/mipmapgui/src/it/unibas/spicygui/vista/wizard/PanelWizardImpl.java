@@ -79,7 +79,8 @@ public class PanelWizardImpl extends javax.swing.JPanel {
         this.comboDataSourceType.removeAllItems();
         //giannsik new selection for CSV files
         this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_CSV));
-        this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_XML));
+        //giannsik selection for XML files removed from combo box
+        //this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_XML));
         this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_RELATIONAL));
         this.labelDataSourceType.setText(NbBundle.getMessage(Costanti.class, Costanti.LABEL_DATA_SOURCE_TYPE));
         //this.createXMLPanel();

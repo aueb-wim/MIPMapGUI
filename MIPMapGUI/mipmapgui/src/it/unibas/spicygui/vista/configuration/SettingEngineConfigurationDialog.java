@@ -66,8 +66,10 @@ public class SettingEngineConfigurationDialog extends javax.swing.JDialog {
     }
 
     private void initBinding() {
-        Binding bindingMode = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${engineConfiguration.debugMode}"), checkDebugMode, BeanProperty.create("selected"), "modeBinding");
-        bindingGroup.addBinding(bindingMode);
+        //Binding bindingMode = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${engineConfiguration.debugMode}"), checkDebugMode, BeanProperty.create("selected"), "modeBinding");
+        //bindingGroup.addBinding(bindingMode);
+        //Binding bindingCreateTableInTargetExchange = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${engineConfiguration.useCreateTableInTargetExchange}"), checkUseCreateTableTargetExchange, BeanProperty.create("selected"), "useCreateTableInTargetExchangeBinding");
+        //bindingGroup.addBinding(bindingCreateTableInTargetExchange);
         Binding bindingRewriteCoverage = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${engineConfiguration.rewriteCoverages}"), checkRewriteCoverages, BeanProperty.create("selected"), "rewriteCoverageBinding");
         bindingGroup.addBinding(bindingRewriteCoverage);
         Binding bindingRewriteEgds = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${engineConfiguration.rewriteEGDs}"), checkRewriteEDGs, BeanProperty.create("selected"), "rewriteEDGsBinding");
@@ -80,8 +82,6 @@ public class SettingEngineConfigurationDialog extends javax.swing.JDialog {
         bindingGroup.addBinding(bindingRewriteAllHomomorphisms);
         Binding bindingCreateTableInSTExchange = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${engineConfiguration.useCreateTableInSTExchange}"), checkUseCreateTableSTExchange, BeanProperty.create("selected"), "useCreateTableInSTExchangeBinding");
         bindingGroup.addBinding(bindingCreateTableInSTExchange);
-        Binding bindingCreateTableInTargetExchange = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${engineConfiguration.useCreateTableInTargetExchange}"), checkUseCreateTableTargetExchange, BeanProperty.create("selected"), "useCreateTableInTargetExchangeBinding");
-        bindingGroup.addBinding(bindingCreateTableInTargetExchange);
         Binding bindingUseSkolemStrings = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${engineConfiguration.useSkolemStrings}"), checkUseSkolemStrings, BeanProperty.create("selected"), "useSkolemStrings");
         bindingGroup.addBinding(bindingUseSkolemStrings);
         Binding bindingHashTextForSkolemStrings = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${engineConfiguration.useHashTextForSkolems}"), checkUseHashTextForSkolems, BeanProperty.create("selected"), "useHashTextForSkolemsBinding");
@@ -92,10 +92,6 @@ public class SettingEngineConfigurationDialog extends javax.swing.JDialog {
         bindingGroup.addBinding(bindingLocalSkolems);
         Binding bindingSortStrategy = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this, ELProperty.create("${engineConfiguration.sortStrategy}"), comboBoxUseSortStrategy, BeanProperty.create("selectedIndex"));
         bindingGroup.addBinding(bindingSortStrategy);
-
-//        Binding binding10 = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_ONCE, comboBoxUseSortStrategy, BeanProperty.create("selectedIndex"), this, ELProperty.create("${engineConfiguration.sortStrategy}"), "comboSortBinding2");
-//        bindingGroup.addBinding(binding10);
-
 
         bindingGroup.bind();
     }
@@ -110,13 +106,11 @@ public class SettingEngineConfigurationDialog extends javax.swing.JDialog {
         buttonGroup = new javax.swing.ButtonGroup();
         okButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
-        checkDebugMode = new javax.swing.JCheckBox();
         checkRewriteCoverages = new javax.swing.JCheckBox();
         checkRewriteEDGs = new javax.swing.JCheckBox();
         checkRewriteSelfJoins = new javax.swing.JCheckBox();
         checkRewriteSubsumptions = new javax.swing.JCheckBox();
         checkUseCreateTableSTExchange = new javax.swing.JCheckBox();
-        checkUseCreateTableTargetExchange = new javax.swing.JCheckBox();
         labelUseSortStrategy = new javax.swing.JLabel();
         comboBoxUseSortStrategy = new javax.swing.JComboBox();
         checkUseSkolemStrings = new javax.swing.JCheckBox();
@@ -146,8 +140,6 @@ public class SettingEngineConfigurationDialog extends javax.swing.JDialog {
             }
         });
 
-        checkDebugMode.setText(org.openide.util.NbBundle.getMessage(Costanti.class, "check_debugMode_text")); // NOI18N
-
         checkRewriteCoverages.setText(org.openide.util.NbBundle.getMessage(Costanti.class, "check_RewriteCoverages_text")); // NOI18N
 
         checkRewriteEDGs.setText(org.openide.util.NbBundle.getMessage(Costanti.class, "check_RewriteEDGs_text")); // NOI18N
@@ -157,8 +149,7 @@ public class SettingEngineConfigurationDialog extends javax.swing.JDialog {
         checkRewriteSubsumptions.setText(org.openide.util.NbBundle.getMessage(Costanti.class, "check_RewriteSubsumptions_text")); // NOI18N
 
         checkUseCreateTableSTExchange.setText(org.openide.util.NbBundle.getMessage(Costanti.class, "check_UseCreateTableSTExchange_text")); // NOI18N
-
-        checkUseCreateTableTargetExchange.setText(org.openide.util.NbBundle.getMessage(Costanti.class, "check_UseCreateTableTargetExchange_text")); // NOI18N
+        checkUseCreateTableSTExchange.setEnabled (false);
 
         labelUseSortStrategy.setText(org.openide.util.NbBundle.getMessage(Costanti.class, "label_UseSortStrategy_text")); // NOI18N
 
@@ -188,30 +179,32 @@ public class SettingEngineConfigurationDialog extends javax.swing.JDialog {
                             .addComponent(checkRewriteSubsumptions)
                             .addComponent(checkRewriteSelfJoins)
                             .addComponent(checkRewriteCoverages)
-                            .addComponent(checkRewriteEDGs)
-                            .addComponent(checkRewriteAllHomomorphisms)
+                            .addComponent(checkRewriteAllHomomorphisms))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 55, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(checkUseCreateTableSTExchange, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(checkUseSkolemStrings)
+                            .addComponent(checkUseHashTextForSkolems)
+                            .addComponent(checkRewriteEDGs))
+                        .addGap(34, 34, 34))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(checkUseLocalSkolems)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(labelUseSortStrategy)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(comboBoxUseSortStrategy, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                                .addComponent(comboBoxUseSortStrategy, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(labelUseSkolemTableStrategy)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(checkUseCreateTableTargetExchange, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(checkDebugMode)
-                                .addComponent(checkUseCreateTableSTExchange, javax.swing.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)
-                                .addComponent(checkUseSkolemStrings)
-                                .addComponent(checkUseHashTextForSkolems)
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                    .addComponent(labelUseSkolemTableStrategy)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(comboBoxUseSkolemTableStrategy, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(checkUseLocalSkolems))
-                        .addGap(34, 34, 34))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cancelButton)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(cancelButton))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(comboBoxUseSkolemTableStrategy, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE)))
                         .addContainerGap())))
         );
 
@@ -221,44 +214,36 @@ public class SettingEngineConfigurationDialog extends javax.swing.JDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(checkRewriteSubsumptions)
-                        .addGap(18, 18, 18)
-                        .addComponent(checkRewriteCoverages)
-                        .addGap(18, 18, 18)
-                        .addComponent(checkRewriteSelfJoins)
-                        .addGap(18, 18, 18)
-                        .addComponent(checkRewriteEDGs))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(checkUseCreateTableTargetExchange)
-                        .addGap(18, 18, 18)
-                        .addComponent(checkUseCreateTableSTExchange)
-                        .addGap(18, 18, 18)
-                        .addComponent(checkDebugMode)
-                        .addGap(18, 18, 18)
-                        .addComponent(checkUseSkolemStrings)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(checkRewriteSubsumptions)
+                    .addComponent(checkUseCreateTableSTExchange))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(checkUseHashTextForSkolems)
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(labelUseSkolemTableStrategy)
-                            .addComponent(comboBoxUseSkolemTableStrategy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(checkRewriteAllHomomorphisms)
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(labelUseSortStrategy)
-                            .addComponent(comboBoxUseSortStrategy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(checkRewriteCoverages)
+                    .addComponent(checkRewriteEDGs))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(checkRewriteSelfJoins)
+                    .addComponent(checkUseSkolemStrings))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(checkRewriteAllHomomorphisms)
+                    .addComponent(checkUseHashTextForSkolems))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(labelUseSkolemTableStrategy)
+                        .addComponent(comboBoxUseSkolemTableStrategy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(comboBoxUseSortStrategy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(labelUseSortStrategy)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(checkUseLocalSkolems)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(okButton)
                     .addComponent(cancelButton))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -283,14 +268,12 @@ public class SettingEngineConfigurationDialog extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup;
     private javax.swing.JButton cancelButton;
-    private javax.swing.JCheckBox checkDebugMode;
     private javax.swing.JCheckBox checkRewriteAllHomomorphisms;
     private javax.swing.JCheckBox checkRewriteCoverages;
     private javax.swing.JCheckBox checkRewriteEDGs;
     private javax.swing.JCheckBox checkRewriteSelfJoins;
     private javax.swing.JCheckBox checkRewriteSubsumptions;
     private javax.swing.JCheckBox checkUseCreateTableSTExchange;
-    private javax.swing.JCheckBox checkUseCreateTableTargetExchange;
     private javax.swing.JCheckBox checkUseHashTextForSkolems;
     private javax.swing.JCheckBox checkUseLocalSkolems;
     private javax.swing.JCheckBox checkUseSkolemStrings;

@@ -58,9 +58,9 @@ public class EngineConfiguration implements Cloneable {
     private boolean useSkolemStrings = false;
     private boolean useLocalSkolem = false;
     // SQL generation
-    private boolean useCreateTableTargetExchange = true;
     private boolean useCreateTableSTExchange = true;
-    private boolean debugMode = true;
+    //private boolean useCreateTableTargetExchange = true;
+    //private boolean debugMode = true;
 
     public EngineConfiguration(MappingTask mappingTask) {
         this.mappingTask = mappingTask;
@@ -133,15 +133,6 @@ public class EngineConfiguration implements Cloneable {
 
     public void setUseLocalSkolem(boolean useLocalSkolem) {
         this.useLocalSkolem = useLocalSkolem;
-        this.mappingTask.setModified(true);
-    }
-
-    public boolean useDebugMode() {
-        return debugMode;
-    }
-
-    public void setDebugMode(boolean debugMode) {
-        this.debugMode = debugMode;
         this.mappingTask.setModified(true);
     }
 
@@ -241,7 +232,7 @@ public class EngineConfiguration implements Cloneable {
         this.mappingTask.setModified(true);
     }
 
-    public boolean useCreateTableInTargetExchange() {
+    /*public boolean useCreateTableInTargetExchange() {
         return useCreateTableTargetExchange;
     }
 
@@ -249,6 +240,15 @@ public class EngineConfiguration implements Cloneable {
         this.useCreateTableTargetExchange = useCreateTableTargetExchange;
         this.mappingTask.setModified(true);
     }
+    
+    public boolean useDebugMode() {
+        return debugMode;
+    }
+
+    public void setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
+        this.mappingTask.setModified(true);
+    }*/
 
     public boolean useHashTextForSkolems() {
         return useHashTextForSkolems;

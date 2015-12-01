@@ -69,29 +69,15 @@ import org.openide.util.Utilities;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 import org.openide.windows.WindowManager;
+import sun.audio.*;
 
 public class Installer extends ModuleInstall {
 
     public static final String LOG4J_CONFIGURATION_FILE = "/conf/spicyGUI-log4j.properties";
-    //public static final String POSTGRESDB_CONFIGURATION_FILE = "/conf/postgresdb.properties";
     public static final String POSTGRESDB_CONFIGURATION_FILE = "postgresdb.properties";
-    public static final String INSTALL_FOLDER_NAME = "mipmap";
 //    private ActionExitApplication actionExitApplication = new ActionExitApplication();
     private boolean close;
     private static String OS = System.getProperty("os.name").toLowerCase();
-
-    
-    public static boolean isWindows() {
-        return (OS.contains("win"));
-    }
-
-    public static boolean isMac() {
-        return (OS.contains("mac"));
-    }
-
-    public static boolean isUnix() {
-        return (OS.contains("nix") || OS.contains("nux") || OS.contains("aix") );
-    }
     
     @Override
     public void close() {
@@ -177,45 +163,25 @@ public class Installer extends ModuleInstall {
         } catch (Exception e) {
         }
     }
+    
+    private void playSound() {
+      try
+      {
+        InputStream inputStream = getClass().getResourceAsStream(Costanti.SOUND_FILE);
+        AudioStream audioStream = new AudioStream(inputStream);
+        AudioPlayer.player.start(audioStream);
+      }
+      catch (Exception e)
+      {
+        Logger.getLogger(Installer.class.getName()).severe("Unable to load audio file");
+        } 
+    }
+    
 
     @Override
     public void restored() {
-
-//        try {
-//        this.addFolderToClassPath("C:\\Users\\Drakan\\Documents\\progettoTirocinio\\Codice\\spicy2\\lib\\schemamapper-0.1.jar");
-//        URLClassLoader classLoader =  (URLClassLoader) Thread.currentThread().getContextClassLoader().getSystemClassLoader();
-//        for (URL url : classLoader.getURLs()) {
-//            System.out.println(url);
-//        }
-//            ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-//            File f = new File("C:\\Users\\Drakan\\Documents\\progettoTirocinio\\Codice\\spicy2\\lib\\spicyModel-0.1.jar");
-//            URL u = f.toURI().toURL();
-//            URLClassLoader classLoader = new URLClassLoader(new URL[]{u}, tccl);
-//            for (URL url : classLoader.getURLs()) {
-//                System.out.println(url);
-//            }
-//
-//
-//        } catch (MalformedURLException e) {
-//        }
-//        ClassPath.getClassPath(srcRoot, ClassPath.COMPILE)
-
-//        System.out.println(NbClassPath.createRepositoryPath().getClassPath());
-//        try {
-//            File f = new File("");
-//            URL u = f.toURI().toURL();
-//            ClassPath classPath = ClassPathSupport.createClassPath(u);
-//            URLClassLoader urlClassLoader = (URLClassLoader)classPath.getClassLoader(true);
-//            System.out.println(urlClassLoader);
-//            for (int i = 0; i < urlClassLoader.getURLs().length; i++) {
-//                System.out.println(urlClassLoader.getURLs()[i]);
-//            }
-//            
-//        } catch (MalformedURLException ex) {
-//            System.out.println("ERRORE");
-//        }
-//        ClassLoader classLoader = this.getClass().getClassLoader();
-//         new URLClassLoader(new URL[]{}, classLoader);
+        
+        //playSound();        
         System.setProperty("netbeans.buildnumber", "");
         java.util.Date date= new java.util.Date();
         System.out.println("MIPMap starting to load: "+new Timestamp(date.getTime()));
@@ -239,41 +205,86 @@ public class Installer extends ModuleInstall {
         }
     }
     
+    private File getClassLocation() {
+        Class cls = this.getClass();
+        ClassLoader classLoader = cls.getClassLoader();
+        
+        if(classLoader==null) { 
+            classLoader=ClassLoader.getSystemClassLoader(); 
+        }
+
+        URL url;
+        if((url=classLoader.getResource(cls.getName().replace('.','/')+".class"))==null) {
+            return null;
+        }
+
+        String extUrl = url.toExternalForm();
+        String lowerUrl = extUrl.toLowerCase();
+        while(lowerUrl.startsWith("jar:") || lowerUrl.startsWith("file:/")) {
+            if(lowerUrl.startsWith("jar:")) {
+                if(lowerUrl.indexOf("!/")!=-1) { 
+                    extUrl=extUrl.substring(4,(extUrl.indexOf("!/"))); 
+                }     // strip encapsulating "jar:" and "!/..." from JAR url
+                else { 
+                    extUrl=extUrl.substring(4); } // strip encapsulating "jar:"
+                }
+            if(lowerUrl.startsWith("file:/")) {
+                extUrl=extUrl.substring(6);  // strip encapsulating "file:/"
+                if(!extUrl.startsWith("/")) { 
+                    extUrl=("/"+extUrl); 
+                }
+                while(extUrl.length()>1 && extUrl.charAt(1)=='/') { 
+                    extUrl=extUrl.substring(1); 
+                }
+            }
+            lowerUrl=extUrl.toLowerCase();
+        }
+        File path=new File(extUrl);
+        if(lowerUrl.endsWith(".class") || (lowerUrl.endsWith(".jar"))) { 
+            path=path.getParentFile(); 
+        }
+        if(path.exists()) { 
+            path=path.getAbsoluteFile(); 
+        }
+        return path;
+    }
+    
     //giannisk
     //reads the properties file with database configuration and sets the appropriate variables
     private void configureDatabaseProperties() {        
         Properties dbproperties = new Properties();            
-        //TO RUN PROPERLY AS AN APPLICATION:
-        //uncomment the following block and comment the first two lines right after the block
-        /*
-        String userDirectory = System.getProperty("user.dir");
-        if (isUnix()){
-            userDirectory = new File(userDirectory).getParent();
-        }
-        
-        String configFilePath = userDirectory+File.separator+INSTALL_FOLDER_NAME+File.separator+POSTGRESDB_CONFIGURATION_FILE;
-        InputStream stream = new InputStream() {
-            @Override
-            public int read() throws IOException {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-        };
-        try {
-            stream = new FileInputStream(configFilePath);*/
-        InputStream stream = Installer.class.getResourceAsStream("/conf/"+POSTGRESDB_CONFIGURATION_FILE);        
-        try {
-            dbproperties.load(stream);
-            SpicyEngineConstants.setDatabaseParameters(dbproperties.getProperty("driver"),dbproperties.getProperty("uri"),
-                    dbproperties.getProperty("username"), dbproperties.getProperty("password"),dbproperties.getProperty("mappingTask-DatabaseName"));
-        } catch (IOException ex) {
-            Logger.getLogger(Installer.class.getName()).severe("Unable to load database configuration file");
-        } finally {
+        //TO RUN AS AN APPLICATION:
+        //uncomment the following block and the "else" block
+        //and comment the first two lines right after the block
+        //// //comment for IDE
+        /*File installationPath = this.getClassLocation().getParentFile();
+        File propertyFile = new File(installationPath.getAbsolutePath() + File.separator + POSTGRESDB_CONFIGURATION_FILE);
+        InputStream stream = null; 
+        if (propertyFile.exists()){
             try {
-                stream.close();
+                stream = new FileInputStream(propertyFile);*/
+        //// 
+            InputStream stream = Installer.class.getResourceAsStream("/conf/"+POSTGRESDB_CONFIGURATION_FILE); //comment for application     
+            try {                                                                                             //comment for application
+                dbproperties.load(stream);
+                SpicyEngineConstants.setDatabaseParameters(dbproperties.getProperty("driver"),dbproperties.getProperty("uri"),
+                        dbproperties.getProperty("username"), dbproperties.getProperty("password"),dbproperties.getProperty("mappingTask-DatabaseName"));
             } catch (IOException ex) {
+                DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.NEW_ERROR) + " : " + ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
                 Logger.getLogger(Installer.class.getName()).severe("Unable to load database configuration file");
-            } 
-        }        
+            } finally {
+                try {
+                    stream.close();
+                } catch (IOException ex) {
+                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.NEW_ERROR) + " : " + ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
+                    Logger.getLogger(Installer.class.getName()).severe("Unable to close database configuration file");
+                } 
+            }  
+        //// //comment for IDE
+        /*}else{
+           DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message("File " + propertyFile.toString() + " not found", DialogDescriptor.ERROR_MESSAGE)); 
+        }*/
+        ////
     }
   
     private void configuraObservable() {
@@ -301,8 +312,6 @@ public class Installer extends ModuleInstall {
             } catch (IOException ex) {
                 // Do nothing
             }
-
-
 
         }
 

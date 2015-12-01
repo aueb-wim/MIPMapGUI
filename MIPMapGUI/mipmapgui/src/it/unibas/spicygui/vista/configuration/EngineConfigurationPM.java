@@ -48,14 +48,6 @@ public class EngineConfigurationPM implements Cloneable{
         this.engineConfiguration = engineConfiguration;
     }
 
-    public boolean isDebugMode() {
-        return engineConfiguration.useDebugMode();
-    }
-
-    public void setDebugMode(boolean debugMode) {
-        this.engineConfiguration.setDebugMode(debugMode);
-    }
-
     public boolean isRewriteCoverages() {
         return engineConfiguration.rewriteCoverages();
     }
@@ -154,13 +146,21 @@ public class EngineConfigurationPM implements Cloneable{
         this.engineConfiguration.setUseCreateTableSTExchange(useCreateTableInSTExchange);
     }
 
-    public boolean isUseCreateTableInTargetExchange() {
+    /*public boolean isUseCreateTableInTargetExchange() {
         return engineConfiguration.useCreateTableInTargetExchange();
     }
 
     public void setUseCreateTableInTargetExchange(boolean useCreateTableInTargetExchange) {
         this.engineConfiguration.setUseCreateTableTargetExchange(useCreateTableInTargetExchange);
     }
+    
+    public boolean isDebugMode() {
+        return engineConfiguration.useDebugMode();
+    }
+
+    public void setDebugMode(boolean debugMode) {
+        this.engineConfiguration.setDebugMode(debugMode);
+    }*/
 
     public boolean isUseHashTextForSkolems() {
         return engineConfiguration.useHashTextForSkolems();

@@ -72,7 +72,7 @@ public class ActionAddTargetInstanceCsv extends CallableSystemAction implements 
         InstancesTopComponent viewInstancesTopComponent = scenario.getInstancesTopComponent();
         HashMap<String,String> absolutePaths = jd.getResponse();
         if (!absolutePaths.isEmpty())
-            if(!scenario.getMappingTask().getTargetProxy().getType().equalsIgnoreCase("XML")){
+            if(scenario.getMappingTask().getTargetProxy().getType().equalsIgnoreCase("CSV")){
                 try{  
                     //pathHashMap is a multimap set with the tablename String as key
                     //and an arraylist with two values: a)the tablename

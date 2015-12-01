@@ -123,10 +123,10 @@ public class GenerateSQL {
         }
         result.append(generateFinalInserts(mappingTask));
         result.append("COMMIT;\n");
-        if (!mappingTask.getConfig().useDebugMode()) {
+        /*if (!mappingTask.getConfig().useDebugMode()) {
             result.append(this.getAllViewsToDeleteScript());
             result.append(this.getAllTablesToDeleteScript());
-        }
+        }*/
         
         //giannisk
         //double quotes fixed value replacement
