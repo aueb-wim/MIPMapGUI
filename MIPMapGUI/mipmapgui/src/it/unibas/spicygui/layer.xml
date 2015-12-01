@@ -133,7 +133,7 @@
         <file name="it-unibas-spicygui-controllo-mapping-ActionExportTgds.instance"/>
         <file name="it-unibas-spicygui-controllo-mapping-ActionViewTGDs.instance"/>
         <file name="it-unibas-spicygui-controllo-mapping-ActionViewTGD.instance"/>
-        <file name="it-unibas-spicygui-controllo-mapping-ActionExportTranslatedInstances.instance"/>
+        <!--file name="it-unibas-spicygui-controllo-mapping-ActionExportTranslatedInstances.instance"/-->
         <file name="it-unibas-spicygui-controllo-mapping-ActionExportTranslatedInstancesCsv.instance"/>
         <file name="it-unibas-spicygui-controllo-mapping-ActionExportAppendInstancesCsv.instance"/>
         <file name="it-unibas-spicygui-controllo-mapping-ActionExportTranslatedInstancesJson.instance"/>
@@ -221,19 +221,11 @@
             <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
             <file name="org-openide-actions-SaveAsAction.shadow_hidden"/>
         </folder>
+        
         <folder name="DataSource">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="it.unibas.spicygui.Bundle"/>
             <attr name="position" intvalue="150"/>
-            <!--         <file name="Proprieta' Sorgente">
-                <attr name="position" intvalue="100"/>
-            </file>
-            <file name="Proprieta' Target">
-                <attr name="position" intvalue="150"/>
-            </file>
-            <file name="Separator3.instance" url="Separator3.instance">
-                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                <attr name="position" intvalue="250"/>
-            </file> -->
+            <!--
             <folder name="Source Instance">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="it.unibas.spicygui.Bundle"/>
                 <attr name="position" intvalue="200"/>
@@ -253,28 +245,19 @@
                 <file name="DS4.shadow">
                     <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-datasource-ActionAddTargetInstanceCsv.instance"/>
                 </file>
-            </folder>
-            <!--
+            </folder>-->
             <file name="DS1.shadow">
-                <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-datasource-ActionAddTargetInstanceXml.instance"/>
-                <attr name="position" intvalue="200"/>
+                <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-datasource-ActionAddSourceInstanceCsv.instance"/>
+                <attr name="position" intvalue="100"/>
             </file>
             <file name="DS2.shadow">
                 <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-datasource-ActionAddTargetInstanceCsv.instance"/>
-                <attr name="position" intvalue="250"/>
+                <attr name="position" intvalue="150"/>
             </file>
+          
             <file name="DS3.shadow">
-                <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-datasource-ActionAddSourceInstanceXml.instance"/>
-                <attr name="position" intvalue="350"/>
-            </file>
-            <file name="DS4.shadow">
-                <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-datasource-ActionAddSourceInstanceCsv.instance"/>
-                <attr name="position" intvalue="450"/>
-            </file>
-            -->
-            <file name="DS5.shadow">
                 <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-datasource-ActionViewInstances.instance"/>
-                <attr name="position" intvalue="550"/>
+                <attr name="position" intvalue="200"/>
             </file>
         </folder>
         <folder name="Help">
@@ -310,53 +293,48 @@
                 <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-mapping-ActionExportTgds.instance"/>
                 <attr name="position" intvalue="400"/>
             </file>
-            <file name="M7.shadow">
+            <!--file name="M7.shadow">
                 <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-mapping-ActionExportTranslatedInstances.instance"/>
                 <attr name="position" intvalue="450"/>
-            </file>
+            </file-->
             <folder name="Export CSV Instances">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="it.unibas.spicygui.Bundle"/>
                 <attr name="position" intvalue="500"/>
-                <file name="M8.shadow">
+                <file name="M7.shadow">
                     <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-mapping-ActionExportTranslatedInstancesCsv.instance"/>
                     <attr name="position" intvalue="550"/>
                 </file>
-                <file name="M9.shadow">
+                <file name="M8.shadow">
                     <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-mapping-ActionExportAppendInstancesCsv.instance"/>
                     <attr name="position" intvalue="600"/>
                 </file>
             </folder>
-            <file name="M10.shadow">
+            <file name="M9.shadow">
                 <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-mapping-ActionExportTranslatedInstancesJson.instance"/>
                 <attr name="position" intvalue="650"/>
             </file>
-            <file name="M11.shadow">
+            <file name="M10.shadow">
                 <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-mapping-ActionViewTransformation.instance"/>
                 <attr name="position" intvalue="700"/>
             </file>
-            <file name="M12.shadow">
+            <file name="M11.shadow">
                 <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-mapping-ActionViewTGDs.instance"/>
                 <attr name="position" intvalue="750"/>
             </file>
-            <file name="M13.shadow">
+            <file name="M12.shadow">
                 <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-mapping-ActionViewTGD.instance"/>
                 <attr name="position" intvalue="800"/>
             </file>
         </folder>
         <file name="Source_hidden"/>
 
-        <folder name="Match">
-    <!--        <attr name="SystemFileSystem.localizingBundle" stringvalue="it.unibas.spicygui.Bundle"/> -->
+        <!--folder name="Match">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="it.unibas.spicygui.Bundle"/> 
             <attr name="position" intvalue="187"/>
             <file name="S1.shadow">
                 <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-spicy-ActionRunMatcher.instance"/>
                 <attr name="position" intvalue="100"/>
             </file>
-<!--            <file name="S2.shadow">
-                <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-spicy-ActionLoadComaCorrespondences.instance"/>
-                <attr name="position" intvalue="150"/>
-            </file>
--->
             <folder name="Best Mapping">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="it.unibas.spicygui.Bundle"/>
                 <attr name="position" intvalue="200"/>
@@ -383,7 +361,7 @@
                 <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-spicy-ActionViewRankedTransformations.instance"/>
                 <attr name="position" intvalue="600"/>
             </file>
-        </folder>
+        </folder-->
         
         <folder name="Preprocessing">
             <attr name="position" intvalue="200"/>
@@ -538,7 +516,7 @@
             <attr name="instanceClass" stringvalue="it.unibas.spicygui.controllo.mapping.ActionGenerateSql"/>
         </file>
         <file name="C-E.instance">
-            <attr name="instanceClass" stringvalue="it.unibas.spicygui.controllo.mapping.ActionExportTranslatedInstances"/>
+            <attr name="instanceClass" stringvalue="it.unibas.spicygui.controllo.mapping.ActionExportTranslatedInstancesCsv"/>
         </file>
         <file name="C-D.instance">
             <attr name="instanceClass" stringvalue="it.unibas.spicygui.controllo.mapping.ActionViewTGDs"/>
@@ -546,8 +524,7 @@
         <file name="CS-D.instance">
             <attr name="instanceClass" stringvalue="it.unibas.spicygui.controllo.mapping.ActionViewTGD"/>
         </file>
-
-
+<!--
         <file name="CS-M.instance">
             <attr name="instanceClass" stringvalue="it.unibas.spicygui.controllo.spicy.ActionRunMatcher"/>
         </file>
@@ -563,7 +540,7 @@
         <file name="CS-R.instance">
             <attr name="instanceClass" stringvalue="it.unibas.spicygui.controllo.spicy.ActionRankTransformations"/>
         </file>
-
+-->
     </folder>
     <folder name="Windows2">
         <folder name="Components">
