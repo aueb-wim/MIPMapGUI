@@ -69,22 +69,21 @@ public class DAOMappingTaskLines {
     private DAOXsd daoXSD = new DAOXsd();
     private DAOCsv daoCSV = new DAOCsv();
     private DAOObject daoObject = new DAOObject();
-    private DAOHandleDB daoCreateDB = new DAOHandleDB();
     private TransformFilePaths filePathTransformator = new TransformFilePaths();
     private GeneratePathExpression pathGenerator = new GeneratePathExpression();
 
     /*  /////////////////////////////////////////////////////////
      *                        LOAD
      *  ///////////////////////////////////////////////////////// */
-    public MappingTask loadMappingTask(int scenarioNo, String filePath) throws DAOException {
+    public MappingTask loadMappingTask(int scenarioNo, String filePath, boolean web) throws DAOException {
         try {
             Document document = daoUtility.buildDOM(filePath);
             Element rootElement = document.getRootElement();
             Element sourceElement = rootElement.getChild("source");
-            IDataSourceProxy sourceProxy = loadDataSourceProxy(sourceElement, filePath, true, scenarioNo);
+            IDataSourceProxy sourceProxy = loadDataSourceProxy(sourceElement, filePath, true, scenarioNo, web);
             if (logger.isDebugEnabled()) logger.debug("Loaded source proxy: " + sourceProxy);
             Element targetElement = rootElement.getChild("target");
-            IDataSourceProxy targetProxy = loadDataSourceProxy(targetElement, filePath, false, scenarioNo);
+            IDataSourceProxy targetProxy = loadDataSourceProxy(targetElement, filePath, false, scenarioNo, web);
             if (logger.isDebugEnabled()) logger.debug("Loaded target proxy: " + targetProxy);
             Element correspondencesElement = rootElement.getChild("correspondences");
             List<ValueCorrespondence> valueCorrespondences = loadValueCorrespondences(correspondencesElement);
@@ -147,7 +146,8 @@ public class DAOMappingTaskLines {
         }
     }
 
-    private IDataSourceProxy loadDataSourceProxy(Element dataSourceElement, String mappingTaskFilePath, boolean source, int scenarioNo) throws DAOException, SQLException {
+    private IDataSourceProxy loadDataSourceProxy(Element dataSourceElement, String mappingTaskFilePath, boolean source, int scenarioNo, boolean web) 
+            throws DAOException, SQLException {
         IDataSourceProxy result = null;
         List<String> listOfInclusionPaths = loadInclusionPathString(dataSourceElement.getChild("inclusions"));
         List<String> listOfExclusionPaths = loadExclusionPathString(dataSourceElement.getChild("exclusions"));
@@ -155,10 +155,10 @@ public class DAOMappingTaskLines {
         if (typeElement.getTextTrim().equalsIgnoreCase(SpicyEngineConstants.TYPE_XML)) {
             result = loadXMLSource(dataSourceElement.getChild("xml"), mappingTaskFilePath);
         } else if (typeElement.getTextTrim().equalsIgnoreCase(SpicyEngineConstants.TYPE_RELATIONAL)) {
-            result = loadRelationalSource(dataSourceElement.getChild("relational"), listOfInclusionPaths, listOfExclusionPaths, source, scenarioNo);
+            result = loadRelationalSource(dataSourceElement.getChild("relational"), listOfInclusionPaths, listOfExclusionPaths, source, scenarioNo, web);
         //giannisk
         } else if (typeElement.getTextTrim().equalsIgnoreCase(SpicyEngineConstants.TYPE_CSV)) {
-            result = loadCSVSource(dataSourceElement.getChild("csv"), mappingTaskFilePath, source, scenarioNo);
+            result = loadCSVSource(dataSourceElement.getChild("csv"), mappingTaskFilePath, source, scenarioNo, web);
         } else if (typeElement.getTextTrim().equalsIgnoreCase(SpicyEngineConstants.TYPE_OBJECT)) {
             result = loadObjectSource(dataSourceElement.getChild("objectModel"), listOfInclusionPaths, listOfExclusionPaths);
         } else if (typeElement.getTextTrim().equalsIgnoreCase(SpicyEngineConstants.TYPE_MOCK)) {
@@ -167,10 +167,10 @@ public class DAOMappingTaskLines {
             Element mappingTaskElement = dataSourceElement.getChild("mappingTask");
             String previousStepRelativeFilePath = mappingTaskElement.getTextTrim();
             String previousStepFilePath = filePathTransformator.expand(mappingTaskFilePath, previousStepRelativeFilePath);
-            MappingTask previousStep = this.loadMappingTask(scenarioNo, previousStepFilePath);
+            MappingTask previousStep = this.loadMappingTask(scenarioNo, previousStepFilePath, web);
             result = new ChainingDataSourceProxy(previousStep, previousStepFilePath);
         } else if (typeElement.getTextTrim().equalsIgnoreCase(SpicyEngineConstants.PROVIDER_TYPE_MERGE)) {
-            result = loadMergeProvider(dataSourceElement, mappingTaskFilePath, source, scenarioNo);
+            result = loadMergeProvider(dataSourceElement, mappingTaskFilePath, source, scenarioNo, web);
         } else {
             throw new DAOException("Unable to load data source provider with type " + typeElement.getTextTrim());
         }
@@ -213,11 +213,11 @@ public class DAOMappingTaskLines {
     }
 
     @SuppressWarnings("unchecked")
-    private IDataSourceProxy loadMergeProvider(Element dataSourceElement, String mappingTaskFilePath, boolean source, int scenarioNo) throws DAOException, SQLException {
+    private IDataSourceProxy loadMergeProvider(Element dataSourceElement, String mappingTaskFilePath, boolean source, int scenarioNo, boolean web) throws DAOException, SQLException {
         List<IDataSourceProxy> proxies = new ArrayList<IDataSourceProxy>();
         List<Element> listSourceProxyElement = dataSourceElement.getChildren("source");
         for (Element sourceProxyElement : listSourceProxyElement) {
-            IDataSourceProxy sourceProxy = loadDataSourceProxy(sourceProxyElement, mappingTaskFilePath, source, scenarioNo);
+            IDataSourceProxy sourceProxy = loadDataSourceProxy(sourceProxyElement, mappingTaskFilePath, source, scenarioNo, web);
             proxies.add(sourceProxy);
         }
         return new MergeDataSourceProxy(proxies);
@@ -362,7 +362,7 @@ public class DAOMappingTaskLines {
     }
 
     private IDataSourceProxy loadRelationalSource(Element sourceTargetRelationalElement, List<String> listOfInclusionPaths, 
-            List<String> listOfExclusionPaths, boolean source, int scenarioNo) throws DAOException, SQLException {
+            List<String> listOfExclusionPaths, boolean source, int scenarioNo, boolean web) throws DAOException, SQLException {
         Element driverElement = sourceTargetRelationalElement.getChild("driver");
         Element uriElement = sourceTargetRelationalElement.getChild("uri");
         Element schemaNameElement = sourceTargetRelationalElement.getChild("schema");
@@ -384,8 +384,14 @@ public class DAOMappingTaskLines {
             dataDescription.addExclusionPath(exclusion);
         }
         IConnectionFactory dataSourceDB = new SimpleDbConnectionFactory();
-        IDataSourceProxy dataSource = daoRelational.loadSchema(scenarioNo, accessConfiguration, dataDescription, dataSourceDB, source);
-        daoRelational.loadInstanceSample(accessConfiguration, dataSource, dataDescription, dataSourceDB, null, false);
+        IDataSourceProxy dataSource;
+        if (web){
+            dataSource = daoRelational.loadSchemaForWeb(scenarioNo, accessConfiguration, dataDescription, dataSourceDB, source);
+        }
+        else {
+            dataSource = daoRelational.loadSchema(scenarioNo, accessConfiguration, dataDescription, dataSourceDB, source);
+            daoRelational.loadInstanceSample(accessConfiguration, dataSource, dataDescription, dataSourceDB, null, false);
+        }
         return dataSource;
     }
 
@@ -407,7 +413,7 @@ public class DAOMappingTaskLines {
     
     //giannisk
     @SuppressWarnings("unchecked")
-    private IDataSourceProxy loadCSVSource(Element sourceTargetCsvElement, String mappingTaskFilePath, boolean source, int scenarioNo) throws DAOException, SQLException {
+    private IDataSourceProxy loadCSVSource(Element sourceTargetCsvElement, String mappingTaskFilePath, boolean source, int scenarioNo, boolean web) throws DAOException, SQLException {
         HashSet<String> csvFullTableAbsoluteFilePath = new HashSet<String>();
         
         HashMap<String,ArrayList<Object>> csvFullInstAbsoluteFilePath = new HashMap<String,ArrayList<Object>>();
@@ -444,9 +450,15 @@ public class DAOMappingTaskLines {
                 csvFullInstAbsoluteFilePath.put(csvInstAbsoluteFilePath,valSet);
             }
         }
-        IDataSourceProxy dataSource = daoCSV.loadSchema(scenarioNo, csvFullTableAbsoluteFilePath, csvDatabaseName, source, csvFullInstAbsoluteFilePath);
-        if (!csvFullInstAbsoluteFilePath.isEmpty()){
-            daoCSV.loadInstanceSample(dataSource, csvFullInstAbsoluteFilePath, csvDatabaseName);
+        IDataSourceProxy dataSource;
+        if (web){
+            dataSource = daoCSV.loadSchemaForWeb(scenarioNo, csvFullTableAbsoluteFilePath, csvDatabaseName);
+        }
+        else{
+            dataSource = daoCSV.loadSchema(scenarioNo, csvFullTableAbsoluteFilePath, csvDatabaseName, source, csvFullInstAbsoluteFilePath);
+            if (!csvFullInstAbsoluteFilePath.isEmpty()){
+                daoCSV.loadInstanceSample(dataSource, csvFullInstAbsoluteFilePath, csvDatabaseName);
+            }
         }
         return dataSource;
     }

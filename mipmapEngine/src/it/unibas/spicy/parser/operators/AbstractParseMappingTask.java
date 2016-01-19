@@ -179,7 +179,7 @@ abstract class AbstractParseMappingTask implements IParseMappingTask {
 
     private MappingTask loadMappingTask(int scenarioNo, String filePath) throws DAOException {
         if (filePath.endsWith(".xml")) {
-            return new DAOMappingTaskLines().loadMappingTask(scenarioNo, filePath);
+            return new DAOMappingTaskLines().loadMappingTask(scenarioNo, filePath, false);
         } else if (filePath.endsWith(".tgd")) {
             return new DAOMappingTaskTgds().loadMappingTask(filePath);
         }

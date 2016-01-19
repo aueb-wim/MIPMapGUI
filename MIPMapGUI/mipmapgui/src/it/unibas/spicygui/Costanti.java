@@ -277,11 +277,13 @@ public class Costanti {
     //Translate
     public static final String TRANSLATION_OK = "TRANSLATION_OK";
     //Export TGDs to file
-    public static final String EXPORT_TGDS_OK= "EXPORT_TGDS_OK";
+    public static final String EXPORT_TGDS_OK = "EXPORT_TGDS_OK";
     //Unpivot table
-    public static final String ROW_LABEL="ROW_LABEL";
-    public static final String SELECT_ALL_LABEL="SELECT_ALL_LABEL";
+    public static final String COL_LABEL = "COL_LABEL";
+    public static final String SELECT_ALL_LABEL = "SELECT_ALL_LABEL";
     public static final String EXPORT_UNPIVOTED_OK = "EXPORT_UNPIVOTED_OK";
+    public static final String INCLUDE_LABEL = "INCLUDE_LABEL";
+    public static final String UNPIVOT_LABEL = "UNPIVOT_LABEL";
     //ZONA SQLDIALOG
     public static final String SQL_DIALOG = "SQL_DIALOG";
     public static final String LABEL_TMP_DATABASE_NAME = "LABEL_TMP_DATABASE_NAME";

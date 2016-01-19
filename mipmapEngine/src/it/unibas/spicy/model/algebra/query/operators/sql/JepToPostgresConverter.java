@@ -245,11 +245,14 @@ public class JepToPostgresConverter {
             case "substring":
                 //optional third parameter
                 if (parameters.length==3){
-                   output = "substring(" + parameters[0] +" from "+ (Integer.parseInt(parameters[1])+1) 
-                           +" for " + (Integer.parseInt(parameters[2])-Integer.parseInt(parameters[1])) + ")";
+                   /*output = "substring(" + parameters[0] +" from "+ (Integer.parseInt(parameters[1])+1) 
+                           +" for " + (Integer.parseInt(parameters[2])-Integer.parseInt(parameters[1])) + ")";*/
+                   output = "substring(" + parameters[0] +" from "+ parameters[1] +"+1 for " 
+                           + parameters[2] +"-"+parameters[1] + ")"; 
                 }
                 else{
-                   output = "substring(" + parameters[0] +" from "+ (Integer.parseInt(parameters[1])+1) + ")"; 
+                   //output = "substring(" + parameters[0] +" from "+ (Integer.parseInt(parameters[1])+1) + ")"; 
+                    output = "substring(" + parameters[0] +" from "+ parameters[1] + "+ 1)"; 
                 }
                 break;
             case "tan":

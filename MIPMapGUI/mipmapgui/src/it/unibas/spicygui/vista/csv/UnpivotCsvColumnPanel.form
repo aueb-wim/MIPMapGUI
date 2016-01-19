@@ -23,6 +23,8 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
+              <Component id="includeCheckBox" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Component id="rowNameLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
               <Component id="rowCheckBox" min="-2" max="-2" attributes="0"/>
@@ -33,9 +35,10 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="rowNameLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="rowCheckBox" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                  <Component id="includeCheckBox" max="32767" attributes="0"/>
+                  <Component id="rowCheckBox" max="32767" attributes="0"/>
+                  <Component id="rowNameLabel" alignment="1" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -59,6 +62,16 @@
           <ResourceString bundle="it/unibas/spicygui/vista/csv/Bundle.properties" key="UnpivotCsvColumnPanel.rowCheckBox.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="includeCheckBox">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="it/unibas/spicygui/vista/csv/Bundle.properties" key="UnpivotCsvColumnPanel.includeCheckBox.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="includeCheckBoxActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

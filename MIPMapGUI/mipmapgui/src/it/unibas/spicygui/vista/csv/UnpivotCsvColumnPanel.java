@@ -13,19 +13,33 @@ public class UnpivotCsvColumnPanel extends javax.swing.JPanel {
     }    
    
     private void initLabels(String name){
-        rowNameLabel.setText(name);     
+        rowNameLabel.setText(name); 
+        includeCheckBox.setSelected(true);        
     }
    
     public String getColNameLabel(){
-        return this.rowNameLabel.getText();
+        return rowNameLabel.getText();
+    }
+    
+    public boolean isColumnIncluded(){
+        return includeCheckBox.isSelected();
+    }
+    
+    public void disableEnableFields(){
+        boolean val = includeCheckBox.isSelected();
+        rowCheckBox.setEnabled(val);
+        rowNameLabel.setEnabled(val);
+        if (!val){
+            rowCheckBox.setSelected(val);
+        }
     }
     
     public boolean isColumnSelected(){
-        return this.rowCheckBox.isSelected();
+        return rowCheckBox.isSelected();
     }
     
     public void setCheckboxSelected(boolean val){
-        this.rowCheckBox.setSelected(val);
+        rowCheckBox.setSelected(val);
     }
     
     /**
@@ -39,10 +53,18 @@ public class UnpivotCsvColumnPanel extends javax.swing.JPanel {
 
         rowNameLabel = new javax.swing.JLabel();
         rowCheckBox = new javax.swing.JCheckBox();
+        includeCheckBox = new javax.swing.JCheckBox();
 
         setPreferredSize(new java.awt.Dimension(100, 76));
 
         org.openide.awt.Mnemonics.setLocalizedText(rowCheckBox, org.openide.util.NbBundle.getMessage(UnpivotCsvColumnPanel.class, "UnpivotCsvColumnPanel.rowCheckBox.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(includeCheckBox, org.openide.util.NbBundle.getMessage(UnpivotCsvColumnPanel.class, "UnpivotCsvColumnPanel.includeCheckBox.text")); // NOI18N
+        includeCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                includeCheckBoxActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -50,23 +72,31 @@ public class UnpivotCsvColumnPanel extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(includeCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(rowNameLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
                 .addComponent(rowCheckBox)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(rowNameLabel)
-                    .addComponent(rowCheckBox))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(includeCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(rowCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(rowNameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void includeCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_includeCheckBoxActionPerformed
+        disableEnableFields();
+    }//GEN-LAST:event_includeCheckBoxActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox includeCheckBox;
     private javax.swing.JCheckBox rowCheckBox;
     private javax.swing.JLabel rowNameLabel;
     // End of variables declaration//GEN-END:variables

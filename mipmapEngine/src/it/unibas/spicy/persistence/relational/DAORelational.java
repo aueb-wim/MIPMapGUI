@@ -130,7 +130,7 @@ public class DAORelational {
                 dataSource.putChangedValue(entry.getKey(), entry.getValue());
             }
             loadPrimaryKeys(dataSource, databaseMetaData, catalog, schemaName, source, statement, scenarioNo);
-            loadForeignKeys(dataSource, databaseMetaData, catalog, schemaName, source, statement);
+            loadForeignKeys(dataSource, databaseMetaData, catalog, schemaName);
             dataSource.addAnnotation(SpicyEngineConstants.LOADED_INSTANCES_FLAG, false);
         } catch (Throwable ex) {
             logger.error(ex);
@@ -140,6 +140,55 @@ public class DAORelational {
               dataSourceDB.close(connection);
             if (connectionPostgres != null)
               dataSourceDB.close(connectionPostgres);
+        }
+        return dataSource;
+    }
+    
+        public IDataSourceProxy loadSchemaForWeb(int scenarioNo, AccessConfiguration accessConfiguration, DBFragmentDescription dataDescription, 
+            IConnectionFactory dataSourceDB, boolean source) throws DAOException {
+        this.dataDescription = dataDescription;
+        INode root = null;
+        String catalog = null;
+        String schemaName = accessConfiguration.getSchemaName();
+        DatabaseMetaData databaseMetaData = null;
+        Connection connection = dataSourceDB.getConnection(accessConfiguration);
+        IDataSourceProxy dataSource = null;   
+        try {                       
+            databaseMetaData = connection.getMetaData();
+            catalog = connection.getCatalog();
+            if (catalog == null) {
+                catalog = accessConfiguration.getUri();
+                if (logger.isDebugEnabled()) logger.debug("Catalog is null. Catalog name will be: " + catalog);
+            }
+            root = this.createRootNode(catalog);       
+            
+            String[] tableTypes = new String[]{"TABLE"};
+            ResultSet tableResultSet = databaseMetaData.getTables(catalog, schemaName, null, tableTypes);
+            while (tableResultSet.next()) {
+                String tableName = tableResultSet.getString("TABLE_NAME");
+                if (!this.dataDescription.checkLoadTable(tableName)) {
+                    continue;
+                }
+                INode setTable = new SetNode(tableName);
+                setTable.addChild(getTuple(databaseMetaData, catalog, schemaName, tableName));
+                setTable.setRequired(false);
+                setTable.setNotNull(true);
+                root.addChild(setTable);
+                addNode(tableName, setTable);                
+            }
+            dataSource = new ConstantDataSourceProxy(new DataSource(SpicyEngineConstants.TYPE_RELATIONAL, root));
+            dataSource.addAnnotation(SpicyEngineConstants.ACCESS_CONFIGURATION, accessConfiguration);
+            for (Map.Entry<String, String> entry : changedColumnNames.entrySet()) {
+                dataSource.putChangedValue(entry.getKey(), entry.getValue());
+            }
+            /////////loadPrimaryKeys(dataSource, databaseMetaData, catalog, schemaName, source, statement, scenarioNo);
+            loadForeignKeys(dataSource, databaseMetaData, catalog, schemaName);
+        } catch (Throwable ex) {
+            logger.error(ex);
+            throw new DAOException(ex.getMessage());
+        } finally {
+            if (connection != null)
+              dataSourceDB.close(connection);
         }
         return dataSource;
     }
@@ -210,6 +259,55 @@ public class DAORelational {
         statement.executeUpdate("drop table if exists "+ table);
         statement.executeUpdate("create table "+ table +" ("+ columns+ ")");
         
+        return tupleNode;
+    }
+    
+    //only used by web
+    private TupleNode getTuple(DatabaseMetaData databaseMetaData, String catalog, String schemaName, String tableName) throws SQLException {
+        if (logger.isDebugEnabled()) logger.debug("\nTable: " + tableName);
+        TupleNode tupleNode = new TupleNode(tableName + TUPLE_SUFFIX);
+        tupleNode.setRequired(false);
+        tupleNode.setNotNull(true);
+        tupleNode.setVirtual(true);
+        addNode(tableName + TUPLE_SUFFIX, tupleNode);
+        ResultSet columnsResultSet = databaseMetaData.getColumns(catalog, schemaName, tableName, null);
+        String columns="";
+        while (columnsResultSet.next()) {
+            String columnName = columnsResultSet.getString("COLUMN_NAME");
+            //the "-" character is replaced since it cannot be accepted by JEP and MIMap
+            if (columnName.contains("-")){
+                String oldColumnName = columnName;
+                columnName = oldColumnName.replace("-","_");
+                changedColumnNames.put(tableName+"."+columnName.replaceAll("\"", ""), oldColumnName.replaceAll("\"", ""));
+            }
+            columns += "\""+columnName+"\"";
+            String keyColumn = tableName + "." + columnName;
+            String columnType = columnsResultSet.getString("TYPE_NAME");
+            /////String typeOfColumn = Types.POSTGRES_STRING;
+            columns += " " + columnType + ",";            
+            String isNullable = columnsResultSet.getString("IS_NULLABLE");
+            if (!this.dataDescription.checkLoadAttribute(tableName, columnName)) {
+                continue;
+            }
+            boolean isNull = false;
+            if (isNullable.equalsIgnoreCase("YES")) {
+                isNull = true;
+            }
+            else{
+                //take out the last ',' character
+                columns = columns.substring(0, columns.length()-1);
+                columns += " NOT NULL,";             
+            }
+            INode columnNode = new AttributeNode(columnName);
+            addNode(keyColumn, columnNode);
+            columnNode.setNotNull(!isNull);
+            String typeOfColumn = convertDBTypeToDataSourceType(columnType);
+            columnNode.addChild(new LeafNode(typeOfColumn));
+            tupleNode.addChild(columnNode);
+            if (logger.isDebugEnabled()) logger.debug("\n\tColumn Name: " + columnName + "(" + columnType + ") " + " type of column= " + typeOfColumn + "[IS_Nullable: " + isNullable + "]");
+        }
+        //take out the last ',' character
+        columns = columns.substring(0, columns.length()-1);       
         return tupleNode;
     }
 
@@ -296,8 +394,7 @@ public class DAORelational {
       return result.toString();
     } 
 
-    private void loadForeignKeys(IDataSourceProxy dataSource, DatabaseMetaData databaseMetaData, String catalog, String schemaName,
-            boolean source, Statement statement) {
+    private void loadForeignKeys(IDataSourceProxy dataSource, DatabaseMetaData databaseMetaData, String catalog, String schemaName) {
         try {
             String[] tableTypes = new String[]{"TABLE"};
             ResultSet tableResultSet = databaseMetaData.getTables(catalog, schemaName, null, tableTypes);

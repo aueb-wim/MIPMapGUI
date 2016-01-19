@@ -33,18 +33,18 @@ public class DAOMappingTask {
     private DAOMappingTaskLines daoLines = new DAOMappingTaskLines();
     private DAOMappingTaskTgds daoTgds = new DAOMappingTaskTgds();
 
-    public MappingTask loadMappingTask(int scenarioNo, String filePath) throws DAOException {
+    public MappingTask loadMappingTask(int scenarioNo, String filePath, boolean web) throws DAOException {
         if (filePath.endsWith(".xml")) {
-            return daoLines.loadMappingTask(scenarioNo, filePath);
+            return daoLines.loadMappingTask(scenarioNo, filePath, web);
         } else if (filePath.endsWith(".tgd")) {
             return daoTgds.loadMappingTask(filePath);
         }
         throw new IllegalArgumentException("Illegal file name for mapping task: " + filePath);
     }
 
-    public MappingTask loadMappingTask(int scenarioNo, String filePath, int type) throws DAOException {
+    public MappingTask loadMappingTask(int scenarioNo, String filePath, int type, boolean web) throws DAOException {
         if (type == SpicyEngineConstants.LINES_BASED_MAPPING_TASK) {
-            return daoLines.loadMappingTask(scenarioNo, filePath);
+            return daoLines.loadMappingTask(scenarioNo, filePath, web);
         } else if (type == SpicyEngineConstants.TGD_BASED_MAPPING_TASK) {
             return daoTgds.loadMappingTask(filePath);
         }

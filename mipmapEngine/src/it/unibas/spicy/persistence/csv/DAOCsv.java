@@ -158,6 +158,34 @@ public class DAOCsv {
         return dataSource;
     }
     
+    public IDataSourceProxy loadSchemaForWeb(int scenarioNo, HashSet<String> tablefullPathList, String catalog) throws DAOException {
+        INode root = null;
+        IDataSourceProxy dataSource = null;
+        try  {            
+            root = this.createRootNode(catalog);            
+            List<String> tableFiles = new ArrayList<String>();
+            for (String tablefullPath : tablefullPathList){
+                //getting the filename from file's full path
+                File userFile = new File(tablefullPath);
+                String filename = userFile.getName();                
+                //exclude filename extension
+                if (filename.indexOf(".") > 0) {
+                    filename = filename.substring(0, filename.lastIndexOf("."));
+                }
+                INode setTable = this.createSetNode (filename, root, tablefullPath);
+                dataSource = new ConstantDataSourceProxy(new DataSource(SpicyEngineConstants.TYPE_CSV, root));
+                dataSource.addAnnotation(SpicyEngineConstants.CSV_DB_NAME, catalog);
+                dataSource.addAnnotation(SpicyEngineConstants.CSV_TABLE_FILE_LIST, tableFiles);
+                tableFiles.add(tablefullPath);
+            }
+        }
+        catch (Exception ex) {
+            logger.error(ex);
+            throw new DAOException(ex);
+        }        
+        return dataSource;
+    }
+    
     private INode createRootNode(String catalog) {        
         INode root = new TupleNode(catalog);
         root.setNotNull(true);

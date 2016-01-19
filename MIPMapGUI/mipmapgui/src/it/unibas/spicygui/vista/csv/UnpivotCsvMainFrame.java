@@ -28,8 +28,7 @@ public class UnpivotCsvMainFrame extends javax.swing.JDialog{
     public UnpivotCsvMainFrame(String[] columnNames){       
         Image imageDefault = ImageUtilities.loadImage(Costanti.ICONA_MIPMAP, true);
         setIconImage(imageDefault);
-        setTitle(org.openide.util.NbBundle.getMessage(Costanti.class, Costanti.ACTION_UNPIVOT_CSV));
-        setPreferredSize(new Dimension(400, 500));        
+        setTitle(org.openide.util.NbBundle.getMessage(Costanti.class, Costanti.ACTION_UNPIVOT_CSV));       
         setModal(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
@@ -48,15 +47,15 @@ public class UnpivotCsvMainFrame extends javax.swing.JDialog{
         //Upper Label Panel
         JPanel upperPanel = new JPanel();
         JLabel rowLabel = new JLabel();
-        rowLabel.setText(org.openide.util.NbBundle.getMessage(Costanti.class, Costanti.ROW_LABEL));
+        rowLabel.setText(org.openide.util.NbBundle.getMessage(Costanti.class, Costanti.COL_LABEL));
         upperPanel.add(rowLabel);        
         pl.addComponent(upperPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
         seq.addComponent(upperPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
         
         //Select all panel
-        JPanel selectAllPanel = new UnpivotCsvSelectAllPanel(this, org.openide.util.NbBundle.getMessage(Costanti.class, Costanti.SELECT_ALL_LABEL));
-        selectAllPanel.setPreferredSize(new Dimension(300, 20));    
+        JPanel selectAllPanel = new UnpivotCsvSelectAllPanel(this);
+        selectAllPanel.setPreferredSize(new Dimension(300, 60));    
         pl.addComponent(selectAllPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
         seq.addComponent(selectAllPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
@@ -101,9 +100,11 @@ public class UnpivotCsvMainFrame extends javax.swing.JDialog{
     public List<String> setColNames(){
         List<String> columnNames = new ArrayList<String>();
         for (UnpivotCsvColumnPanel panel : columnList){
-            if (panel.isColumnSelected()){
-                columnNames.add(panel.getColNameLabel());
-            }        
+            if (panel.isColumnIncluded()){
+                if (panel.isColumnSelected()){
+                    columnNames.add(panel.getColNameLabel());
+                }    
+            }    
         }
         this.columnNamesToUnpivot = columnNames;
         return columnNames;
@@ -112,9 +113,11 @@ public class UnpivotCsvMainFrame extends javax.swing.JDialog{
     public List<String> setKeepColNames(){
         List<String> keepColumnNames = new ArrayList<String>();
         for (UnpivotCsvColumnPanel panel : columnList){
-            if (!panel.isColumnSelected()){
-                keepColumnNames.add(panel.getColNameLabel());
-            }        
+            if (panel.isColumnIncluded()){
+                if (!panel.isColumnSelected()){
+                    keepColumnNames.add(panel.getColNameLabel());
+                } 
+            }
         }
         this.keepColumnNames = keepColumnNames;
         return keepColumnNames;

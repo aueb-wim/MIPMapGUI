@@ -162,12 +162,12 @@ public class ActionOpenMappingTask extends CallableSystemAction implements Obser
             MappingTask mappingTask = null;            
             DAOMappingTask daoMappingTask = new DAOMappingTask();
             if (xmlFilter.accept(file)) {
-                mappingTask = daoMappingTask.loadMappingTask(scenarioNo, fileAbsoluteFile, SpicyEngineConstants.LINES_BASED_MAPPING_TASK);
+                mappingTask = daoMappingTask.loadMappingTask(scenarioNo, fileAbsoluteFile, SpicyEngineConstants.LINES_BASED_MAPPING_TASK, false);
                 enableActions();
                 scenario = gestioneScenario(file, mappingTask, false, isSelected);
                 this.actionViewSchema.performAction();
             } else if (tgdFilter.accept(file)) {
-                mappingTask = daoMappingTask.loadMappingTask(scenarioNo, fileAbsoluteFile, SpicyEngineConstants.TGD_BASED_MAPPING_TASK);
+                mappingTask = daoMappingTask.loadMappingTask(scenarioNo, fileAbsoluteFile, SpicyEngineConstants.TGD_BASED_MAPPING_TASK, false);
                 enableActionsTGDs();
                 scenario = gestioneScenario(file, mappingTask, true, isSelected);
                 this.actionViewSchema.setEnabled(false);

@@ -36,7 +36,6 @@ import it.unibas.spicy.persistence.csv.DAOCsv;
 import it.unibas.spicy.persistence.DAOHandleDB;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import it.unibas.spicygui.Costanti;
-import it.unibas.spicygui.Installer;
 import it.unibas.spicygui.commons.AbstractScenario;
 import it.unibas.spicygui.commons.Modello;
 import it.unibas.spicygui.commons.LastActionBean;

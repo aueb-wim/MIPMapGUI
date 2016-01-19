@@ -42,7 +42,7 @@ public final class NewMappingTaskVisualPanel2 extends JPanel {
 
     @Override
     public String getName() {
-        return "Step  - " + Costanti.TARGET;
+        return "Step 2 - " + Costanti.TARGET;
     }
 
 

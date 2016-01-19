@@ -54,11 +54,11 @@ public class Substring extends PostfixMathCommand {
     }
 
     public Object substring(Object param1, Object param2, Object param3) throws ParseException {
-        return param1.toString().substring(Integer.parseInt(param2.toString()), Integer.parseInt(param3.toString()));
+        return param1.toString().substring(Utility.convertInteger(param2), Utility.convertInteger(param3));
     }
 
     public Object substring(Object param1, Object param2) throws ParseException {
-        return param1.toString().substring(Integer.parseInt(param2.toString()));
+        return param1.toString().substring(Utility.convertInteger(param2));
     }
 
 }

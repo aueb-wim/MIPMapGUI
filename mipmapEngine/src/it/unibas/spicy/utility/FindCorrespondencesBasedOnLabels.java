@@ -48,7 +48,7 @@ public class FindCorrespondencesBasedOnLabels {
 
     public void findCorrespondences(String inputFile, String outputFile) throws DAOException {
         DAOMappingTask daoMappingTask = new DAOMappingTask();
-        MappingTask mappingTask = daoMappingTask.loadMappingTask(5, inputFile);
+        MappingTask mappingTask = daoMappingTask.loadMappingTask(5, inputFile, false);
         INode source = mappingTask.getSourceProxy().getSchema();
         INode target = mappingTask.getTargetProxy().getSchema();
 

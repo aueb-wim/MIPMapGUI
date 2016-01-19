@@ -43,9 +43,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLDecoder;
 import java.sql.Timestamp;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -77,7 +79,6 @@ public class Installer extends ModuleInstall {
     public static final String POSTGRESDB_CONFIGURATION_FILE = "postgresdb.properties";
 //    private ActionExitApplication actionExitApplication = new ActionExitApplication();
     private boolean close;
-    private static String OS = System.getProperty("os.name").toLowerCase();
     
     @Override
     public void close() {
@@ -218,35 +219,42 @@ public class Installer extends ModuleInstall {
             return null;
         }
 
-        String extUrl = url.toExternalForm();
-        String lowerUrl = extUrl.toLowerCase();
-        while(lowerUrl.startsWith("jar:") || lowerUrl.startsWith("file:/")) {
-            if(lowerUrl.startsWith("jar:")) {
-                if(lowerUrl.indexOf("!/")!=-1) { 
-                    extUrl=extUrl.substring(4,(extUrl.indexOf("!/"))); 
-                }     // strip encapsulating "jar:" and "!/..." from JAR url
-                else { 
-                    extUrl=extUrl.substring(4); } // strip encapsulating "jar:"
+        String extUrl;
+        try {
+            extUrl = URLDecoder.decode(url.toExternalForm(), "UTF-8");
+            String lowerUrl = extUrl.toLowerCase();
+            while(lowerUrl.startsWith("jar:") || lowerUrl.startsWith("file:/")) {
+                if(lowerUrl.startsWith("jar:")) {
+                    if(lowerUrl.indexOf("!/")!=-1) { 
+                        extUrl=extUrl.substring(4,(extUrl.indexOf("!/"))); 
+                    }     // strip encapsulating "jar:" and "!/..." from JAR url
+                    else { 
+                        extUrl=extUrl.substring(4); } // strip encapsulating "jar:"
+                    }
+                if(lowerUrl.startsWith("file:/")) {
+                    extUrl=extUrl.substring(6);  // strip encapsulating "file:/"
+                    if(!extUrl.startsWith("/")) { 
+                        extUrl=("/"+extUrl); 
+                    }
+                    while(extUrl.length()>1 && extUrl.charAt(1)=='/') { 
+                        extUrl=extUrl.substring(1); 
+                    }
                 }
-            if(lowerUrl.startsWith("file:/")) {
-                extUrl=extUrl.substring(6);  // strip encapsulating "file:/"
-                if(!extUrl.startsWith("/")) { 
-                    extUrl=("/"+extUrl); 
-                }
-                while(extUrl.length()>1 && extUrl.charAt(1)=='/') { 
-                    extUrl=extUrl.substring(1); 
-                }
+                lowerUrl=extUrl.toLowerCase();
             }
-            lowerUrl=extUrl.toLowerCase();
+            File path=new File(extUrl);
+            if(lowerUrl.endsWith(".class") || (lowerUrl.endsWith(".jar"))) { 
+                path=path.getParentFile(); 
+            }
+            if(path.exists()) { 
+                path=path.getAbsoluteFile(); 
+            }
+            return path;
+        } catch (UnsupportedEncodingException ex) {
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.NEW_ERROR) + " : " + ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
+            Logger.getLogger(Installer.class.getName()).severe("UnsupportedEncodingException caught for installation url");
+            return null;
         }
-        File path=new File(extUrl);
-        if(lowerUrl.endsWith(".class") || (lowerUrl.endsWith(".jar"))) { 
-            path=path.getParentFile(); 
-        }
-        if(path.exists()) { 
-            path=path.getAbsoluteFile(); 
-        }
-        return path;
     }
     
     //giannisk
@@ -257,7 +265,9 @@ public class Installer extends ModuleInstall {
         //uncomment the following block and the "else" block
         //and comment the first two lines right after the block
         //// //comment for IDE
-        /*File installationPath = this.getClassLocation().getParentFile();
+        /*File installationPath0 = this.getClassLocation();
+        System.out.println("INST:"+installationPath0);
+        File installationPath = installationPath0.getParentFile();
         File propertyFile = new File(installationPath.getAbsolutePath() + File.separator + POSTGRESDB_CONFIGURATION_FILE);
         InputStream stream = null; 
         if (propertyFile.exists()){

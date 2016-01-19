@@ -5,21 +5,26 @@
  */
 package it.unibas.spicygui.vista.csv;
 
+import it.unibas.spicygui.Costanti;
 import java.awt.Font;
 
 public class UnpivotCsvSelectAllPanel extends javax.swing.JPanel {
     
     UnpivotCsvMainFrame mainFrame;
     
-    public UnpivotCsvSelectAllPanel(UnpivotCsvMainFrame mainFrame ,String name) {
+    public UnpivotCsvSelectAllPanel(UnpivotCsvMainFrame mainFrame) {
         this.mainFrame = mainFrame;
         initComponents();
-        initLabels(name);         
+        initLabels();         
     }    
    
-    private void initLabels(String name){
-        rowNameLabel.setText(name); 
-        rowNameLabel.setFont(new Font(rowNameLabel.getFont().getName(), Font.BOLD, rowNameLabel.getFont().getSize()));
+    private void initLabels(){
+        includeLabel.setText(org.openide.util.NbBundle.getMessage(Costanti.class, Costanti.INCLUDE_LABEL)); 
+        includeLabel.setFont(new Font(includeLabel.getFont().getName(), Font.BOLD, includeLabel.getFont().getSize()));
+        unpivotLabel.setText(org.openide.util.NbBundle.getMessage(Costanti.class, Costanti.UNPIVOT_LABEL)); 
+        unpivotLabel.setFont(new Font(unpivotLabel.getFont().getName(), Font.BOLD, unpivotLabel.getFont().getSize()));
+        selectAllLabel.setText(org.openide.util.NbBundle.getMessage(Costanti.class, Costanti.SELECT_ALL_LABEL)); 
+        rowCheckBox.setToolTipText(org.openide.util.NbBundle.getMessage(Costanti.class, Costanti.SELECT_ALL_LABEL));
     }
     
     public boolean isColumnSelected(){
@@ -28,7 +33,8 @@ public class UnpivotCsvSelectAllPanel extends javax.swing.JPanel {
     
     private void selectAll(boolean val){
         for (UnpivotCsvColumnPanel panel: mainFrame.getColumnsList()){
-            panel.setCheckboxSelected(val);
+            if (panel.isColumnIncluded())
+                panel.setCheckboxSelected(val);
         }
     }
     
@@ -42,8 +48,10 @@ public class UnpivotCsvSelectAllPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        rowNameLabel = new javax.swing.JLabel();
         rowCheckBox = new javax.swing.JCheckBox();
+        includeLabel = new javax.swing.JLabel();
+        unpivotLabel = new javax.swing.JLabel();
+        selectAllLabel = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(100, 76));
 
@@ -60,18 +68,30 @@ public class UnpivotCsvSelectAllPanel extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(rowNameLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(rowCheckBox)
-                .addContainerGap())
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(selectAllLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(rowCheckBox))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(includeLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+                        .addComponent(unpivotLabel)))
+                .addGap(6, 6, 6))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(includeLabel)
+                    .addComponent(unpivotLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(rowNameLabel)
-                    .addComponent(rowCheckBox))
-                .addContainerGap())
+                    .addComponent(rowCheckBox)
+                    .addComponent(selectAllLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(4, 4, 4))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -87,7 +107,9 @@ public class UnpivotCsvSelectAllPanel extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel includeLabel;
     private javax.swing.JCheckBox rowCheckBox;
-    private javax.swing.JLabel rowNameLabel;
+    private javax.swing.JLabel selectAllLabel;
+    private javax.swing.JLabel unpivotLabel;
     // End of variables declaration//GEN-END:variables
 }
