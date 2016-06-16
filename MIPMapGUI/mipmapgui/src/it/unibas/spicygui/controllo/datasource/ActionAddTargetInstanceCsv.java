@@ -71,7 +71,7 @@ public class ActionAddTargetInstanceCsv extends CallableSystemAction implements 
         LoadCsvInstancesMainFrame jd = new LoadCsvInstancesMainFrame(dataSource);
         InstancesTopComponent viewInstancesTopComponent = scenario.getInstancesTopComponent();
         HashMap<String,String> absolutePaths = jd.getResponse();
-        if (!absolutePaths.isEmpty())
+        if (!absolutePaths.isEmpty()){
             if(scenario.getMappingTask().getTargetProxy().getType().equalsIgnoreCase("CSV")){
                 try{  
                     //pathHashMap is a multimap set with the tablename String as key
@@ -92,9 +92,8 @@ public class ActionAddTargetInstanceCsv extends CallableSystemAction implements 
                     if (!viewInstancesTopComponent.isRipulito()) {
                         viewInstancesTopComponent.createTargetInstanceTree();
                         viewInstancesTopComponent.requestActive();
-                        StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(Costanti.class, Costanti.ADD_INSTANCE_OK));
                     }
-                     
+                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.ADD_INSTANCE_OK))); 
                 } catch (DAOException ex) {
                     DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.OPEN_ERROR) + " : " + ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
                     logger.error(ex);
@@ -103,6 +102,10 @@ public class ActionAddTargetInstanceCsv extends CallableSystemAction implements 
             else{
                 DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.CSV_INST_NOTIF), DialogDescriptor.ERROR_MESSAGE));
             }
+        }
+        else {
+           DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.CSV_EMPTY_INST_NOTIF), DialogDescriptor.ERROR_MESSAGE));  
+        }
     }
 
     public void update(Observable o, Object stato) {

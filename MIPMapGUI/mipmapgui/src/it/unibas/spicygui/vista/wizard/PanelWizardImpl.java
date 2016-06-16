@@ -28,6 +28,7 @@ import it.unibas.spicygui.vista.wizard.pm.RelationalConfigurationPM;
 import it.unibas.spicygui.vista.wizard.pm.NewMappingTaskPM;
 import it.unibas.spicygui.vista.wizard.pm.XMLConfigurationPM;
 import it.unibas.spicygui.vista.wizard.pm.CSVConfigurationPM;
+import it.unibas.spicygui.vista.wizard.pm.SQLConfigurationPM;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -47,6 +48,7 @@ public class PanelWizardImpl extends javax.swing.JPanel {
     private Log logger = LogFactory.getLog(PanelWizardImpl.class);
     private RelationalPanel relationalPanel = new RelationalPanel(this);
     private XMLPanel xmlPanel = new XMLPanel(this);
+    private SQLPanel sqlPanel = new SQLPanel(this);
     private CSVPanel csvPanel = new CSVPanel(this);
     private String dataSource;
     private NewMappingTaskPM newMappingTaskPM;
@@ -79,11 +81,11 @@ public class PanelWizardImpl extends javax.swing.JPanel {
         this.comboDataSourceType.removeAllItems();
         //giannsik new selection for CSV files
         this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_CSV));
+        this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_SQL));
         //giannsik selection for XML files removed from combo box
         //this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_XML));
         this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_RELATIONAL));
         this.labelDataSourceType.setText(NbBundle.getMessage(Costanti.class, Costanti.LABEL_DATA_SOURCE_TYPE));
-        //this.createXMLPanel();
         //giannisk make CSV Panel the default one
         this.createCSVPanel();
     }
@@ -111,6 +113,22 @@ public class PanelWizardImpl extends javax.swing.JPanel {
             xmlPanel.setXmlConfigurationPM((XMLConfigurationPM) modello.getBean(Costanti.XML_CONFIGURATION_TARGET));
             xmlPanel.ripulisciCampi();
             this.panelOptions.add(xmlPanel, BorderLayout.CENTER);
+        }
+    }
+    
+    /*giannisk
+    Method for creation of the SQL Panel
+    */
+    public void createSQLPanel(){
+        this.panelOptions.removeAll();          
+        if (dataSource.equalsIgnoreCase(Costanti.SOURCE)) {
+            sqlPanel.setSqlConfigurationPM((SQLConfigurationPM) modello.getBean(Costanti.SQL_CONFIGURATION_SOURCE));
+            sqlPanel.ripulisciCampi();
+            this.panelOptions.add(sqlPanel, BorderLayout.CENTER);
+        } else {
+            sqlPanel.setSqlConfigurationPM((SQLConfigurationPM) modello.getBean(Costanti.SQL_CONFIGURATION_TARGET));
+            sqlPanel.ripulisciCampi();
+            this.panelOptions.add(sqlPanel, BorderLayout.CENTER);
         }
     }
     
@@ -228,6 +246,10 @@ public class PanelWizardImpl extends javax.swing.JPanel {
                 //giannisk Check for CSV selection. Create the appropriate panel in that case.
                 else if (type.equals(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_CSV))) {
                     createCSVPanel();
+                }
+                //giannisk Check for SQL selection. Create the appropriate panel in that case.
+                else if (type.equals(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_SQL))) {
+                    createSQLPanel();
                 }
                 updateUI();
             }

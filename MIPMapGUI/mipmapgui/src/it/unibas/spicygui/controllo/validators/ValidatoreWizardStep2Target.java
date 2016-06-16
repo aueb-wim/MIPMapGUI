@@ -27,6 +27,7 @@ import it.unibas.spicygui.commons.Modello;
 import it.unibas.spicygui.vista.wizard.pm.CSVConfigurationPM;
 import it.unibas.spicygui.vista.wizard.pm.NewMappingTaskPM;
 import it.unibas.spicygui.vista.wizard.pm.RelationalConfigurationPM;
+import it.unibas.spicygui.vista.wizard.pm.SQLConfigurationPM;
 import it.unibas.spicygui.vista.wizard.pm.XMLConfigurationPM;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -49,12 +50,17 @@ public class ValidatoreWizardStep2Target {
             //XML
             XMLConfigurationPM xmlConfigurationPM = (XMLConfigurationPM) modello.getBean(Costanti.XML_CONFIGURATION_TARGET);
             return xmlConfigurationPM.checkFieldsForTarget();   
-        }        
+        } 
+        else if (targetElement.equals(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_SQL))){
+            //SQL
+            SQLConfigurationPM sqlConfigurationPM = (SQLConfigurationPM) modello.getBean(Costanti.SQL_CONFIGURATION_TARGET);
+            return (sqlConfigurationPM.checkFileFields() && sqlConfigurationPM.checkDatabaseNameField());
+        }          
         else {
             //giannisk CSV (default value)
             //also checks for null Database Name
             CSVConfigurationPM csvConfigurationPM = (CSVConfigurationPM) modello.getBean(Costanti.CSV_CONFIGURATION_TARGET);
-            return ((csvConfigurationPM.checkFieldsForSource())&&(csvConfigurationPM.checkDatabaseNameField()));
+            return (csvConfigurationPM.checkFileFields() && csvConfigurationPM.checkDatabaseNameField());
         }
     }
 

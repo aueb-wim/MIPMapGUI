@@ -72,7 +72,7 @@ public class ActionAddSourceInstanceCsv extends CallableSystemAction implements 
         InstancesTopComponent viewInstancesTopComponent = scenario.getInstancesTopComponent();
         //jd.getResponse() returns the file path and the table name
         HashMap<String,String> absolutePaths = jd.getResponse();
-        if (!absolutePaths.isEmpty())
+        if (!absolutePaths.isEmpty()){
             if(scenario.getMappingTask().getSourceProxy().getType().equalsIgnoreCase("CSV")){ 
                 try {
                     //pathHashMap is a multimap set with the file path String as key
@@ -98,14 +98,19 @@ public class ActionAddSourceInstanceCsv extends CallableSystemAction implements 
                         viewInstancesTopComponent.createSourceInstanceTree();
                         viewInstancesTopComponent.requestActive();
                     }
-                    StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(Costanti.class, Costanti.ADD_INSTANCE_OK));
+                    //StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(Costanti.class, Costanti.ADD_INSTANCE_OK));
+                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.ADD_INSTANCE_OK)));
                 } catch (DAOException ex) {
                     DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.OPEN_ERROR) + " : " + ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
                     logger.error(ex);
                 }
             }
-        else{
-            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.CSV_INST_NOTIF), DialogDescriptor.ERROR_MESSAGE));
+            else{
+                DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.CSV_INST_NOTIF), DialogDescriptor.ERROR_MESSAGE));
+            }
+        }
+        else {
+           DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.CSV_EMPTY_INST_NOTIF), DialogDescriptor.ERROR_MESSAGE));  
         }
     }
     

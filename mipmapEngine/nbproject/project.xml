@@ -187,7 +187,7 @@
             <compilation-unit>
                 <package-root>${src.dir}</package-root>
                 <classpath mode="execute">${run.classpath}</classpath>
-                <classpath mode="compile">build/classes;../lib/antlr-3.1.1-runtime.jar;../lib/commons-logging-1.1.jar;../lib/concurrent.jar;../lib/derbyclient.jar;../lib/famix.jar;../lib/guice-1.0.jar;../lib/ibatis-2.3.4.726.jar;../lib/jdom.jar;../lib/jep-2.4.1.jar;../lib/jgrapht-0.6.0.jar;../lib/jscience.jar;../lib/junit.jar;../lib/log4j-1.2.14.jar;../lib/mysql-connector-java-5.1.37-bin.jar;../lib/opencsv-3.0.jar;../lib/postgresql-8.1-407.jdbc3.jar;../lib/saxon9-xqj.jar;../lib/saxon9.jar;../lib/simpack-0.91-bin.jar;../lib/sqlite-jdbc-3.8.7.jar;../lib/treedistance.jar;../lib/xercesImpl.jar;../lib/mysql-connector-java-5.1.37-bin.jar</classpath>
+                <classpath mode="compile">build/classes;../lib/antlr-3.1.1-runtime.jar;../lib/commons-logging-1.1.jar;../lib/concurrent.jar;../lib/derbyclient.jar;../lib/famix.jar;../lib/guice-1.0.jar;../lib/ibatis-2.3.4.726.jar;../lib/jdom.jar;../lib/jep-2.4.1.jar;../lib/jgrapht-0.6.0.jar;../lib/jscience.jar;../lib/junit.jar;../lib/log4j-1.2.14.jar;../lib/mysql-connector-java-5.1.37-bin.jar;../lib/opencsv-3.0.jar;../lib/postgresql-8.1-407.jdbc3.jar;../lib/saxon9-xqj.jar;../lib/saxon9.jar;../lib/simpack-0.91-bin.jar;../lib/sqlite-jdbc-3.8.7.jar;../lib/treedistance.jar;../lib/xercesImpl.jar;../lib/mysql-connector-java-5.1.37-bin.jar;../lib/jsqlparser-0.9.5-20160211.220353-21.jar</classpath>
                 <built-to>${build.dir}</built-to>
                 <javadoc-built-to>dist/javadoc</javadoc-built-to>
                 <source-level>1.7</source-level>

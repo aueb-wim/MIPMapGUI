@@ -38,6 +38,7 @@ public class SpicyEngineConstants {
     public static final String TYPE_ALGEBRA_RESULT = "algebra result";
     public static final String TYPE_XML = "XML";
     public static final String TYPE_CSV = "CSV";
+    public static final String TYPE_SQL = "SQL";
     public static final String TYPE_RELATIONAL = "Relational";
     
     public static final String PROVIDER_TYPE_CHAINING = "CHAINING";
@@ -55,10 +56,14 @@ public class SpicyEngineConstants {
     public static final String XML_SCHEMA_FILE = "XSD file";
     public static final String XML_INSTANCE_FILE_LIST = "XML instance file list";
 
-    public static final String CSV_DB_NAME = "CSV database name";
+    public static final String CSV_DB_NAME = "CSV database name";    
     public static final String CSV_TABLE_FILE_LIST = "CSV table file list";
     public static final String CSV_INSTANCES_INFO_LIST ="CSV instance file list";
     public static final String INSTANCE_PATH_LIST = "CSV instance table file list";
+    
+    public static final String SQL_DB_NAME = "SQL database name";
+    public static final String SQL_FILE_PATH = "SQL file";
+    
     public static final String ACCESS_CONFIGURATION = "access configuration";
     public static final String LOADED_INSTANCES_FLAG = "loaded instances";
     public static final String TYPE_OBJECT = "object";
@@ -69,6 +74,7 @@ public class SpicyEngineConstants {
     public static final String SOURCEVALUE_DATE_FUNCTION = "date()";
     public static final String POSTGRES_DATE_FUNCTION = "current_date";
     public static final String SOURCEVALUE_DATETIME_FUNCTION = "datetime()";
+    public static final String POSTGRES_CURRENT_YEAR_FUNCTION = "extract(year from current_date)";
     public static final String POSTGRES_DATETIME_FUNCTION = "date_trunc('second',localtimestamp)";
     public static final String SOURCEVALUE_NEWID_FUNCTION = "newId()";
     public static final String POSTGRES_NEWID_FUNCTION = "nextval('idsequence')";
@@ -89,7 +95,13 @@ public class SpicyEngineConstants {
     //giannisk
     public static final String COMMA_REPLACEMENT = "#COMMA_CHAR#";
     public static final String DOUBLE_QUOTES = "#DOUBLE_QUOTES#";
-
+    
+    public static final String SEMI_COLON_DELIMITER = "Semi-colon";
+    public static final String COLON_DELIMITER = "Colon";
+    public static final String TAB_DELIMITER = "Tab";
+    public static final String DOUBLE_QUOTES_OPTION ="Double quotes";
+    public static final String SINGLE_QUOTES_OPTION ="Single quotes";
+        
     public static final String LEAF = "LEAF";
 
     public static final String INCL_COL_NAMES = "true";

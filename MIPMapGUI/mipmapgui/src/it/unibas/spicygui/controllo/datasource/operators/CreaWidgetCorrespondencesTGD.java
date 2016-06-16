@@ -154,7 +154,8 @@ public class CreaWidgetCorrespondencesTGD implements ICreaWidgetCorrespondences 
         ConnectionInfo connectionInfo = connectionCreator.createConnectionToTarget(sourceWidget, targetWidget, mainLayer, connectionLayer);
         connectionInfo.setVariableCorrespondence(variableCorrespondence);
 //        connectionInfo.setValueCorrespondence(variableCorrespondence.);
-//        analisiFiltro.creaWidgetEsisteFiltro(connectionInfo.getConnectionWidget(), connectionInfo);
+//        analisiFiltro.creaWidgetEsisteFiltro(connectionInfo.getConnectionWidget(), connectionInfo);        
+        sourceWidget.setToolTipText(variableCorrespondence.getSourceValue().toString());
         scene.validate();
     }
 

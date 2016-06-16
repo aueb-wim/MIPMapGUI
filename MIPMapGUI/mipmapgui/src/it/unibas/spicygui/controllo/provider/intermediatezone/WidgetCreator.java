@@ -166,6 +166,9 @@ public class WidgetCreator {
     public Widget createFunctionalDependencyWidget(Scene scene, LayerWidget mainLayer, LayerWidget connectionLayer, JPanel pannelloPrincipale, Point point, GraphSceneGlassPane glassPane) {
         FunctionalDependencyWidget rootWidget = new FunctionalDependencyWidget(scene, point);
         CaratteristicheWidgetInterFunctionalDep caratteristicheWidget = new CaratteristicheWidgetInterFunctionalDep();
+        
+        caratteristicheWidget.setTgdView(false);
+        
         caratteristicheWidget.setTreeType(Costanti.INTERMEDIE);
 
         rootWidget.getActions().addAction(ActionFactory.createConnectAction(connectionLayer, new ActionFunctionalDepConnection(connectionLayer, mainLayer, caratteristicheWidget)));
@@ -280,8 +283,8 @@ public class WidgetCreator {
         mainLayer.addChild(rootWidget, caratteristicheWidget);
         mainLayer.addChild(barra, caratteristicheBarra);
 
-        glassPane.addFunction(rootWidget);
-        glassPane.addFunction(barra);
+        glassPane.addConstant(rootWidget);
+        glassPane.addConstant(barra);
         scene.validate();
 //        scenario.setInComposition(true);
         

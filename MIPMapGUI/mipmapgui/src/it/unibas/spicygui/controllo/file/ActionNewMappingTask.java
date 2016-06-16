@@ -33,6 +33,7 @@ import it.unibas.spicy.persistence.relational.IConnectionFactory;
 import it.unibas.spicy.persistence.relational.SimpleDbConnectionFactory;
 import it.unibas.spicy.persistence.xml.DAOXsd;
 import it.unibas.spicy.persistence.csv.DAOCsv;
+import it.unibas.spicy.persistence.sql.DAOSql;
 import it.unibas.spicy.persistence.DAOHandleDB;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import it.unibas.spicygui.Costanti;
@@ -59,6 +60,7 @@ import it.unibas.spicygui.vista.wizard.pm.NewMappingTaskPM;
 import it.unibas.spicygui.vista.wizard.pm.XMLConfigurationPM;
 import it.unibas.spicygui.vista.wizard.pm.RelationalConfigurationPM;
 import it.unibas.spicygui.vista.wizard.pm.CSVConfigurationPM;
+import it.unibas.spicygui.vista.wizard.pm.SQLConfigurationPM;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -80,10 +82,11 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
     private LastActionBean lastActionBean;
     private ActionViewSchema actionViewSchema;
     private ActionProjectTree actionProjectTree;
+    private DAORelational daoRelational = new DAORelational();
+    private DAOSql daoSql = new DAOSql();
     private DAOXsd daoXsd = new DAOXsd();
     private DAOCsv daoCsv = new DAOCsv();
     private DAOHandleDB daoCreateDB = new DAOHandleDB();
-    private DAORelational daoRelational = new DAORelational();
 
     public ActionNewMappingTask() {
         executeInjection();
@@ -108,12 +111,16 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
                 IDataSourceProxy target = loadDataSource(newMappingTaskPM.getTargetElement(), false);
                 MappingTask mappingTask = new MappingTask(source, target, SpicyEngineConstants.LINES_BASED_MAPPING_TASK);
                 mappingTask.setModified(true);
-                if (!source.getForeignKeyConstraints().isEmpty()) {
+                
+                //giannisk 
+                //prompt for automatic loading of foreign keys disabled
+                /*if (!source.getForeignKeyConstraints().isEmpty()) {
                     confirmAddForeignKeyToJoin(source, true);
                 }
                 if (!target.getForeignKeyConstraints().isEmpty()) {
                     confirmAddForeignKeyToJoin(target, false);
-                }
+                }*/
+                
                 gestioneScenario(mappingTask);
                 enableActions();
                 actionViewSchema.performAction();
@@ -167,10 +174,15 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
     private IDataSourceProxy loadDataSource(String type, boolean source) throws DAOException, SQLException {
         if (type.equals(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_RELATIONAL))) {
             if (source) {
-                ////daoCreateDB.createNewDatabase(Scenarios.lastScenarioNo);
                 return loadRelationalDataSource((RelationalConfigurationPM) modello.getBean(Costanti.RELATIONAL_CONFIGURATION_SOURCE), source);
             }
             return loadRelationalDataSource((RelationalConfigurationPM) modello.getBean(Costanti.RELATIONAL_CONFIGURATION_TARGET), source);
+        }
+        else if (type.equals(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_SQL))) {
+            if (source) {
+                return loadSQLDataSource((SQLConfigurationPM) modello.getBean(Costanti.SQL_CONFIGURATION_SOURCE), source);
+            }
+            return loadSQLDataSource((SQLConfigurationPM) modello.getBean(Costanti.SQL_CONFIGURATION_TARGET), source);
         }
         else if (type.equals(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_XML))) {
             if (source) {
@@ -179,8 +191,6 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
             return loadXMLDataSource((XMLConfigurationPM) modello.getBean(Costanti.XML_CONFIGURATION_TARGET));
         }
         if (source) {
-            
-            ////daoCreateDB.createNewDatabase(Scenarios.lastScenarioNo);
             return loadCSVDataSource((CSVConfigurationPM) modello.getBean(Costanti.CSV_CONFIGURATION_SOURCE), source);
         }
         return loadCSVDataSource((CSVConfigurationPM) modello.getBean(Costanti.CSV_CONFIGURATION_TARGET), source);  
@@ -191,6 +201,12 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
         IConnectionFactory dataSourceDB = new SimpleDbConnectionFactory();
         IDataSourceProxy dataSource = daoRelational.loadSchema(Scenarios.lastScenarioNo, configuration.getAccessConfiguration(), dataDescription, dataSourceDB, source);
         daoRelational.loadInstanceSample(configuration.getAccessConfiguration(), dataSource, dataDescription, dataSourceDB, null, false);
+        return dataSource;
+    }
+    
+    private IDataSourceProxy loadSQLDataSource(SQLConfigurationPM configuration, boolean source) throws DAOException, SQLException {
+        IDataSourceProxy dataSource = daoSql.loadSchema(Scenarios.lastScenarioNo, configuration.getDBName(), configuration.getSchemaPath(), source);
+        daoSql.loadInstanceSample(dataSource, configuration.getDBName(), configuration.getSchemaPath());
         return dataSource;
     }
 
@@ -317,6 +333,8 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
     private void insertBeanForBinding() {
         this.modello.putBean(Costanti.RELATIONAL_CONFIGURATION_SOURCE, new RelationalConfigurationPM());
         this.modello.putBean(Costanti.RELATIONAL_CONFIGURATION_TARGET, new RelationalConfigurationPM());
+        this.modello.putBean(Costanti.SQL_CONFIGURATION_SOURCE, new SQLConfigurationPM());
+        this.modello.putBean(Costanti.SQL_CONFIGURATION_TARGET, new SQLConfigurationPM());
         this.modello.putBean(Costanti.XML_CONFIGURATION_SOURCE, new XMLConfigurationPM());
         this.modello.putBean(Costanti.XML_CONFIGURATION_TARGET, new XMLConfigurationPM());
         this.modello.putBean(Costanti.CSV_CONFIGURATION_SOURCE, new CSVConfigurationPM());

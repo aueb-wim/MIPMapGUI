@@ -294,7 +294,38 @@ public class TreeNodeAdapter implements ITreeNodeAdapter {
                     }
                     return Costanti.ICONA_ELEMENTO_ALBERO;
                 }
-            } 
+            }
+            //giannisk
+            //icons for csv
+            else if (this.type.equals(SpicyEngineConstants.TYPE_SQL)) {
+                if (node.isRoot()) {
+                    return Costanti.ICONA_RELATIONAL_ROOT_ALBERO;
+                }
+                if (node.isExcluded()) {
+                    return Costanti.ICONA_EXCLUSION_NODE;
+                }
+                if (selectionCondition) {
+                    return Costanti.ICONA_SELECTION_CONDITION_SET;
+                }
+                if (node instanceof SetNode) {
+                    return Costanti.ICONA_SQL_ELEMENT_SET;
+                }
+                if (node instanceof TupleNode) {
+                    return Costanti.ICONA_SQL_ELEMENT_TUPLE;
+                }
+                if (node instanceof AttributeNode) {
+                    if (key && foreignKey) {
+                        return Costanti.ICONA_ELEMENTO_KEY_FOREIGN_KEY_ALBERO;
+                    }
+                    if (key) {
+                        return Costanti.ICONA_ELEMENTO_KEY_ALBERO;
+                    }
+                    if (foreignKey) {
+                        return Costanti.ICONA_ELEMENTO_FOREIGN_KEY_ALBERO;
+                    }
+                    return Costanti.ICONA_ELEMENTO_ALBERO;
+                }
+            }
             ////////////
         }
         if (node.isRoot()) {

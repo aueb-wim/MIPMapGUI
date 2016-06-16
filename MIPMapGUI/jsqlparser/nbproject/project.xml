@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.apisupport.project</type>
+    <configuration>
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
+            <code-name-base>net.sf.jsqlparser</code-name-base>
+            <suite-component/>
+            <module-dependencies/>
+            <public-packages>
+                <package>net.sf.jsqlparser</package>
+                <package>net.sf.jsqlparser.expression</package>
+                <package>net.sf.jsqlparser.expression.operators.arithmetic</package>
+                <package>net.sf.jsqlparser.expression.operators.conditional</package>
+                <package>net.sf.jsqlparser.expression.operators.relational</package>
+                <package>net.sf.jsqlparser.parser</package>
+                <package>net.sf.jsqlparser.schema</package>
+                <package>net.sf.jsqlparser.statement</package>
+                <package>net.sf.jsqlparser.statement.alter</package>
+                <package>net.sf.jsqlparser.statement.create.index</package>
+                <package>net.sf.jsqlparser.statement.create.table</package>
+                <package>net.sf.jsqlparser.statement.create.view</package>
+                <package>net.sf.jsqlparser.statement.delete</package>
+                <package>net.sf.jsqlparser.statement.drop</package>
+                <package>net.sf.jsqlparser.statement.execute</package>
+                <package>net.sf.jsqlparser.statement.insert</package>
+                <package>net.sf.jsqlparser.statement.merge</package>
+                <package>net.sf.jsqlparser.statement.replace</package>
+                <package>net.sf.jsqlparser.statement.select</package>
+                <package>net.sf.jsqlparser.statement.truncate</package>
+                <package>net.sf.jsqlparser.statement.update</package>
+                <package>net.sf.jsqlparser.util</package>
+                <package>net.sf.jsqlparser.util.deparser</package>
+            </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/jsqlparser-0.9.5-20160211.220353-21.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jsqlparser-0.9.5-20160211.220353-21.jar</binary-origin>
+            </class-path-extension>
+        </data>
+    </configuration>
+</project>

@@ -158,6 +158,9 @@ public class JepToPostgresConverter {
             case "cosh":
                 output = "(exp(cast(" + parameters[0] + " as float))+exp(-cast(" + parameters[0] + " as float)))/2";
                 break;
+            case "currentYear":
+                output = SpicyEngineConstants.POSTGRES_CURRENT_YEAR_FUNCTION;
+                break;
             case "date":
                 output = SpicyEngineConstants.POSTGRES_DATE_FUNCTION;
                 break;

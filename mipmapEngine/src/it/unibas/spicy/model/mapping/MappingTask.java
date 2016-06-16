@@ -25,6 +25,7 @@ import it.unibas.spicy.model.algebra.query.operators.sql.IDBMSHandler;
 import it.unibas.spicy.model.algebra.query.operators.sql.PostgresHandler;
 import it.unibas.spicy.model.correspondence.ValueCorrespondence;
 import it.unibas.spicy.model.datasource.DataSource;
+import it.unibas.spicy.model.datasource.INode;
 import it.unibas.spicy.model.datasource.values.IntegerOIDGenerator;
 import it.unibas.spicy.model.paths.SetAlias;
 import it.unibas.spicy.utility.SpicyEngineConstants;
@@ -44,7 +45,9 @@ public class MappingTask {
     private MappingData mappingData;
     private EngineConfiguration config;
     private boolean modified;
-    private boolean toBeSaved;
+    private boolean toBeSaved;    
+    private INode sourceNode;
+    private boolean isSourceNodeProxySource;
 
     public MappingTask(DataSource source, DataSource target, int type) {
         IntegerOIDGenerator.clearCache();
@@ -184,6 +187,22 @@ public class MappingTask {
     //giannisk
      public void setLoadedConstantTgds(List<ConstantFORule> loadedConstantTgds) {
         this.loadedConstantTgds = loadedConstantTgds;
+    }
+     
+    public INode getSourceNode(){
+         return this.sourceNode;
+    }
+     
+    public void setSourceNode(INode sourceNode){
+        this.sourceNode = sourceNode;
+    }
+    
+    public boolean isSourceNodeProxySource(){
+        return isSourceNodeProxySource;
+    }
+    
+    public void setSourceNodeProxy(boolean isSourceNodeProxySource){
+        this.isSourceNodeProxySource = isSourceNodeProxySource;
     }
 
     public List<ValueCorrespondence> getCandidateCorrespondences() {

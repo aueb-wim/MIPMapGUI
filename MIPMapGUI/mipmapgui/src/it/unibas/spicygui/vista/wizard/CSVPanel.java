@@ -221,6 +221,7 @@ public class CSVPanel extends javax.swing.JPanel {
                 }
             }
         }
+        filePathTextField.setText("");
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed

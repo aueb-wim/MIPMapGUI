@@ -23,6 +23,7 @@
  
 package it.unibas.spicy.persistence.relational;
 
+import it.unibas.spicy.model.algebra.query.operators.sql.GenerateSQL;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import it.unibas.spicy.model.datasource.DataSource;
 import it.unibas.spicy.model.datasource.INode;
@@ -125,13 +126,16 @@ public class DAORelational {
                 addNode(tableName, setTable);                
             }
             dataSource = new ConstantDataSourceProxy(new DataSource(SpicyEngineConstants.TYPE_RELATIONAL, root));
+            
             dataSource.addAnnotation(SpicyEngineConstants.ACCESS_CONFIGURATION, accessConfiguration);
+            dataSource.addAnnotation(SpicyEngineConstants.LOADED_INSTANCES_FLAG, false);
+            
             for (Map.Entry<String, String> entry : changedColumnNames.entrySet()) {
                 dataSource.putChangedValue(entry.getKey(), entry.getValue());
             }
-            loadPrimaryKeys(dataSource, databaseMetaData, catalog, schemaName, source, statement, scenarioNo);
+            loadPrimaryKeys(dataSource, databaseMetaData, catalog, schemaName, source, statement, scenarioNo, false);
             loadForeignKeys(dataSource, databaseMetaData, catalog, schemaName);
-            dataSource.addAnnotation(SpicyEngineConstants.LOADED_INSTANCES_FLAG, false);
+            
         } catch (Throwable ex) {
             logger.error(ex);
             throw new DAOException(ex.getMessage());
@@ -144,7 +148,7 @@ public class DAORelational {
         return dataSource;
     }
     
-        public IDataSourceProxy loadSchemaForWeb(int scenarioNo, AccessConfiguration accessConfiguration, DBFragmentDescription dataDescription, 
+    public IDataSourceProxy loadSchemaForWeb(int scenarioNo, AccessConfiguration accessConfiguration, DBFragmentDescription dataDescription, 
             IConnectionFactory dataSourceDB, boolean source) throws DAOException {
         this.dataDescription = dataDescription;
         INode root = null;
@@ -181,7 +185,7 @@ public class DAORelational {
             for (Map.Entry<String, String> entry : changedColumnNames.entrySet()) {
                 dataSource.putChangedValue(entry.getKey(), entry.getValue());
             }
-            /////////loadPrimaryKeys(dataSource, databaseMetaData, catalog, schemaName, source, statement, scenarioNo);
+            loadPrimaryKeys(dataSource, databaseMetaData, catalog, schemaName, source, null, scenarioNo, true);
             loadForeignKeys(dataSource, databaseMetaData, catalog, schemaName);
         } catch (Throwable ex) {
             logger.error(ex);
@@ -241,14 +245,14 @@ public class DAORelational {
             INode columnNode = new AttributeNode(columnName);
             addNode(keyColumn, columnNode);
             columnNode.setNotNull(!isNull);
-            String typeOfColumn = convertDBTypeToDataSourceType(columnType);
+            String typeOfColumn = DAORelationalUtility.convertDBTypeToDataSourceType(columnType);
             columnNode.addChild(new LeafNode(typeOfColumn));
             tupleNode.addChild(columnNode);
             if (logger.isDebugEnabled()) logger.debug("\n\tColumn Name: " + columnName + "(" + columnType + ") " + " type of column= " + typeOfColumn + "[IS_Nullable: " + isNullable + "]");
         }
         //take out the last ',' character
         columns = columns.substring(0, columns.length()-1);
-        //giannisk postgres create table
+        //postgres create table
         String table;
         if (source){
             table = SpicyEngineConstants.SOURCE_SCHEMA_NAME+ scenarioNo+".\""+tableName+"\"";
@@ -301,7 +305,7 @@ public class DAORelational {
             INode columnNode = new AttributeNode(columnName);
             addNode(keyColumn, columnNode);
             columnNode.setNotNull(!isNull);
-            String typeOfColumn = convertDBTypeToDataSourceType(columnType);
+            String typeOfColumn = DAORelationalUtility.convertDBTypeToDataSourceType(columnType);
             columnNode.addChild(new LeafNode(typeOfColumn));
             tupleNode.addChild(columnNode);
             if (logger.isDebugEnabled()) logger.debug("\n\tColumn Name: " + columnName + "(" + columnType + ") " + " type of column= " + typeOfColumn + "[IS_Nullable: " + isNullable + "]");
@@ -312,87 +316,57 @@ public class DAORelational {
     }
 
     private void loadPrimaryKeys(IDataSourceProxy dataSource, DatabaseMetaData databaseMetaData, String catalog, String schemaName, 
-            boolean source, Statement statement, int scenarioNo) throws DAOException {
-        try {
-            String[] tableTypes = new String[]{"TABLE"};
-            ResultSet tableResultSet = databaseMetaData.getTables(catalog, schemaName, null, tableTypes);
-            while (tableResultSet.next()) {
-                String tableName = tableResultSet.getString("TABLE_NAME");
-                if (!this.dataDescription.checkLoadTable(tableName)) {
-                    logger.debug("Excluding table: " + tableName);
+        boolean source, Statement statement, int scenarioNo, boolean web) throws SQLException {
+ 
+        String[] tableTypes = new String[]{"TABLE"};
+        ResultSet tableResultSet = databaseMetaData.getTables(catalog, schemaName, null, tableTypes);
+        while (tableResultSet.next()) {
+            String tableName = tableResultSet.getString("TABLE_NAME");
+            if (!this.dataDescription.checkLoadTable(tableName)) {
+                logger.debug("Excluding table: " + tableName);
+                continue;
+            }
+            if (logger.isDebugEnabled()) logger.debug("Searching primary keys. ANALYZING TABLE  = " + tableName);
+            ResultSet resultSet = databaseMetaData.getPrimaryKeys(catalog, null, tableName);
+            List<PathExpression> listOfPath = new ArrayList<PathExpression>();
+            List<String> PKcolumnNames = new ArrayList<String>();
+            while (resultSet.next()) {
+                String columnName = resultSet.getString("COLUMN_NAME");
+                if (logger.isDebugEnabled()) logger.debug("Analyzing primary key: " + columnName);
+                if (!this.dataDescription.checkLoadAttribute(tableName, columnName)) {
                     continue;
                 }
-                if (logger.isDebugEnabled()) logger.debug("Searching primary keys. ANALYZING TABLE  = " + tableName);
-                ResultSet resultSet = databaseMetaData.getPrimaryKeys(catalog, null, tableName);
-                List<PathExpression> listOfPath = new ArrayList<PathExpression>();
-                List<String> PKcolumnNames = new ArrayList<String>();
-                while (resultSet.next()) {
-                    String columnName = resultSet.getString("COLUMN_NAME");
-                    if (logger.isDebugEnabled()) logger.debug("Analyzing primary key: " + columnName);
-                    if (!this.dataDescription.checkLoadAttribute(tableName, columnName)) {
-                        continue;
-                    }
-                    if (logger.isDebugEnabled()) logger.debug("Found a Primary Key: " + columnName);
-                    String keyPrimary = tableName + "." + columnName;
-                    listOfPath.add(DAORelationalUtility.generatePath(keyPrimary));
-   
-                    //giannisk alter table, add primary key
-                    ////un-comment the following if Primary Key Constraints are to be considered
-                    PKcolumnNames.add(columnName);
-                }
-                if (!PKcolumnNames.isEmpty()){
-                    String table;
-                    if (source){
-                        table = SpicyEngineConstants.SOURCE_SCHEMA_NAME+ scenarioNo+".\""+tableName+"\"";
-                    }
-                    else{
-                        table = SpicyEngineConstants.TARGET_SCHEMA_NAME+ scenarioNo+".\""+tableName+"\"";    
-                    }
+                if (logger.isDebugEnabled()) logger.debug("Found a Primary Key: " + columnName);
+                String keyPrimary = tableName + "." + columnName;
+                listOfPath.add(DAORelationalUtility.generatePath(keyPrimary));
 
-                    statement.execute(createTriggerFunction(table, tableName, PKcolumnNames));
-                    statement.execute(createTriggerBeforeInsert(table, tableName));
-                    String primaryKeys = String.join(",", PKcolumnNames);
-                    statement.executeUpdate("ALTER TABLE "+table+" ADD PRIMARY KEY ("+primaryKeys+");");
-                }
-                ////
-              //}                 
-                if (!listOfPath.isEmpty()) {
-                    KeyConstraint keyConstraint = new KeyConstraint(listOfPath, true);
-                    dataSource.addKeyConstraint(keyConstraint);
-                }                
+                //giannisk alter table, add primary key
+                ////un-comment the following if Primary Key Constraints are to be considered
+                PKcolumnNames.add("\""+columnName+"\"");
             }
-        } catch (SQLException ex) {
-            throw new DAOException(ex.getMessage());            
+            if (!web && !PKcolumnNames.isEmpty()){
+                String table;
+                if (source){
+                    table = SpicyEngineConstants.SOURCE_SCHEMA_NAME + scenarioNo + ".\"" + tableName + "\"";
+                }
+                else{
+                    String newSchemaName = SpicyEngineConstants.TARGET_SCHEMA_NAME + scenarioNo;
+                    table = newSchemaName + ".\"" + tableName + "\"";  
+                    statement.execute(GenerateSQL.createTriggerFunction(table, newSchemaName, tableName, PKcolumnNames));
+                    statement.execute(GenerateSQL.createTriggerBeforeInsert(table, newSchemaName, tableName));
+                }
+                
+                String primaryKeys = String.join(",", PKcolumnNames);
+                statement.executeUpdate("ALTER TABLE "+table+" ADD PRIMARY KEY ("+primaryKeys+");");
+            }
+            ////
+          //}                 
+            if (!listOfPath.isEmpty()) {
+                KeyConstraint keyConstraint = new KeyConstraint(listOfPath, true);
+                dataSource.addKeyConstraint(keyConstraint);
+            }                
         }
     }
-    
-    private String createTriggerFunction(String table, String tableName, List<String> PKcolumnNames){
-        String tempTable = SpicyEngineConstants.WORK_SCHEMA_NAME+".\""+tableName+"\"";
-        StringBuilder result = new StringBuilder();
-        result.append("CREATE OR REPLACE FUNCTION ").append(tableName).append("_check_not_equal()\n");
-        result.append("RETURNS trigger AS ' begin\n");
-        result.append("if exists (select * from ").append(table).append(" where ");
-        for (String PKcolumnName: PKcolumnNames){        
-            result.append(table).append(".").append(PKcolumnName).append(" = new.").append(PKcolumnName).append(" and ");
-        }
-        //delete the last " and "
-        result.delete(result.length()-5, result.length());
-        result.append(") then\n");
-        result.append("EXECUTE ''create table if not exists ").append(tempTable).append(" (like ").append(table).append(")''; \n");
-        result.append("insert into ").append(tempTable).append(" SELECT (NEW).*; \n");
-        result.append("raise NOTICE ''").append(SpicyEngineConstants.PRIMARY_KEY_CONSTR_NOTICE).append(tableName).append("'';");
-        result.append("return null; \n");
-        result.append("end if; \n");
-        result.append("return new; \n");
-        result.append("end; ' LANGUAGE plpgsql;");
-        return result.toString();
-    }
-    
-    private String createTriggerBeforeInsert(String table, String tableName){
-      StringBuilder result = new StringBuilder();
-      result.append("CREATE TRIGGER check_ids BEFORE INSERT ON ").append(table).append(" FOR EACH ROW EXECUTE PROCEDURE ").append(tableName).append("_check_not_equal();");
-      return result.toString();
-    } 
 
     private void loadForeignKeys(IDataSourceProxy dataSource, DatabaseMetaData databaseMetaData, String catalog, String schemaName) {
         try {
@@ -477,7 +451,7 @@ public class DAORelational {
     //////////////////////// INSTANCE
     /////////////////////////////////////////////////////////////
     public void loadInstance(int scenarioNo, AccessConfiguration accessConfiguration, IDataSourceProxy dataSource, DBFragmentDescription dataDescription, IConnectionFactory dataSourceDB, 
-            boolean source) throws DAOException,SQLException {
+            boolean source) throws DAOException, SQLException {
         Connection connection = dataSourceDB.getConnection(accessConfiguration);
         DatabaseMetaData databaseMetaData = null;
         String catalog = null;
@@ -545,7 +519,6 @@ public class DAORelational {
                 }
             }
             dataSource.addAnnotation(SpicyEngineConstants.LOADED_INSTANCES_FLAG, true);
-            /*loadInstanceSample(accessConfiguration, dataSource, dataDescription, dataSourceDB, null);*/
         }
        finally {
            if (connection != null)
@@ -633,7 +606,7 @@ public class DAORelational {
                 //load only a sample of the instances to memory to show on MIPMap interface
                 dataSource.addInstanceWithCheck(root); 
             }
-        } catch (Throwable ex) {
+        } catch (SQLException | DAOException ex) {
             logger.error(ex);
             throw new DAOException(ex.getMessage());
         } finally {
@@ -661,9 +634,9 @@ public class DAORelational {
             if (resultSet == null) {
                 throw new DAOException("ResultSet is NULL!");
             }
-            int counterOfSample = 0;
-            while (resultSet.next() && counterOfSample < NUMBER_OF_SAMPLE) {
-                counterOfSample++;
+            int sampleCounter = 0;
+            while (resultSet.next() && sampleCounter < NUMBER_OF_SAMPLE) {
+                sampleCounter++;
                 TupleNode tupleNode = new TupleNode(getNode(tableName + TUPLE_SUFFIX).getLabel(), getOID());
                 setTable.addChild(tupleNode);
                 for (INode attributeNodeSchema : getNode(tableName + TUPLE_SUFFIX).getChildren()) {
@@ -673,8 +646,8 @@ public class DAORelational {
                     if (oldName!=null && !translated){
                         columnName = oldName;
                     }                    
-                    Object columnvalue = resultSet.getObject(columnName);
-                    LeafNode leafNode = createLeafNode(attributeNodeSchema, columnvalue);
+                    Object columnValue = resultSet.getObject(columnName);
+                    LeafNode leafNode = createLeafNode(attributeNodeSchema, columnValue);
                     attributeNode.addChild(leafNode);
                     tupleNode.addChild(attributeNode);
                 }
@@ -692,34 +665,5 @@ public class DAORelational {
         String type = leafNodeInSchema.getLabel();
         Object typedValue = Types.getTypedValue(type, untypedValue);
         return new LeafNode(type, typedValue);
-    }
-
-    private String convertDBTypeToDataSourceType(String columnType) {
-        if (columnType.toLowerCase().startsWith("varchar") || columnType.toLowerCase().startsWith("char") ||
-                columnType.toLowerCase().startsWith("text") || columnType.equalsIgnoreCase("bpchar") ||
-                columnType.equalsIgnoreCase("bit") || columnType.equalsIgnoreCase("mediumtext") ||
-                columnType.equalsIgnoreCase("longtext")) {
-            return Types.STRING;
-        }
-        if (columnType.equalsIgnoreCase("serial") || columnType.equalsIgnoreCase("enum")) {
-            return Types.STRING;
-        }
-        if (columnType.equalsIgnoreCase("date")) {
-            return Types.DATE;
-        }
-        if (columnType.equalsIgnoreCase("datetime") || columnType.equalsIgnoreCase("timestamp")) {
-            return Types.DATETIME;
-        }
-        if (columnType.toLowerCase().startsWith("serial") || columnType.toLowerCase().startsWith("int") || columnType.toLowerCase().startsWith("tinyint") || columnType.toLowerCase().startsWith("bigint") || columnType.toLowerCase().startsWith("smallint")) {
-            return Types.INTEGER;
-        }
-        if (columnType.toLowerCase().startsWith("float") || columnType.toLowerCase().startsWith("real") || columnType.toLowerCase().startsWith("numeric") || columnType.toLowerCase().startsWith("double")) {
-            //return Types.DOUBLE;
-            return Types.FLOAT;
-        }
-        if (columnType.equalsIgnoreCase("bool")) {
-            return Types.BOOLEAN;
-        }
-        return Types.STRING;
     }
 }

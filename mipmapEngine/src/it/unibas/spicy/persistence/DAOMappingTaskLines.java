@@ -46,6 +46,7 @@ import it.unibas.spicy.persistence.relational.DAORelational;
 import it.unibas.spicy.persistence.relational.DBFragmentDescription;
 import it.unibas.spicy.persistence.relational.IConnectionFactory;
 import it.unibas.spicy.persistence.relational.SimpleDbConnectionFactory;
+import it.unibas.spicy.persistence.sql.DAOSql;
 import it.unibas.spicy.persistence.xml.DAOXmlUtility;
 import it.unibas.spicy.persistence.xml.DAOXsd;
 import it.unibas.spicy.persistence.xml.operators.TransformFilePaths;
@@ -68,6 +69,7 @@ public class DAOMappingTaskLines {
     private DAORelational daoRelational = new DAORelational();
     private DAOXsd daoXSD = new DAOXsd();
     private DAOCsv daoCSV = new DAOCsv();
+    private DAOSql daoSQL = new DAOSql();
     private DAOObject daoObject = new DAOObject();
     private TransformFilePaths filePathTransformator = new TransformFilePaths();
     private GeneratePathExpression pathGenerator = new GeneratePathExpression();
@@ -159,6 +161,8 @@ public class DAOMappingTaskLines {
         //giannisk
         } else if (typeElement.getTextTrim().equalsIgnoreCase(SpicyEngineConstants.TYPE_CSV)) {
             result = loadCSVSource(dataSourceElement.getChild("csv"), mappingTaskFilePath, source, scenarioNo, web);
+        } else if (typeElement.getTextTrim().equalsIgnoreCase(SpicyEngineConstants.TYPE_SQL)) {
+            result = loadSQLSource(dataSourceElement.getChild("sql"), mappingTaskFilePath, source, scenarioNo, web);
         } else if (typeElement.getTextTrim().equalsIgnoreCase(SpicyEngineConstants.TYPE_OBJECT)) {
             result = loadObjectSource(dataSourceElement.getChild("objectModel"), listOfInclusionPaths, listOfExclusionPaths);
         } else if (typeElement.getTextTrim().equalsIgnoreCase(SpicyEngineConstants.TYPE_MOCK)) {
@@ -207,9 +211,7 @@ public class DAOMappingTaskLines {
                 result.addJoinCondition(joinCondition);
             }
         }
-
         return result;
-
     }
 
     @SuppressWarnings("unchecked")
@@ -413,9 +415,9 @@ public class DAOMappingTaskLines {
     
     //giannisk
     @SuppressWarnings("unchecked")
-    private IDataSourceProxy loadCSVSource(Element sourceTargetCsvElement, String mappingTaskFilePath, boolean source, int scenarioNo, boolean web) throws DAOException, SQLException {
-        HashSet<String> csvFullTableAbsoluteFilePath = new HashSet<String>();
-        
+    private IDataSourceProxy loadCSVSource(Element sourceTargetCsvElement, String mappingTaskFilePath, boolean source, int scenarioNo, boolean web) 
+            throws DAOException, SQLException {
+        HashSet<String> csvFullTableAbsoluteFilePath = new HashSet<String>();        
         HashMap<String,ArrayList<Object>> csvFullInstAbsoluteFilePath = new HashMap<String,ArrayList<Object>>();
         Element sourceCsvDatabaseElement = sourceTargetCsvElement.getChild("csv-db-name");
         String csvDatabaseName = sourceCsvDatabaseElement.getTextTrim();       
@@ -459,6 +461,29 @@ public class DAOMappingTaskLines {
             if (!csvFullInstAbsoluteFilePath.isEmpty()){
                 daoCSV.loadInstanceSample(dataSource, csvFullInstAbsoluteFilePath, csvDatabaseName);
             }
+        }
+        return dataSource;
+    }
+    
+    //giannisk
+    @SuppressWarnings("unchecked")
+    private IDataSourceProxy loadSQLSource(Element sourceTargetSqlElement, String mappingTaskFilePath, boolean source, int scenarioNo, boolean web) 
+            throws DAOException, SQLException {
+        Element databaseElement = sourceTargetSqlElement.getChild("sql-db-name");
+        String sqlDatabaseName = databaseElement.getTextTrim();
+        Element sourceSqlFileElement = sourceTargetSqlElement.getChild("sql-file");
+        String sqlRelativeFilePath = sourceSqlFileElement.getTextTrim();
+        String sqlAbsoluteFilePath = filePathTransformator.expand(mappingTaskFilePath, sqlRelativeFilePath);
+        //delete the starting "\" character in Windows
+        //if the file path starts with "\" followed by a character followed by a ":" then delete the first "\" 
+        sqlAbsoluteFilePath = sqlAbsoluteFilePath.replaceFirst("^/(.:)", "$1");
+        IDataSourceProxy dataSource;
+        if (web){
+            dataSource = daoSQL.loadSchemaForWeb(scenarioNo, sqlDatabaseName, sqlAbsoluteFilePath, source);
+        }
+        else{
+            dataSource = daoSQL.loadSchema(scenarioNo, sqlDatabaseName, sqlAbsoluteFilePath, source);
+            daoSQL.loadInstanceSample(dataSource, sqlDatabaseName, sqlAbsoluteFilePath);
         }
         return dataSource;
     }
@@ -645,7 +670,7 @@ public class DAOMappingTaskLines {
         Element typeElement = new Element("type");
         typeElement.setText(datasource.getType());
         sourceTargetElement.addContent(typeElement);
-        // RELATIONAL vs XML vs OBJECT
+        //CSV vs SQL vs RELATIONAL vs XML vs OBJECT
         Element sourceTargetDetailsElement = null;
         if (datasource.getType().equalsIgnoreCase(SpicyEngineConstants.TYPE_RELATIONAL)) {
             sourceTargetDetailsElement = createRelationalDetail(datasource.getAnnotations());
@@ -656,6 +681,8 @@ public class DAOMappingTaskLines {
             //giannisk
         } else if (datasource.getType().equalsIgnoreCase(SpicyEngineConstants.TYPE_CSV)) {
             sourceTargetDetailsElement = createCSVDetail(datasource.getAnnotations(), fileName);
+        } else if (datasource.getType().equalsIgnoreCase(SpicyEngineConstants.TYPE_SQL)) {
+            sourceTargetDetailsElement = createSQLDetail(datasource.getAnnotations(), fileName);
         } else if (datasource.getType().equalsIgnoreCase(SpicyEngineConstants.TYPE_MOCK)) {
             sourceTargetDetailsElement = createMockDetail(datasource.getAnnotations());
         }
@@ -842,8 +869,8 @@ public class DAOMappingTaskLines {
         Element sourceCSV = new Element("csv");
         //source-csv-db-name
         Element sourceCsvSchema = new Element("csv-db-name");
-        String schemaPath = (String) annotations.get(SpicyEngineConstants.CSV_DB_NAME);
-        sourceCsvSchema.setText(schemaPath);
+        String dbName = (String) annotations.get(SpicyEngineConstants.CSV_DB_NAME);
+        sourceCsvSchema.setText(dbName);
         sourceCSV.addContent(sourceCsvSchema);
         //source-csv-tables
         Element sourceCsvTables = new Element("csv-tables");
@@ -901,6 +928,23 @@ public class DAOMappingTaskLines {
             }
         }
         return sourceCSV;
+    }
+    
+   //giannisk
+    private Element createSQLDetail(Map<String, Object> annotations, String mappingTaskFilePath) {
+        Element sourceSQL = new Element("sql");
+        //source-csv-db-name
+        Element sourceSQLSchema = new Element("sql-db-name");
+        String dbName = (String) annotations.get(SpicyEngineConstants.SQL_DB_NAME);
+        sourceSQLSchema.setText(dbName);
+        sourceSQL.addContent(sourceSQLSchema);
+        //source-csv-tables
+        Element sourceSQLFile = new Element("sql-file");
+        String absolutePath = (String) annotations.get(SpicyEngineConstants.SQL_FILE_PATH);
+        String relativePath = filePathTransformator.relativize(mappingTaskFilePath, absolutePath);
+        sourceSQLFile.setText(relativePath);
+        sourceSQL.addContent(sourceSQLFile);        
+        return sourceSQL;
     }
     
     private Element createObjectDetail(Map<String, Object> annotations) {

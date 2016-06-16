@@ -31,6 +31,14 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>net.sf.jsqlparser</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>net.sf.saxon</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -141,6 +149,7 @@
                 <package>it.unibas.spicy.persistence.object.model.annotations</package>
                 <package>it.unibas.spicy.persistence.object.operators</package>
                 <package>it.unibas.spicy.persistence.relational</package>
+                <package>it.unibas.spicy.persistence.sql</package>
                 <package>it.unibas.spicy.persistence.xml</package>
                 <package>it.unibas.spicy.persistence.xml.model</package>
                 <package>it.unibas.spicy.persistence.xml.operators</package>

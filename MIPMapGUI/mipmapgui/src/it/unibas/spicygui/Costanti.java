@@ -73,6 +73,8 @@ public class Costanti {
     public static final String ACTION_VIEW_PROVENANCE = "ACTION_VIEW_PROVENANCE";
     public static final String ACTION_VIEW_ALL_PROVENANCES = "ACTION_VIEW_ALL_PROVENANCES";
     public static final String ACTION_VIEW_ALL_VIRTUAL_NODE = "ACTION_VIEW_ALL_VIRTUAL_NODE";
+    public static final String ACTION_MAKE_SOURCE = "ACTION_MAKE_SOURCE";
+    public static final String ACTION_MAKE_TARGET = "ACTION_MAKE_TARGET";
     public static final String ACTION_VIEW_OIDs = "ACTION_VIEW_OIDs";
     public static final String ACTION_INCREASE_FONT = "ACTION_INCREASE_FONT";
     public static final String ACTION_DECREASE_FONT = "ACTION_DECREASE_FONT";
@@ -107,6 +109,7 @@ public class Costanti {
     public static final String ACTION_EXPORT_APPEND_INSTANCES_CSV = "ACTION_EXPORT_APPEND_INSTANCES_CSV";
     public static final String ACTION_EXPORT_QUERY = "ACTION_EXPORT_QUERY";
     public static final String ACTION_UNPIVOT_CSV = "ACTION_UNPIVOT_CSV";
+    public static final String ACTION_CHANGE_DELIMITER="ACTION_CHANGE_DELIMITER";
     public static final String ACTION_RANK_TRANSFORMATIONS = "ACTION_RANK_TRANSFORMATIONS";
     public static final String ACTION_DUPLICATE_SET_NODE = "ACTION_DUPLICATE_SET_NODE";
     public static final String ACTION_DELETE_DUPLICATE_SET_CLONE_NODE = "ACTION_DELETE_DUPLICATE_SET_CLONE_NODE";
@@ -120,6 +123,7 @@ public class Costanti {
     public static final String ACTION_ADD_MAPPING_IN_COMPOSITION_SCENE = "ACTION_ADD_MAPPING_IN_COMPOSITION_SCENE";
     public static final String ACTION_CREATE_COMPOSITION_SCENE = "ACTION_CREATE_COMPOSITION_SCENE";
     //VARIE BOTTONI
+    public static final String OK_BUTTON = "Ok_button";
     public static final String CANCEL_BUTTON = "Cancel_button";
     public static final String CLOSE_BUTTON = "Close_button";
     public static final String TRAY_BUTTON = "Tray_button";
@@ -142,7 +146,8 @@ public class Costanti {
     public static final String OPEN_ERROR = "OPEN_ERROR";
     public static final String SAVE_ERROR = "SAVE_ERROR";
     public static final String EXPORT_ERROR = "EXPORT_ERROR";
-    public static final String CSV_INST_NOTIF="CSV_INST_NOTIF";
+    public static final String CSV_INST_NOTIF = "CSV_INST_NOTIF";
+    public static final String CSV_EMPTY_INST_NOTIF = "CSV_EMPTY_INST_NOTIF";
     public static final String SAVE_OK = "SAVE_OK";
     public static final String SAVE_ON_CLOSE = "SAVE_ON_CLOSE";
     public static final String CREATE_AUTOMATIC_JOINCONDITION_SOURCE = "CREATE_AUTOMATIC_JOINCONDITION_SOURCE";
@@ -191,6 +196,9 @@ public class Costanti {
     public static final String NO_INSTANCES_FOR_COMPOSITION = "NO_INSTANCES_FOR_COMPOSITION";
     public static final String MESSAGE_EMPTY_NEW_COL_NAME = "MESSAGE_EMPTY_NEW_COL_NAME";
     public static final String MESSAGE_NO_SELECTED_COLUMNS = "MESSAGE_NO_SELECTED_COLUMNS";
+    public static final String MESSAGE_TARGET_TO_SOURCE_CONNECTION = "MESSAGE_TARGET_TO_SOURCE_CONNECTION";
+    public static final String MESSAGE_NO_SOURCE_SELECTED = "MESSAGE_NO_SOURCE_SELECTED";
+    public static final String MESSAGE_SOURCE_SAME_AS_TARGET = "MESSAGE_SOURCE_SAME_AS_TARGET";
     public static final String MESSAGE_WRONG_FILE_INPUT = "MESSAGE_WRONG_FILE_INPUT";
     //MESSAGGI COMPOSIZIONE
     public static final String NOT_ADDED_IN_COMPOSITION = "NOT_ADDED_IN_COMPOSITION";
@@ -253,6 +261,19 @@ public class Costanti {
     public static final String INPUT_TEXT_CONSTANT_FUNCTION2 = "Input_text_constant_function_increment";
     public static final String INPUT_TEXT_CONSTANT_FUNCTION3 = "Input_text_constant_function_datetime";
     public static final String NEW_COLUMN_LABEL = "New_Column_Name";
+    public static final String CHANGE_DELIMITER_TITLE = "CHANGE_DELIMITER_TITLE";
+    public static final String SOURCE_DELIMITER_TEXT="SOURCE_DELIMITER_TEXT";
+    public static final String SOURCE_QUOTES_TEXT="SOURCE_QUOTES_TEXT";
+    public static final String TARGET_DELIMITER_TEXT="TARGET_DELIMITER_TEXT";
+    public static final String TARGET_QUOTES_TEXT="TARGET_QUOTES_TEXT";
+    public static final String TARGET_DELIMITER="TARGET_DELIMITER";
+    public static final String SEMI_COLON_DELIMITER = "SEMI_COLON_DELIMITER";
+    public static final String COLON_DELIMITER = "COLON_DELIMITER";
+    public static final String TAB_DELIMITER = "TAB_DELIMITER";
+    public static final String COMMA_DELIMITER = "COMMA_DELIMITER";
+    public static final String DOUBLE_QUOTES_OPTION = "DOUBLE_QUOTES_OPTION";
+    public static final String SINGLE_QUOTES_OPTION = "SINGLE_QUOTES_OPTION";
+    public static final String EXPORT_CHANGED_DELIMITER = "EXPORT_CHANGED_DELIMITER" ;
     //ZONA GLASS-PANE
     public static final String DELETE_ALL_CONNECTIONS = "DELETE_ALL_CONNECTIONS";
     public static final String SET_MULTIPLE_JOIN_SESSION = "SET_MULTIPLE_JOIN_SESSION";
@@ -260,6 +281,7 @@ public class Costanti {
     public static final String SCHEMA_ONLY_TEXTBOX="SCHEMA_ONLY_TEXTBOX";
     public static final String DB_NAME_LABEL="DB_NAME_LABEL";
     public static final String LabelCsvSchemaSource = "LabelCsvSchemaSource";
+    public static final String LabelSqlSchemaSource = "LabelSqlSchemaSource";
     public static final String EtichettaSchemaSource = "EtichettaSchemaSource";
     public static final String EtichettaIstanzeSource = "EtichettaIstanzeSource";
     public static final String LABEL_DATA_SOURCE_TYPE = "LABEL_DATA_SOURCE_TYPE";
@@ -369,7 +391,9 @@ public class Costanti {
     public static final String RELATIONAL_CONFIGURATION_SOURCE = "RELATIONAL_CONFIGURATION_SOURCE";
     public static final String RELATIONAL_CONFIGURATION_TARGET = "RELATIONAL_CONFIGURATION_TARGET";
     public static final String CSV_CONFIGURATION_SOURCE = "CSV_CONFIGURATION_SOURCE";
-    public static final String CSV_CONFIGURATION_TARGET = "CSV_CONFIGURATION_TARGET";    
+    public static final String CSV_CONFIGURATION_TARGET = "CSV_CONFIGURATION_TARGET"; 
+    public static final String SQL_CONFIGURATION_SOURCE = "SQL_CONFIGURATION_SOURCE";
+    public static final String SQL_CONFIGURATION_TARGET = "SQL_CONFIGURATION_TARGET";
     public static final String NEW_MAPPING_TASK_PM = "NEW_MAPPING_TASK_PM";
     public static final String MAPPINGTASK_SHOWED = "MAPPINGTASK_SHOWED";
 //    public static final String MAPPINGTASK = "mappingTask";
@@ -465,6 +489,8 @@ public class Costanti {
     public static final ImageIcon ICONA_OBJECT_ROOT_ALBERO = new ImageIcon(ImageUtilities.loadImage("misc/icons/duke.png"));
     public static final ImageIcon ICONA_CSV_ELEMENT_SET = new ImageIcon(ImageUtilities.loadImage("misc/icons/csv2.gif"));
     public static final ImageIcon ICONA_CSV_ELEMENT_TUPLE = new ImageIcon(ImageUtilities.loadImage("misc/icons/csv3.png"));
+    public static final ImageIcon ICONA_SQL_ELEMENT_SET = new ImageIcon(ImageUtilities.loadImage("misc/icons/sql2.png"));
+    public static final ImageIcon ICONA_SQL_ELEMENT_TUPLE = new ImageIcon(ImageUtilities.loadImage("misc/icons/sql3.png"));    
     public static final ImageIcon ICONA_OBJECT_HIERARCH = new ImageIcon(ImageUtilities.loadImage("misc/icons/hierarch.png"));
     public static final ImageIcon ICONA_OBJECT_ASSOCIATION = new ImageIcon(ImageUtilities.loadImage("misc/icons/association.png"));
     public static final ImageIcon ICONA_OBJECT_TUPLE_HIERARCH = new ImageIcon(ImageUtilities.loadImage("misc/icons/java.gif"));
@@ -482,6 +508,7 @@ public class Costanti {
     public static final String PIN_WIDGET_TREE_SPICY = "Pin_Tree_Spicy";
     public static final int MAX_NODI = 50;
     public static final String DATASOURCE_TYPE_RELATIONAL = "DATASOURCE_TYPE_RELATIONAL";
+    public static final String DATASOURCE_TYPE_SQL = "DATASOURCE_TYPE_SQL";
     public static final String DATASOURCE_TYPE_XML = "DATASOURCE_TYPE_XML";
     public static final String DATASOURCE_TYPE_CSV="DATASOURCE_TYPE_CSV";
     public static final String OUTPUT_TYPE_CSV="OUTPUT_TYPE_CSV";

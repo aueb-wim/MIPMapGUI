@@ -38,6 +38,8 @@ import it.unibas.spicy.model.datasource.values.IntegerOIDGenerator;
 import it.unibas.spicy.model.datasource.values.OID;
 import it.unibas.spicy.model.paths.PathExpression;
 import it.unibas.spicy.model.paths.operators.GeneratePathExpression;
+import it.unibas.spicy.persistence.Types;
+import it.unibas.spicy.utility.SpicyEngineConstants;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -151,7 +153,7 @@ public class DAORelationalUtility {
     
     static void generateConstraints(DataSource dataSource) {}
     
-    static void generateConstraint(String foreignKey, String primaryKey, IDataSourceProxy dataSource) {
+    public static void generateConstraint(String foreignKey, String primaryKey, IDataSourceProxy dataSource) {
         PathExpression primaryKeyPath = generatePath(primaryKey);
         KeyConstraint keyConstraint = getKeyConstraint(dataSource, primaryKeyPath);
         if (keyConstraint == null) {
@@ -206,7 +208,7 @@ public class DAORelationalUtility {
         assert(pathExpression != null) : "Cannot find attribute " + nodeLabel;
         return pathExpression;
     }
-    
+        
     public static void addNode(INode node) {
         nodeMap.put(node.getLabel(), node);
     }
@@ -230,5 +232,34 @@ public class DAORelationalUtility {
         INode nodeInstance = instanceNodeMap.get(value + "-" + label);
         assert(nodeInstance != null) : "Node not found: " + label;
         return nodeInstance;
+    }
+    
+    public static String convertDBTypeToDataSourceType(String columnType) {
+        if (columnType.toLowerCase().startsWith("varchar") || columnType.toLowerCase().startsWith("char") ||
+                columnType.toLowerCase().startsWith("text") || columnType.equalsIgnoreCase("bpchar") ||
+                columnType.equalsIgnoreCase("bit") || columnType.equalsIgnoreCase("mediumtext") ||
+                columnType.equalsIgnoreCase("longtext")) {
+            return Types.STRING;
+        }
+        if (columnType.equalsIgnoreCase("serial") || columnType.equalsIgnoreCase("enum")) {
+            return Types.STRING;
+        }
+        if (columnType.equalsIgnoreCase("date")) {
+            return Types.DATE;
+        }
+        if (columnType.equalsIgnoreCase("datetime") || columnType.equalsIgnoreCase("timestamp")) {
+            return Types.DATETIME;
+        }
+        if (columnType.toLowerCase().startsWith("serial") || columnType.toLowerCase().startsWith("int") || columnType.toLowerCase().startsWith("tinyint") || columnType.toLowerCase().startsWith("bigint") || columnType.toLowerCase().startsWith("smallint")) {
+            return Types.INTEGER;
+        }
+        if (columnType.toLowerCase().startsWith("float") || columnType.toLowerCase().startsWith("real") || columnType.toLowerCase().startsWith("numeric") || columnType.toLowerCase().startsWith("double")) {
+            //return Types.DOUBLE;
+            return Types.FLOAT;
+        }
+        if (columnType.equalsIgnoreCase("bool")) {
+            return Types.BOOLEAN;
+        }
+        return Types.STRING;
     }
 }

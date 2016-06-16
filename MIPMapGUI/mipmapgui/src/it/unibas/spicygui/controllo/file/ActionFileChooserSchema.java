@@ -56,7 +56,7 @@ public class ActionFileChooserSchema extends AbstractAction {
         int returnVal = chooser.showOpenDialog(WindowManager.getDefault().getMainWindow());
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            file = chooser.getSelectedFile();
+           file = chooser.getSelectedFile();
            xmlConfigurationPM.setSchemaPath(file.getAbsolutePath());
         }
     }

@@ -34,6 +34,7 @@ import it.unibas.spicy.persistence.relational.DAORelational;
 import it.unibas.spicy.persistence.relational.DBFragmentDescription;
 import it.unibas.spicy.persistence.relational.IConnectionFactory;
 import it.unibas.spicy.persistence.relational.SimpleDbConnectionFactory;
+import it.unibas.spicy.persistence.sql.DAOSql;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.controllo.datasource.ActionViewInstances;
@@ -147,6 +148,10 @@ public class ActionGenerateAndTranslate extends CallableSystemAction implements 
         if(datasourceType.equalsIgnoreCase(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_CSV))){
             DAOCsv daoCsv = new DAOCsv();
             daoCsv.loadInstance(scenarioNo, dataSource, true);
+        }
+        else if(datasourceType.equalsIgnoreCase(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_SQL))){
+            DAOSql daoSql = new DAOSql();
+            daoSql.loadInstance(scenarioNo, dataSource, true);
         }
         else if(datasourceType.equalsIgnoreCase(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_RELATIONAL))){
             DAORelational daoRelational = new DAORelational();
