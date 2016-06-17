@@ -23,7 +23,7 @@ public class AppendCsvInstancesMainFrame extends javax.swing.JDialog{
     HashMap<String,String> response = new HashMap();
     List<AppendCsvInstancesPanel> instanceArray;
     
-    public  AppendCsvInstancesMainFrame(IDataSourceProxy dataSource){
+    public AppendCsvInstancesMainFrame(IDataSourceProxy dataSource){
         this.dataSource = dataSource;
         
         Image imageDefault = ImageUtilities.loadImage(Costanti.ICONA_MIPMAP, true);

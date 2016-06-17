@@ -26,6 +26,7 @@ public class FunctionProperties {
         {"ContainCount","Returns the number of occurrences of subStr within str","containCount(str, subStr)"},
         {"Cosine","Cosine","cos(x)"},
         {"Cosine Hyperbolic","Hyperbolic Cosine","cosh(x)"},
+        {"Current Year","Returns current year","currentYear()"},
         {"Date","Returns current date","date()"},
         {"DateTime","Returns current date in datetime format","datetime()"},
         {"Exponential","The result of the exponential function (e^x)","exp(x)"},

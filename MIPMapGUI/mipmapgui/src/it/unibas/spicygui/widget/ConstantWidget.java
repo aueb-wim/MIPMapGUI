@@ -69,6 +69,7 @@ public class ConstantWidget extends Widget {
         gradientWidget.addChild(imageWidget);
         LabelWidget constantWidget = new LabelWidget(scene, "");
         constantWidget.setVerticalAlignment(LabelWidget.VerticalAlignment.CENTER);
+        constantWidget.setMaximumSize(new Dimension(100,25));
         this.addChild(gradientWidget);
         this.addChild(constantWidget);
         this.setPreferredLocation(new Point(point.x - 1, point.y - 1));

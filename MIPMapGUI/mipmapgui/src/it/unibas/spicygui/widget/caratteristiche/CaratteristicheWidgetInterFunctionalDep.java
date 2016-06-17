@@ -38,6 +38,7 @@ public class CaratteristicheWidgetInterFunctionalDep implements ICaratteristiche
     private List<VMDPinWidget> targetList = new ArrayList<VMDPinWidget>();
     private ConnectionInfo connectionInfo;
     private FunctionalDependency functionalDependency;
+    private boolean tgdView;
 
     public CaratteristicheWidgetInterFunctionalDep() {
     }
@@ -48,6 +49,14 @@ public class CaratteristicheWidgetInterFunctionalDep implements ICaratteristiche
 
     public void setTreeType(String treeType) {
         this.treeType = treeType;
+    }
+    
+    public void setTgdView(boolean val){
+        this.tgdView = val;
+    }
+    
+    public boolean getTgdView(){
+        return this.tgdView;
     }
 
     public Boolean isSource() {

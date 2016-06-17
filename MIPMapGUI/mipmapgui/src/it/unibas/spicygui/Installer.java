@@ -275,7 +275,7 @@ public class Installer extends ModuleInstall {
                 stream = new FileInputStream(propertyFile);*/
         //// 
             InputStream stream = Installer.class.getResourceAsStream("/conf/"+POSTGRESDB_CONFIGURATION_FILE); //comment for application     
-            try {                                                                                             //comment for application
+            try {                                                                                            //comment for application
                 dbproperties.load(stream);
                 SpicyEngineConstants.setDatabaseParameters(dbproperties.getProperty("driver"),dbproperties.getProperty("uri"),
                         dbproperties.getProperty("username"), dbproperties.getProperty("password"),dbproperties.getProperty("mappingTask-DatabaseName"));

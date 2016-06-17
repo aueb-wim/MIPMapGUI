@@ -27,6 +27,7 @@ import org.nfunk.jep.function.Contains;
 import org.nfunk.jep.function.ContainCount;
 import org.nfunk.jep.function.Cosine;
 import org.nfunk.jep.function.CosineH;
+import org.nfunk.jep.function.CurrentYear;
 import org.nfunk.jep.function.Date;
 import org.nfunk.jep.function.DateTime;
 import org.nfunk.jep.function.Exp;
@@ -297,6 +298,7 @@ public class JEP implements Cloneable {
         funTab.put("newId", new NewId());
         funTab.put("date", new Date());
         funTab.put("datetime", new DateTime());
+        funTab.put("currentYear", new CurrentYear());
         
         funTab.put("null", new Null());
         funTab.put("isNull", new IsNull());

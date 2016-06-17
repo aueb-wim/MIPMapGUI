@@ -1,6 +1,5 @@
 package it.unibas.spicy.persistence.csv;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import it.unibas.spicy.model.datasource.INode;
@@ -22,7 +21,6 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 import au.com.bytecode.opencsv.CSVReader;
-import it.unibas.spicy.model.algebra.query.operators.sql.GenerateSQL;
 import it.unibas.spicy.model.mapping.MappingTask;
 import it.unibas.spicy.persistence.AccessConfiguration;
 import it.unibas.spicy.persistence.relational.DAORelationalUtility;
@@ -43,7 +41,6 @@ import java.util.logging.Logger;
 public class DAOCsv {
     
     private static Log logger = LogFactory.getLog(DAOCsv.class);
-    private static Map<String, INode> nodeMap = new HashMap<String, INode>();
     private static IOIDGeneratorStrategy oidGenerator = new IntegerOIDGenerator();
     private static final String TUPLE_SUFFIX = "Tuple";
     private static final String TRANSLATED_INSTANCE_SUFFIX = "-translatedInstances";
@@ -60,7 +57,7 @@ public class DAOCsv {
         INode root = null;
         IDataSourceProxy dataSource = null;
 
-        //giannsik postgres create table
+        //postgres
         IConnectionFactory connectionFactory = null;
         Connection connection = null;
         AccessConfiguration accessConfiguration = new AccessConfiguration();
@@ -72,79 +69,76 @@ public class DAOCsv {
             connectionFactory = new SimpleDbConnectionFactory();
             connection = connectionFactory.getConnection(accessConfiguration);
             Statement statement = connection.createStatement();
-            //giannisk postgres create schemas
+            //postgres create schemas
             if(source){                        
                 String createSchemasQuery = "create schema if not exists " + SpicyEngineConstants.SOURCE_SCHEMA_NAME+scenarioNo + ";\n";
                 //createSchemasQuery += "create schema if not exists " + GenerateSQL.WORK_SCHEMA_NAME + ";\n";                        
                 createSchemasQuery += "create schema if not exists " + SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo + ";";
                 statement.executeUpdate(createSchemasQuery);
             }
-            try {
-               root = this.createRootNode(catalog);            
-               List<String> tableFiles = new ArrayList<String>();
 
-                for (String tablefullPath : tablefullPathList){
-                    //getting the filename from file's full path
-                    File userFile = new File(tablefullPath);
-                    String filename = userFile.getName();                
-                    //exclude filename extension
-                    if (filename.indexOf(".") > 0) {
-                        filename = filename.substring(0, filename.lastIndexOf("."));
-                    }
-                    INode setTable = this.createSetNode (filename, root, tablefullPath);
-                    dataSource = new ConstantDataSourceProxy(new DataSource(SpicyEngineConstants.TYPE_CSV, root));
-                    dataSource.addAnnotation(SpicyEngineConstants.CSV_DB_NAME, catalog);
+            root = this.createRootNode(catalog);            
+            List<String> tableFiles = new ArrayList<String>();
 
-                    dataSource.addAnnotation(SpicyEngineConstants.INSTANCE_PATH_LIST, instancePathList);
-                    
-                    dataSource.addAnnotation(SpicyEngineConstants.CSV_TABLE_FILE_LIST, tableFiles);
-                    tableFiles.add(tablefullPath);                    
-                    
-                    try{
-                        String[] nextLine;        
-                        // nextLine[] is an array of values from the line
-                        CSVReader reader = new CSVReader(new FileReader(tablefullPath));
-                        //read only first line
-                        nextLine = reader.readNext();
-                        
-                        String columns = "";
-                        for (int i=0; i<nextLine.length; i++){
-                            //trim and remove quotes                
-                            String columnName = nextLine[i].trim();
-                            if (!(columnName.startsWith("\"") && columnName.endsWith("\""))){
-                                columnName = "\""+columnName+"\"";
-                            }
-                            //the "-" character is replaced since it cannot be accepted by JEP and MIMap
-                            if (columnName.contains("-")){
-                                String oldColumnName = columnName;
-                                columnName = oldColumnName.replace("-","_");
-                                dataSource.putChangedValue(filename+"."+columnName.replaceAll("\"", ""), oldColumnName.replaceAll("\"", ""));
-                            }
-                            String typeOfColumn = Types.POSTGRES_STRING;
-                            columns += columnName + " " + typeOfColumn + ",";
-                        }
-                        //take out the last ',' character
-                        columns = columns.substring(0, columns.length()-1);
-                        
-                        //giannisk postgres create table
-                        String table;
-                        if (source){
-                            table = SpicyEngineConstants.SOURCE_SCHEMA_NAME+scenarioNo+".\""+filename+"\"";
-                        }
-                        else{
-                            table = SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo+".\""+filename+"\"";    
-                        }
-                        statement.executeUpdate("drop table if exists "+ table);
-                        statement.executeUpdate("create table "+ table +" ("+ columns+ ")");
-                        dataSource.addAnnotation(SpicyEngineConstants.LOADED_INSTANCES_FLAG, false);
-                    } catch(FileNotFoundException e){
-                        e.printStackTrace();
-                    } 
-                }
-            } catch (Throwable ex) {
-                logger.error("Error: " + ex);
-                throw new DAOException(ex.getMessage());
-            }
+             for (String tablefullPath : tablefullPathList){
+                 //getting the filename from file's full path
+                 File userFile = new File(tablefullPath);
+                 String filename = userFile.getName();                
+                 //exclude filename extension
+                 if (filename.indexOf(".") > 0) {
+                     filename = filename.substring(0, filename.lastIndexOf("."));
+                 }
+                 INode setTable = this.createSetNode (filename, root, tablefullPath);
+                 dataSource = new ConstantDataSourceProxy(new DataSource(SpicyEngineConstants.TYPE_CSV, root));
+                
+                 dataSource.addAnnotation(SpicyEngineConstants.CSV_DB_NAME, catalog);
+                 dataSource.addAnnotation(SpicyEngineConstants.INSTANCE_PATH_LIST, instancePathList);
+                 dataSource.addAnnotation(SpicyEngineConstants.CSV_TABLE_FILE_LIST, tableFiles);
+                 
+                 tableFiles.add(tablefullPath);                    
+
+                 try{
+                     String[] nextLine;        
+                     // nextLine[] is an array of values from the line
+                     CSVReader reader = new CSVReader(new FileReader(tablefullPath));
+                     //read only first line
+                     nextLine = reader.readNext();
+                     String columns = "";
+                     for (int i=0; i<nextLine.length; i++){
+                         //trim and remove quotes                
+                         String columnName = nextLine[i].trim();
+                         if (!(columnName.startsWith("\"") && columnName.endsWith("\""))){
+                             columnName = "\""+columnName+"\"";
+                         }
+                         //the "-" character is replaced since it cannot be accepted by JEP and MIMap
+                         if (columnName.contains("-")){
+                             String oldColumnName = columnName;
+                             columnName = oldColumnName.replace("-","_");
+                             dataSource.putChangedValue(filename+"."+columnName.replaceAll("\"", ""), oldColumnName.replaceAll("\"", ""));
+                         }
+                         String typeOfColumn = Types.POSTGRES_STRING;
+                         columns += columnName + " " + typeOfColumn + ",";
+                     }
+                     reader.close();
+                     //take out the last ',' character
+                     columns = columns.substring(0, columns.length()-1);
+
+                     //giannisk postgres create table
+                     String table;
+                     if (source){
+                         table = SpicyEngineConstants.SOURCE_SCHEMA_NAME+scenarioNo+".\""+filename+"\"";
+                     }
+                     else{
+                         table = SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo+".\""+filename+"\"";    
+                     }
+                     statement.executeUpdate("drop table if exists "+ table);
+                     statement.executeUpdate("create table "+ table +" ("+ columns+ ")");
+                     dataSource.addAnnotation(SpicyEngineConstants.LOADED_INSTANCES_FLAG, false);
+                 } catch(FileNotFoundException e){
+                     e.printStackTrace();
+                 } 
+             }
+            
         }
         catch (Exception ex) {
             logger.error(ex);
@@ -173,11 +167,11 @@ public class DAOCsv {
                     filename = filename.substring(0, filename.lastIndexOf("."));
                 }
                 INode setTable = this.createSetNode (filename, root, tablefullPath);
-                dataSource = new ConstantDataSourceProxy(new DataSource(SpicyEngineConstants.TYPE_CSV, root));
-                dataSource.addAnnotation(SpicyEngineConstants.CSV_DB_NAME, catalog);
-                dataSource.addAnnotation(SpicyEngineConstants.CSV_TABLE_FILE_LIST, tableFiles);
                 tableFiles.add(tablefullPath);
             }
+            dataSource = new ConstantDataSourceProxy(new DataSource(SpicyEngineConstants.TYPE_CSV, root));
+            dataSource.addAnnotation(SpicyEngineConstants.CSV_DB_NAME, catalog);
+            dataSource.addAnnotation(SpicyEngineConstants.CSV_TABLE_FILE_LIST, tableFiles);
         }
         catch (Exception ex) {
             logger.error(ex);
@@ -231,12 +225,13 @@ public class DAOCsv {
                 String keyColumn = tableName + "." + columnName;
                 INode columnNode = new AttributeNode(columnName);
                 addNode(keyColumn, columnNode);
-                columnNode.setNotNull(true);
+                columnNode.setNotNull(false);
                 String typeOfColumn = Types.STRING;
                 columnNode.addChild(new LeafNode(typeOfColumn));
                 tupleNode.addChild(columnNode);
                 if (logger.isDebugEnabled()) logger.debug("\n\tColumn Name: " + columnName);
             }
+            reader.close();
         } catch(FileNotFoundException e){
             e.printStackTrace();
         }  
@@ -250,9 +245,6 @@ public class DAOCsv {
     }  
     
     public static INode getNode(String label) {
-        /*INode node = nodeMap.get(label);
-        assert(node != null) : "Node not found: " + label;
-        return node;*/
         return DAORelationalUtility.getNode(label);
     }
     
@@ -272,7 +264,6 @@ public class DAOCsv {
         accessConfiguration.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME);
         accessConfiguration.setLogin(SpicyEngineConstants.ACCESS_CONFIGURATION_LOGIN);
         accessConfiguration.setPassword(SpicyEngineConstants.ACCESS_CONFIGURATION_PASS);
-
         try
         {
             connectionFactory = new SimpleDbConnectionFactory();
@@ -420,9 +411,9 @@ public class DAOCsv {
                     int i=0;
                     for (INode attributeNodeSchema : getNode(tableName + TUPLE_SUFFIX).getChildren()) { 
                         AttributeNode attributeNode = new AttributeNode(attributeNodeSchema.getLabel(), getOID());
-                        Object columnvalue = (Object)nextLine[i].trim();
+                        Object columnValue = (Object)nextLine[i].trim();
                         i++;
-                        LeafNode leafNode = createLeafNode(attributeNodeSchema, columnvalue);
+                        LeafNode leafNode = createLeafNode(attributeNodeSchema, columnValue);
                         attributeNode.addChild(leafNode);
                         tupleNode.addChild(attributeNode);                   
                     }
@@ -438,6 +429,7 @@ public class DAOCsv {
             
             reader.close();
         }catch(FileNotFoundException e){
+            reader.close();
             e.printStackTrace();
         }     
     }

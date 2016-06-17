@@ -7,7 +7,6 @@ package it.unibas.spicygui.controllo.file;
 
 import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.commons.Modello;
-import it.unibas.spicygui.vista.wizard.pm.XMLConfigurationPM;
 import it.unibas.spicygui.vista.Vista;
 import it.unibas.spicygui.vista.wizard.pm.CSVConfigurationPM;
 import java.awt.event.ActionEvent;
@@ -54,8 +53,6 @@ public class ActionCsvFileChooserSchema extends AbstractAction {
 
     public void setBean(CSVConfigurationPM csvConfigurationPM) {
         this.csvConfigurationPM = csvConfigurationPM;
-    } 
-    
-    
-    
+    }  
+        
 }

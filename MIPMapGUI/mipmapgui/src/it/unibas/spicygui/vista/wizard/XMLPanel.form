@@ -76,7 +76,6 @@
     <Component class="javax.swing.JTextField" name="campoSchemaSource">
       <BindingProperties>
         <BindingProperty name="text" source="Form" sourcePath="${xmlConfigurationPM.schemaPath}" target="campoSchemaSource" targetPath="text" updateStrategy="0" immediately="false">
-          <BindingParameter name="javax.swing.binding.ParameterKeys.TEXT_CHANGE_STRATEGY" value="javax.swing.binding.TextChangeStrategy.ON_TYPE"/>
           <Property name="name" type="java.lang.String" value="schemaPath"/>
         </BindingProperty>
       </BindingProperties>

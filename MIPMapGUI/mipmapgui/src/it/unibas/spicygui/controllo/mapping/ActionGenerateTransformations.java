@@ -98,7 +98,7 @@ public class ActionGenerateTransformations extends CallableSystemAction implemen
     public void performAction() {
         Scenario scenario = (Scenario) modello.getBean(Costanti.CURRENT_SCENARIO);
         MappingTask mappingTask = scenario.getMappingTask();
-        if (mappingTask.getValueCorrespondences().size() == 0 && mappingTask.getMappingData().getSTTgds().isEmpty()) {
+        if (mappingTask.getValueCorrespondences().size() == 0){// && mappingTask.getMappingData().getSTTgds().isEmpty()) {
             NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.EMPTY_CORRESPONDENCES), DialogDescriptor.WARNING_MESSAGE);
             DialogDisplayer.getDefault().notify(nd);
             return;

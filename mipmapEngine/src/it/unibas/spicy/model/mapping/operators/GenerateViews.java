@@ -57,7 +57,7 @@ public class GenerateViews {
         if (logger.isDebugEnabled()) logger.debug("\nContextualized join conditions:\n" + SpicyEngineUtility.printCollection(variableJoinConditions));
         if (logger.isDebugEnabled()) logger.debug("\n================= Initial views:\n" + SpicyEngineUtility.printCollection(currentViews));
         boolean fixpoint = false;
-        while (!fixpoint) {
+        while (!fixpoint) {            
             List<SimpleConjunctiveQuery> newViews = addJoinConditions(variableJoinConditions, currentViews, discardedViews);
             if (newViews != null) {
                 currentViews = newViews;

@@ -831,4 +831,40 @@ public class GenerateSQL {
         }
         return result.toString();
     }
+    
+    /*************************** SQL GENERATION FOR PRIMARY KEY TRIGGER FUNCTIONS DURING SCHEMA LOADING
+     * @param table
+     * @param tableName
+     * @param schemaName
+     * @param PKcolumnNames
+     * @return  ******************************************************/
+    
+    public static String createTriggerFunction(String table, String schemaName, String tableName, List<String> PKcolumnNames){
+        String tempTable = SpicyEngineConstants.WORK_SCHEMA_NAME+".\""+tableName+"\"";
+        StringBuilder result = new StringBuilder();
+        result.append("CREATE OR REPLACE FUNCTION ").append(schemaName).append(".").append(tableName).append("_check_not_equal()\n");
+        result.append("RETURNS trigger AS ' begin\n");
+        result.append("if exists (select * from ").append(table).append(" where ");
+        for (String PKcolumnName: PKcolumnNames){        
+            result.append(table).append(".").append(PKcolumnName).append(" = new.").append(PKcolumnName).append(" and ");
+        }
+        //delete the last " and "
+        result.delete(result.length()-5, result.length());
+        result.append(") then\n");
+        result.append("EXECUTE ''create table if not exists ").append(tempTable).append(" (like ").append(table).append(")''; \n");
+        result.append("insert into ").append(tempTable).append(" SELECT (NEW).*; \n");
+        result.append("raise NOTICE ''").append(SpicyEngineConstants.PRIMARY_KEY_CONSTR_NOTICE).append(tableName).append("'';");
+        result.append("return null; \n");
+        result.append("end if; \n");
+        result.append("return new; \n");
+        result.append("end; ' LANGUAGE plpgsql;");
+        return result.toString();
+    }
+    
+    public static String createTriggerBeforeInsert(String table, String schemaName, String tableName){
+      StringBuilder result = new StringBuilder();
+      result.append("CREATE TRIGGER check_ids BEFORE INSERT ON ").append(table).append(" FOR EACH ROW EXECUTE PROCEDURE ")
+              .append(schemaName).append(".").append(tableName).append("_check_not_equal();");
+      return result.toString();
+    }    
 }

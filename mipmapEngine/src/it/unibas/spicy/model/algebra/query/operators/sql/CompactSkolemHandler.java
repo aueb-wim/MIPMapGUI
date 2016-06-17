@@ -252,7 +252,8 @@ public class CompactSkolemHandler implements ISkolemHandler {
         }
         //constant
         else{
-            attributeNameInVariable = correspondence.getSourceValue().toString().replaceAll("\"", "\'");
+            //attributeNameInVariable = correspondence.getSourceValue().toString().replaceAll("\"", "\'");
+            attributeNameInVariable = "'" + correspondence.getSourceValue().toString().replaceAll("\"", "") + "'";
         }
         return mappingTask.getDBMSHandler().coalesceFunctionWithNull(attributeNameInVariable);
     }
@@ -404,7 +405,8 @@ public class CompactSkolemHandler implements ISkolemHandler {
             }
             //constant
             else{
-                attributeNameInVariable = correspondence.getSourceValue().toString().replaceAll("\"", "\'");
+                //attributeNameInVariable = correspondence.getSourceValue().toString().replaceAll("\"", "\'");
+                attributeNameInVariable = "'" + correspondence.getSourceValue().toString().replaceAll("\"", "") + "'";
             }
             String attributeName = findPathInAttributeMap(subGeneratorPath);
             ISkolemPart appendForGenerator = new AppendSkolemPart(false, true, "", "", ":\'||");

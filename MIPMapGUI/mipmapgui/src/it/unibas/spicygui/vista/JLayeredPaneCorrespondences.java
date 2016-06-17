@@ -24,6 +24,7 @@ package it.unibas.spicygui.vista;
 //import it.unibas.schemamerginggui.view.listener.MyMouseEventListener;
 import it.unibas.spicy.model.datasource.INode;
 import it.unibas.spicy.model.datasource.SelectionCondition;
+import it.unibas.spicy.model.datasource.nodes.AttributeNode;
 import it.unibas.spicy.model.datasource.nodes.SetCloneNode;
 import it.unibas.spicy.model.datasource.nodes.SetNode;
 import it.unibas.spicy.model.datasource.operators.FindNode;
@@ -48,6 +49,8 @@ import it.unibas.spicygui.controllo.provider.MyPopupSceneMatcher;
 import it.unibas.spicygui.controllo.provider.intermediatezone.MyPopupProviderIntermedieZone;
 import it.unibas.spicygui.controllo.tree.ActionDeleteDuplicateSetCloneNode;
 import it.unibas.spicygui.controllo.tree.ActionDuplicateSetNode;
+import it.unibas.spicygui.controllo.tree.ActionMakeSource;
+import it.unibas.spicygui.controllo.tree.ActionMakeTarget;
 import it.unibas.spicygui.controllo.tree.ActionSelectionCondition;
 import it.unibas.spicygui.controllo.tree.ActionViewAllVirtualNode;
 import it.unibas.spicygui.vista.listener.ConstraintColoringTreeSelectionListener;
@@ -103,6 +106,8 @@ public class JLayeredPaneCorrespondences extends JLayeredPane {
     private JPopupMenu popUpMenuTargetDuplicate;
     private JPopupMenu popUpMenuSourceDeleteDuplicate;
     private JPopupMenu popUpMenuTargetDeleteDuplicate;
+    private JPopupMenu popUpMenuSourceMakeConnection;
+    private JPopupMenu popUpMenuTargetMakeConnection;
     private boolean analizzato = false;
     private GenerateSchemaTree treeGenerator = new GenerateSchemaTree();
     private Modello modello;
@@ -303,9 +308,11 @@ public class JLayeredPaneCorrespondences extends JLayeredPane {
         creaPopUpMappingTaskTreeSource();
         creaPopUpMappingTaskTreeSourceDuplicate();
         creaPopUpMappingTaskTreeSourceDeleteDuplicate();
+        creaPopUpMappingTaskTreeSourceMakeConnection();
         creaPopUpMappingTaskTreeTarget();
         creaPopUpMappingTaskTreeTargetDuplicate();
         creaPopUpMappingTaskTreeTargetDeleteDuplicate();
+        creaPopUpMappingTaskTreeTargetMakeConnection();
     }
 
     public void createSchemaMatcherZonePopUp(MyPopupSceneMatcher myPopupSceneMatcher) {
@@ -431,6 +438,13 @@ public class JLayeredPaneCorrespondences extends JLayeredPane {
         this.popUpMenuSource.add(new ActionViewAllVirtualNode(sourceSchemaTree));
         this.sourceSchemaTree.addMouseListener(new PopUpListenerMappingTaskTreeSource());
     }
+    
+    private void creaPopUpMappingTaskTreeSourceMakeConnection() {
+        this.popUpMenuSourceMakeConnection = new JPopupMenu();
+        this.popUpMenuSourceMakeConnection.add(new ActionMakeSource(sourceSchemaTree, scenario.getMappingTask(),true));
+        this.popUpMenuSourceMakeConnection.add(new ActionMakeTarget(sourceSchemaTree, this, scenario.getMappingTask(),true));
+        this.sourceSchemaTree.addMouseListener(new PopUpListenerMappingTaskTreeSource());
+    }
 
     private void creaPopUpMappingTaskTreeSourceDuplicate() {
         this.popUpMenuSourceDuplicate = new JPopupMenu();
@@ -545,10 +559,11 @@ public class JLayeredPaneCorrespondences extends JLayeredPane {
                     return;
                 } else if ((adapter.getINode() instanceof SetNode)) {
                     popUpMenuSourceDuplicate.show(sourceSchemaTree, e.getX(), e.getY());
+                } else if ((adapter.getINode() instanceof AttributeNode)) {
+                    popUpMenuSourceMakeConnection.show(sourceSchemaTree, e.getX(), e.getY());
                 } else {
                     popUpMenuSource.show(sourceSchemaTree, e.getX(), e.getY());
                 }
-
             }
         }
 
@@ -563,6 +578,13 @@ public class JLayeredPaneCorrespondences extends JLayeredPane {
     private void creaPopUpMappingTaskTreeTarget() {
         this.popUpMenuTarget = new JPopupMenu();
         this.popUpMenuTarget.add(new ActionViewAllVirtualNode(targetSchemaTree));
+        this.targetSchemaTree.addMouseListener(new PopUpListenerMappingTaskTreeTarget());
+    }
+    
+     private void creaPopUpMappingTaskTreeTargetMakeConnection() {
+        this.popUpMenuTargetMakeConnection = new JPopupMenu();
+        this.popUpMenuTargetMakeConnection.add(new ActionMakeSource(targetSchemaTree, scenario.getMappingTask(),false));
+        this.popUpMenuTargetMakeConnection.add(new ActionMakeTarget(targetSchemaTree, this, scenario.getMappingTask(),false));
         this.targetSchemaTree.addMouseListener(new PopUpListenerMappingTaskTreeTarget());
     }
 
@@ -613,7 +635,8 @@ public class JLayeredPaneCorrespondences extends JLayeredPane {
                     return;
                 } else if ((adapter.getINode() instanceof SetNode)) {
                     popUpMenuTargetDuplicate.show(targetSchemaTree, e.getX(), e.getY());
-
+                } else if ((adapter.getINode() instanceof AttributeNode)) {
+                    popUpMenuTargetMakeConnection.show(targetSchemaTree, e.getX(), e.getY());
                 } else {
                     popUpMenuTarget.show(targetSchemaTree, e.getX(), e.getY());
                 }
