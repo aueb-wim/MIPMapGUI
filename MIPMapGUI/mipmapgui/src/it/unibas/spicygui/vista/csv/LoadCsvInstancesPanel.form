@@ -29,7 +29,7 @@
                       <Component id="tableLabel" min="-2" pref="36" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="tableNameLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="32" max="32767" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                       <Component id="tablePathChooser" min="-2" pref="44" max="-2" attributes="0"/>
                   </Group>
               </Group>

@@ -25,7 +25,7 @@ public class UnpivotCsvMainFrame extends javax.swing.JDialog{
     List<String> keepColumnNames = new ArrayList<String>();
     String newColumnName;
     
-    public UnpivotCsvMainFrame(String[] columnNames){       
+    public UnpivotCsvMainFrame(String[] columnNames){   
         Image imageDefault = ImageUtilities.loadImage(Costanti.ICONA_MIPMAP, true);
         setIconImage(imageDefault);
         setTitle(org.openide.util.NbBundle.getMessage(Costanti.class, Costanti.ACTION_UNPIVOT_CSV));       
