@@ -54,6 +54,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 //giannisk
 public class DAOCsv {
@@ -125,18 +126,41 @@ public class DAOCsv {
                      for (int i=0; i<nextLine.length; i++){
                          //trim and remove quotes                
                          String columnName = nextLine[i].trim();
+                         //avenet 28/1/2017
+                        Pattern p = Pattern.compile("[^a-zA-Z0-9]");
+                        if (p.matcher(columnName).find()) {
+                            String oldColumnName = columnName;
+                            // System.out.println("ColumnName contains strange charachter: - " + columnName);
+                            //replacing \" with "" is done because the old version had the startsWith (found below) before this line of code
+                            dataSource.putChangedValue(filename+"."+columnName.replaceAll("\"", ""), oldColumnName.replaceAll("\"", ""));
+                            columnName = columnName.replaceAll("[\\W]|_", "_");
+//                            columnName = '\"' + columnName.substring(1, columnName.length());
+//                            columnName = columnName.substring(0, columnName.length()-1) + '\"';
+
+                            // System.out.println("ColumnName contains strange charachter: - " + columnName);
+                        }
                          if (!(columnName.startsWith("\"") && columnName.endsWith("\""))){
                              columnName = "\""+columnName+"\"";
                          }
+                    
+                         //check for extra characters and rename the names of the 
                          //the "-" character is replaced since it cannot be accepted by JEP and MIMap
-                         if (columnName.contains("-")){
-                             String oldColumnName = columnName;
-                             columnName = oldColumnName.replace("-","_");
-                             dataSource.putChangedValue(filename+"."+columnName.replaceAll("\"", ""), oldColumnName.replaceAll("\"", ""));
-                         }
+//                         if (columnName.contains("-") || columnName.contains("(") || columnName.contains(")") || columnName.contains("*") || columnName.contains("[") || columnName.contains("]") || columnName.contains("/") || columnName.contains(" ")){
+//                             System.out.println("ColumnName contains strange charachter: - " + columnName);
+//                             String oldColumnName = columnName;
+//                             columnName = oldColumnName.replace("-","_").replace("(","_").replace(")","_").replace("*","_").replace("[","_").replace("]","_").replace("/","_").replace(" ","");
+//                             dataSource.putChangedValue(filename+"."+columnName.replaceAll("\"", ""), oldColumnName.replaceAll("\"", ""));
+//                             System.out.println("ColumnName contains strange charachter: - " + columnName);
+//                         }
+//                         if (columnName.contains("-")){
+//                             String oldColumnName = columnName;
+//                             columnName = oldColumnName.replace("-","_");
+//                             dataSource.putChangedValue(filename+"."+columnName.replaceAll("\"", ""), oldColumnName.replaceAll("\"", ""));
+//                         }
                          String typeOfColumn = Types.POSTGRES_STRING;
                          columns += columnName + " " + typeOfColumn + ",";
                      }
+
                      reader.close();
                      //take out the last ',' character
                      columns = columns.substring(0, columns.length()-1);
@@ -236,10 +260,24 @@ public class DAOCsv {
             for (int i=0; i<nextLine.length; i++){
                 //trim and remove quotes                
                 String columnName = nextLine[i].trim().replace("\"","");
-                //the "-" character is replaced since it cannot be accepted by JEP and MIMap
-                if (columnName.contains("-")){
-                    columnName = columnName.replace("-","_");
+                //avenet 28/1/2017
+                Pattern p = Pattern.compile("[^a-zA-Z0-9]");
+                if (p.matcher(columnName).find()) {
+                    String oldColumnName = columnName;
+                    columnName = columnName.replaceAll("[\\W]|_", "_");
+//                    columnName = '\"' + columnName.substring(1, columnName.length());
+//                    columnName = columnName.substring(0, columnName.length()-1) + '\"';
                 }
+                    
+//                if (columnName.contains("-") || columnName.contains("(") || columnName.contains(")") || columnName.contains("*") || columnName.contains("[") || columnName.contains("]") || columnName.contains("/") || columnName.contains(" ")){
+//                    String oldColumnName = columnName;
+//                    columnName = oldColumnName.replace("-","_").replace("(","_").replace(")","_").replace("*","_").replace("[","_").replace("]","_").replace("/","_").replace(" ","");
+//                }                
+                
+//                //the "-" character is replaced since it cannot be accepted by JEP and MIMap
+//                if (columnName.contains("-")){
+//                    columnName = columnName.replace("-","_");
+//                }
                 String keyColumn = tableName + "." + columnName;
                 INode columnNode = new AttributeNode(columnName);
                 addNode(keyColumn, columnNode);
