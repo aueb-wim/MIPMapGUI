@@ -241,7 +241,8 @@ public class DAORelationalUtility {
                 columnType.equalsIgnoreCase("longtext")) {
             return Types.STRING;
         }
-        if (columnType.equalsIgnoreCase("enum")) {
+
+        if (/*columnType.equalsIgnoreCase("serial") || */columnType.equalsIgnoreCase("enum")) {
             return Types.STRING;
         }
         if (columnType.equalsIgnoreCase("date")) {

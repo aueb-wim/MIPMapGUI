@@ -135,7 +135,9 @@ public class ExportCSVInstances {
                     String value = allRows.getString(j);                     
                     //if the value is null write null to csv file
                     if (value == null){
-                        value = "null";
+                        //avenet 20170215 null values in Postgres csv mode correspond to ,,
+                        value = "";
+//                        value = "null";
                     }       
                     //if the type is String/text etc and is not null put the value between double quotes
                     else if(dataType.toLowerCase().startsWith("varchar") || dataType.toLowerCase().startsWith("char") ||
@@ -241,7 +243,8 @@ public class ExportCSVInstances {
                     String value = allRows.getString(j);                     
                     //if the value is null write null to csv file
                     if (value == null){
-                        value = "null";
+//                        avenet 20170215 - using "" is the copy csv format for Postgres
+                        value = "";
                     }       
                     //if the type is String/text etc and is not null put the value between double quotes
                     else if(dataType.toLowerCase().startsWith("varchar") || dataType.toLowerCase().startsWith("char") ||
