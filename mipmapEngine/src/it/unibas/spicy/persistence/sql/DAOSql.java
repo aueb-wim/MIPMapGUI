@@ -18,7 +18,7 @@
 
 package it.unibas.spicy.persistence.sql;
 
-//giannisk
+//giannisk, ioannisxar
 
 import it.unibas.spicy.model.algebra.query.operators.sql.GenerateSQL;
 import it.unibas.spicy.model.datasource.DataSource;
@@ -32,10 +32,12 @@ import it.unibas.spicy.model.datasource.values.IOIDGeneratorStrategy;
 import it.unibas.spicy.model.datasource.values.IntegerOIDGenerator;
 import it.unibas.spicy.model.datasource.values.OID;
 import it.unibas.spicy.model.mapping.IDataSourceProxy;
+import it.unibas.spicy.model.mapping.MappingTask;
 import it.unibas.spicy.model.mapping.proxies.ConstantDataSourceProxy;
 import it.unibas.spicy.persistence.AccessConfiguration;
 import it.unibas.spicy.persistence.DAOException;
 import it.unibas.spicy.persistence.Types;
+import it.unibas.spicy.persistence.json.ExportJsonInstances;
 import it.unibas.spicy.persistence.relational.DAORelationalUtility;
 import it.unibas.spicy.persistence.relational.IConnectionFactory;
 import it.unibas.spicy.persistence.relational.SimpleDbConnectionFactory;
@@ -77,7 +79,18 @@ public class DAOSql {
     private static IOIDGeneratorStrategy oidGenerator = new IntegerOIDGenerator();
     private static final String TUPLE_SUFFIX = "Tuple";
     private Map<String, String> changedColumnNames = new HashMap<String, String>();
-        
+    
+    public void exportTranslatedSQLInstances(MappingTask mappingTask, int scenarioNo, String driver, 
+            String uri, String userName, String password) throws DAOException {
+        try{
+            ExportSQLInstances exporter = new ExportSQLInstances();        
+            exporter.exportSQLInstances(mappingTask, scenarioNo, driver, uri, userName, password);
+        } catch (Throwable ex) {
+            logger.error(ex);
+            throw new DAOException(ex.getMessage());
+        }
+    }
+    
     public IDataSourceProxy loadSchema (int scenarioNo, String catalog, String filePath, boolean source) throws DAOException {
         INode root = null;
         IDataSourceProxy dataSource = null;
@@ -138,6 +151,8 @@ public class DAOSql {
         }
         return dataSource;
     }
+    
+    
     
     public IDataSourceProxy loadSchemaForWeb (int scenarioNo, String catalog, String filePath, boolean source) throws DAOException {
         INode root = null;
@@ -341,7 +356,7 @@ public class DAOSql {
                         }
                         //FOREIGN KEY
                         //Auto-detection of foreign keys disabled
-                        /*else if (indexType.equalsIgnoreCase("FOREIGN KEY")){
+                        else if (indexType.equalsIgnoreCase("FOREIGN KEY")){
                             ForeignKeyIndex fkIndex = (ForeignKeyIndex) index;
                             List<String> fkColumns = fkIndex.getColumnsNames();
                             List<String> refColumns = fkIndex.getReferencedColumnNames();
@@ -353,7 +368,7 @@ public class DAOSql {
                                 String keyReferenced = referencedTable + "." + referencedColumn;
                                 DAORelationalUtility.generateConstraint(keyForeign, keyReferenced, dataSource);
                             }                           
-                        } */
+                        } 
                     }
                 }
                 //2)in the column definitions themselves
@@ -375,7 +390,7 @@ public class DAOSql {
                             }
                             //FOREIGN KEY
                             //Auto-detection of foreign keys disabled
-                            /*if (columnSpecs.get(i).equalsIgnoreCase("REFERENCES")){
+                            if (columnSpecs.get(i).equalsIgnoreCase("REFERENCES")){
                                 //trim and remove quotes 
                                 String columnName = column.getColumnName().trim().replace("\"","");                                               
                                 String referencedTable = columnSpecs.get(i+1).trim().replace("\"","");
@@ -384,7 +399,7 @@ public class DAOSql {
                                 String keyForeign = tableName + "." + columnName;
                                 String keyReferenced = referencedTable + "." + referencedColumn;                       
                                 DAORelationalUtility.generateConstraint(keyForeign, keyReferenced, dataSource);
-                            }*/
+                            }
                         }      
                     }
                 }
@@ -407,12 +422,12 @@ public class DAOSql {
                 /////
             }
             /********************ALTER Statement**********************/
-            /*else if (stmt instanceof Alter){
+            else if (stmt instanceof Alter){
                 Alter alterStmt = (Alter) stmt;
                 String tableName = alterStmt.getTable().getName();
                 //trim and remove quotes
                 tableName = tableName.trim().replace("\"","");
-            }*/
+            }
         }
     }
     
@@ -561,4 +576,7 @@ public class DAOSql {
         Object typedValue = Types.getTypedValue(type, untypedValue);
         return new LeafNode(type, typedValue);
     }
+    
+    
+    
 }

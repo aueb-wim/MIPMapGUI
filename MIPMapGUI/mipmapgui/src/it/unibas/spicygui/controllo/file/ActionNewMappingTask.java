@@ -114,12 +114,12 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
                 
                 //giannisk 
                 //prompt for automatic loading of foreign keys disabled
-                /*if (!source.getForeignKeyConstraints().isEmpty()) {
+                if (!source.getForeignKeyConstraints().isEmpty()) {
                     confirmAddForeignKeyToJoin(source, true);
                 }
                 if (!target.getForeignKeyConstraints().isEmpty()) {
                     confirmAddForeignKeyToJoin(target, false);
-                }*/
+                }
                 
                 gestioneScenario(mappingTask);
                 enableActions();

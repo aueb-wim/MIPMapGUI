@@ -134,7 +134,7 @@ public class DAORelational {
                 dataSource.putChangedValue(entry.getKey(), entry.getValue());
             }
             loadPrimaryKeys(dataSource, databaseMetaData, catalog, schemaName, source, statement, scenarioNo, false);
-            loadForeignKeys(dataSource, databaseMetaData, catalog, schemaName);
+            loadForeignKeys(dataSource, databaseMetaData, catalog, schemaName, source, scenarioNo);
             
         } catch (Throwable ex) {
             logger.error(ex);
@@ -186,7 +186,7 @@ public class DAORelational {
                 dataSource.putChangedValue(entry.getKey(), entry.getValue());
             }
             loadPrimaryKeys(dataSource, databaseMetaData, catalog, schemaName, source, null, scenarioNo, true);
-            loadForeignKeys(dataSource, databaseMetaData, catalog, schemaName);
+            loadForeignKeys(dataSource, databaseMetaData, catalog, schemaName, source, scenarioNo);
         } catch (Throwable ex) {
             logger.error(ex);
             throw new DAOException(ex.getMessage());
@@ -368,8 +368,22 @@ public class DAORelational {
         }
     }
 
-    private void loadForeignKeys(IDataSourceProxy dataSource, DatabaseMetaData databaseMetaData, String catalog, String schemaName) {
+    private Connection getConnectionToPostgres(IConnectionFactory connectionFactory) throws DAOException{
+        AccessConfiguration accessConfiguration = new AccessConfiguration();
+        accessConfiguration.setDriver(SpicyEngineConstants.ACCESS_CONFIGURATION_DRIVER);
+        accessConfiguration.setUri(SpicyEngineConstants.ACCESS_CONFIGURATION_URI+SpicyEngineConstants.MAPPING_TASK_DB_NAME);
+        accessConfiguration.setLogin(SpicyEngineConstants.ACCESS_CONFIGURATION_LOGIN);
+        accessConfiguration.setPassword(SpicyEngineConstants.ACCESS_CONFIGURATION_PASS);
+        
+        return connectionFactory.getConnection(accessConfiguration);
+    }
+    
+    private void loadForeignKeys(IDataSourceProxy dataSource, DatabaseMetaData databaseMetaData, String catalog, String schemaName
+            , boolean source, int scenarioNo) throws DAOException {
+        IConnectionFactory connectionFactory = new SimpleDbConnectionFactory();
+        Connection connection = getConnectionToPostgres(connectionFactory);
         try {
+            Statement statement = connection.createStatement(); 
             String[] tableTypes = new String[]{"TABLE"};
             ResultSet tableResultSet = databaseMetaData.getTables(catalog, schemaName, null, tableTypes);
             while (tableResultSet.next()) {
@@ -401,19 +415,20 @@ public class DAORelational {
                         continue;
                     }
                     if (logger.isDebugEnabled()) logger.debug("Analyzing Primary Key: " + keyPrimaryKey + " Found a Foreign Key: " + fkColumnName + " in table " + fkTableName);
-                    /*
+                    
                     //giannisk alter table, add foreign key
                     String fkTable, pkTable;
+                    
                     if (source){
-                        fkTable = GenerateSQL.SOURCE_SCHEMA_NAME+".\""+fkTableName+"\"";
-                        pkTable = GenerateSQL.SOURCE_SCHEMA_NAME+".\""+pkTableName+"\"";
+                        fkTable = SpicyEngineConstants.SOURCE_SCHEMA_NAME+String.valueOf(scenarioNo)+".\""+fkTableName+"\"";
+                        pkTable = SpicyEngineConstants.SOURCE_SCHEMA_NAME+String.valueOf(scenarioNo)+".\""+pkTableName+"\"";
                     }
                     else{
-                        fkTable = GenerateSQL.TARGET_SCHEMA_NAME+".\""+fkTableName+"\""; 
-                        pkTable = GenerateSQL.TARGET_SCHEMA_NAME+".\""+pkTableName+"\"";
+                        fkTable = SpicyEngineConstants.TARGET_SCHEMA_NAME+String.valueOf(scenarioNo)+".\""+fkTableName+"\""; 
+                        pkTable = SpicyEngineConstants.TARGET_SCHEMA_NAME+String.valueOf(scenarioNo)+".\""+pkTableName+"\"";
                     }
                     statement.executeUpdate("ALTER TABLE "+fkTable+" ADD FOREIGN KEY ("+fkColumnName+") REFERENCES "+pkTable+" ("+pkColumnName+");");
-                    */
+                    
                     if (!listOfPrimaryKey.contains(keyPrimaryKey) && (previousTableName.equals("") || previousTableName.equals(pkTableName))) {
                         if (logger.isDebugEnabled()) logger.debug("Adding nodes to collection: " + keyPrimaryKey + " - " + keyForeignKey);
                         listOfPrimaryKey.add(keyPrimaryKey);
@@ -436,6 +451,10 @@ public class DAORelational {
             }
         } catch (SQLException ex) {
             logger.error(ex);
+        } finally {        
+            //close connection
+            if(connection != null)
+              connectionFactory.close(connection); 
         }
     }
 
@@ -502,10 +521,16 @@ public class DAORelational {
                         sql_insert_stmnt += "(";
                         for (int j=1; j<=columnsNumber; j++){
                             String columnValue = instancesSet.getString(j);
-                            if (instancesSet.wasNull())
-                                columnValue="null";
-                            //escape the character ' for SQL (the "replaceAll" method call)
-                            sql_insert_stmnt += "'"+columnValue.replaceAll("'", "''") +"',";  
+                            if (columnValue == null){
+                                sql_insert_stmnt += " null,";
+                            } else {
+                                if(isTextColumn(rsmd.getColumnTypeName(j))){
+                                    sql_insert_stmnt += "'"+columnValue.replaceAll("'", "''") +"',";  
+                                } else {
+                                    sql_insert_stmnt += ""+columnValue +",";  
+                                }
+                            }
+                            
                         }
                         //take out the last ',' character           
                         sql_insert_stmnt = sql_insert_stmnt.substring(0, sql_insert_stmnt.length()-1);
@@ -527,6 +552,17 @@ public class DAORelational {
              dataSourceDB.close(connectionPostgres);
         }          
     }  
+    
+    //checks if a column requires string format
+    private boolean isTextColumn(String column){
+        return column.toLowerCase().startsWith("varchar") || column.toLowerCase().startsWith("char") ||
+                column.toLowerCase().startsWith("text") || column.toLowerCase().startsWith("bpchar") ||
+                column.toLowerCase().startsWith("bit") || column.toLowerCase().startsWith("mediumtext") ||
+                column.toLowerCase().startsWith("longtext") || column.toLowerCase().startsWith("datetime")
+                || column.toLowerCase().startsWith("timestamp") || column.toLowerCase().startsWith("enum")
+                || column.toLowerCase().startsWith("time") || column.toLowerCase().startsWith("date")  ;
+    }
+    
     
     @SuppressWarnings("unchecked")
     public void loadTranslatedInstanceSample(int scenarioNo, IDataSourceProxy dataSource, DBFragmentDescription dataDescription, 

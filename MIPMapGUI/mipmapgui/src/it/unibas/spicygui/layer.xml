@@ -135,6 +135,7 @@
         <file name="it-unibas-spicygui-controllo-mapping-ActionViewTGD.instance"/>
         <!--file name="it-unibas-spicygui-controllo-mapping-ActionExportTranslatedInstances.instance"/-->
         <file name="it-unibas-spicygui-controllo-mapping-ActionExportTranslatedInstancesCsv.instance"/>
+        <file name="it-unibas-spicygui-controllo-mapping-ActionExportTranslatedInstancesSQL.instance"/>
         <file name="it-unibas-spicygui-controllo-mapping-ActionExportAppendInstancesCsv.instance"/>
         <file name="it-unibas-spicygui-controllo-mapping-ActionExportTranslatedInstancesJson.instance"/>
         <file name="it-unibas-spicygui-controllo-datasource-ActionViewSchema.instance"/>
@@ -314,18 +315,23 @@
                 <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-mapping-ActionExportTranslatedInstancesJson.instance"/>
                 <attr name="position" intvalue="650"/>
             </file>
+            <file name="M13.shadow">
+                    <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-mapping-ActionExportTranslatedInstancesSQL.instance"/>
+                    <attr name="position" intvalue="700"/>
+            </file>
             <file name="M10.shadow">
                 <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-mapping-ActionViewTransformation.instance"/>
-                <attr name="position" intvalue="700"/>
+                <attr name="position" intvalue="750"/>
             </file>
             <file name="M11.shadow">
                 <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-mapping-ActionViewTGDs.instance"/>
-                <attr name="position" intvalue="750"/>
+                <attr name="position" intvalue="800"/>
             </file>
             <file name="M12.shadow">
                 <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-mapping-ActionViewTGD.instance"/>
-                <attr name="position" intvalue="800"/>
+                <attr name="position" intvalue="850"/>
             </file>
+            
         </folder>
         <file name="Source_hidden"/>
 
@@ -522,6 +528,9 @@
         </file>
         <file name="C-E.instance">
             <attr name="instanceClass" stringvalue="it.unibas.spicygui.controllo.mapping.ActionExportTranslatedInstancesCsv"/>
+        </file>
+        <file name="C-L.instance">
+            <attr name="instanceClass" stringvalue="it.unibas.spicygui.controllo.mapping.ActionExportTranslatedInstancesSQL"/>
         </file>
         <file name="C-D.instance">
             <attr name="instanceClass" stringvalue="it.unibas.spicygui.controllo.mapping.ActionViewTGDs"/>

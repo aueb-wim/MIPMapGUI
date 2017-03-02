@@ -36,7 +36,8 @@ public class RelationalPanel extends javax.swing.JPanel {
     private RelationalConfigurationPM relationalConfigurationPM;
     private PropertyChangeListener relationalPropertyChangeListener;
     private PanelWizardImpl pannPanelWizardImpl;
-
+    private PanelWizardImplExportDB pannPanelWizardImplExportDB;
+    private int selectedPanel;
     public RelationalPanel(RelationalConfigurationPM relationalConfigurationPM) {
         this.relationalConfigurationPM = relationalConfigurationPM;
         initComponents();
@@ -46,6 +47,16 @@ public class RelationalPanel extends javax.swing.JPanel {
 
     public RelationalPanel(PanelWizardImpl pannePanelWizardImpl) {
         this.pannPanelWizardImpl = pannePanelWizardImpl;
+        selectedPanel = 0;
+        initComponents();
+        initI18NComboBox();
+        initI18NLabel();
+    }
+    
+    //ioannisxar
+    public RelationalPanel(PanelWizardImplExportDB pannPanelWizardImplExportDB) {
+        this.pannPanelWizardImplExportDB = pannPanelWizardImplExportDB;
+        selectedPanel = 1;
         initComponents();
         initI18NComboBox();
         initI18NLabel();
@@ -55,7 +66,10 @@ public class RelationalPanel extends javax.swing.JPanel {
         this.comboDriver.removeAllItems();
         this.comboDriver.addItem("org.postgresql.Driver");
         this.comboDriver.addItem("com.mysql.jdbc.Driver");
-        this.comboDriver.addItem("org.apache.derby.jdbc.ClientDriver");
+        if (selectedPanel != 1){
+            this.comboDriver.addItem("org.apache.derby.jdbc.ClientDriver");
+        }
+        
     }
 
     private void initI18NLabel() {
@@ -85,7 +99,11 @@ public class RelationalPanel extends javax.swing.JPanel {
             }
 
             private void campoIstanzeTargetPropertyChange(PropertyChangeEvent evt) {
-                pannPanelWizardImpl.fireChangeEvent();
+                if (selectedPanel == 1){
+                    pannPanelWizardImplExportDB.fireChangeEvent();
+                }else{
+                    pannPanelWizardImpl.fireChangeEvent();
+                }                
             }
         };
         relationalConfigurationPM.addPropertyChangeListener(this.relationalPropertyChangeListener);
@@ -136,6 +154,12 @@ public class RelationalPanel extends javax.swing.JPanel {
 
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${relationalConfigurationPM.uri}"), textURI, org.jdesktop.beansbinding.BeanProperty.create("text"), "Uri");
         bindingGroup.addBinding(binding);
+
+        textURI.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                textURIActionPerformed(evt);
+            }
+        });
 
         binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${relationalConfigurationPM.login}"), textLogin, org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
@@ -200,11 +224,15 @@ public class RelationalPanel extends javax.swing.JPanel {
              driver="mysql";
          }
          else if(selectionUri.equals("org.apache.derby.jdbc.ClientDriver")){
-             driver="derby:net";
+             driver="derby";
          }
          textURI.setText("jdbc:"+driver+"://host/database");
        }
     }//GEN-LAST:event_comboDriverActionPerformed
+
+    private void textURIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textURIActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_textURIActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox comboDriver;
