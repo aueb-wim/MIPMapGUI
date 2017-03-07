@@ -58,6 +58,13 @@ public class ExportSQLInstances {
         //connection to Postgres
         IConnectionFactory connectionFactory = new SimpleDbConnectionFactory();
         Connection connection = getConnectionToPostgres(connectionFactory);
+        //establish a connection with the selected database
+        createNewDatabaseIfNotExists(driver, uri, userName, password);
+        IConnectionFactory connectionFactoryCreateTable = new SimpleDbConnectionFactory();
+        Connection connectionCreateTable = getConnectionToDatabase(connectionFactoryCreateTable, driver, uri, userName, password );
+        DatabaseMetaData exportDatabaseMetaData = connectionCreateTable.getMetaData();
+        
+        
         try{
             Statement statement = connection.createStatement();            
             //get table names from target database
@@ -128,8 +135,16 @@ public class ExportSQLInstances {
                 
                 // Data rows in the target table
                 ResultSet tableRows = statement.executeQuery("SELECT * FROM " + SpicyEngineConstants.TARGET_SCHEMA_NAME+String.valueOf(scenarioNo) 
-                        + "." + tableName + ";");              
-                        
+                        + ".\"" + tableName + "\" ;");              
+                       
+                
+                
+//                ResultSet exportTableResultSet = exportDatabaseMetaData.getTables(uri, 
+//                "public", null, tableTypes);
+//                while (exportTableResultSet.next()) {
+//                    System.out.println(tableResultSet.getString("TABLE_NAME"));
+//                }
+                
                 //create the appropriate create table script for the three different supported databases
                 //Postgres 0
                 //MySql 1
@@ -188,14 +203,12 @@ public class ExportSQLInstances {
                     System.out.println(foreignKeyScriptList.get(i));
                 }
             }
-            
+            System.out.println("xaxa");
             /*
             END DEBUG
             */
             
-            //establish a connection with the selected database
-            IConnectionFactory connectionFactoryCreateTable = new SimpleDbConnectionFactory();
-            Connection connectionCreateTable = getConnectionToDatabase(connectionFactoryCreateTable, driver, uri, userName, password );
+            
             try{
                 Statement statementCreateAndInsertToTable = connectionCreateTable.createStatement();
                 //execute create table scripts
@@ -232,6 +245,7 @@ public class ExportSQLInstances {
             }
 
         }finally{        
+            
             //close connection
             if(connection != null)
               connectionFactory.close(connection); 
@@ -254,7 +268,11 @@ public class ExportSQLInstances {
                 String fkColumnName = entry.getValue().get(i).getForeignColumn();
                 String pkTable = entry.getValue().get(i).getPrimaryKeyTable();
                 String pkColumnName = entry.getValue().get(i).getPrimaryKeyColumn();
-                script += "ALTER TABLE "+fkTable+" ADD FOREIGN KEY ("+fkColumnName+") REFERENCES "+pkTable+" ("+pkColumnName+");";
+                if (database==0){
+                    script += "ALTER TABLE \""+fkTable+"\" ADD FOREIGN KEY (\""+fkColumnName+"\") REFERENCES \""+pkTable+"\" (\""+pkColumnName+"\");";
+                } else {
+                    script += "ALTER TABLE "+fkTable+" ADD FOREIGN KEY ("+fkColumnName+") REFERENCES "+pkTable+" ("+pkColumnName+");";
+                }
             }
         }
         return script;
@@ -269,7 +287,12 @@ public class ExportSQLInstances {
         boolean hasPrimaryKey = false;
         for(Map.Entry<String, ArrayList<String>> entry : primaryKeyConstraintsPerTable.entrySet()) {
             hasPrimaryKey = true;
-            script += "ALTER TABLE " + entry.getKey() + " ADD CONSTRAINT pk_constraint_" + entry.getKey() + " PRIMARY KEY (";
+            if (database==0) {
+                script += "ALTER TABLE \"" + entry.getKey() + "\" ADD CONSTRAINT pk_constraint_" + entry.getKey() + " PRIMARY KEY (";
+            } else {
+                script += "ALTER TABLE " + entry.getKey() + " ADD CONSTRAINT pk_constraint_" + entry.getKey() + " PRIMARY KEY (";
+            }
+            
             for(int i=0;i<entry.getValue().size();i++) {
                 if (i<entry.getValue().size()-1){
                     if(hasUpperCases(entry.getValue().get(i)) && database == 0){
@@ -288,11 +311,9 @@ public class ExportSQLInstances {
                 }
             }
         }
-        
         if (hasPrimaryKey) {
             script += ");";
-        }
-            
+        } 
         return script;
     }
     
@@ -300,7 +321,14 @@ public class ExportSQLInstances {
     private String insertIntoSqlScript(String tableName, ResultSet tableRows, int database) throws SQLException{
         ResultSetMetaData rsmd = tableRows.getMetaData();
         int columnsNumber = rsmd.getColumnCount();
-        String insertIntoScript = "INSERT INTO " + tableName + " VALUES \n";
+        
+        String insertIntoScript;
+        if (database==0) {
+            insertIntoScript = "INSERT INTO \"" + tableName + "\" VALUES \n";
+        } else { 
+            insertIntoScript = "INSERT INTO " + tableName + " VALUES \n";
+        }
+        
         boolean hasData = false;
         while(tableRows.next()){
             hasData = true;
@@ -352,10 +380,13 @@ public class ExportSQLInstances {
     
     // creates the proper create table sql scripts and mapps the right commands for any given database
     private String createTableSqlScript(Map<String, ArrayList<String>> columnsPerTables, String tableName, int database) throws IOException{
-        String script = "CREATE TABLE IF NOT EXISTS " + tableName + " (\n";
-        if(database==2){
-            script = "CREATE TABLE " + tableName + " (\n";
-        }
+        String script;
+        if (database==0) {
+            script = "CREATE TABLE IF NOT EXISTS \"" + tableName + "\" (\n";
+        } else {
+            script = "CREATE TABLE IF NOT EXISTS " + tableName + " (\n";
+        }     
+        
         int row = 0;
         for(Map.Entry<String, ArrayList<String>> entry : columnsPerTables.entrySet()){
             //if the table column has at least one uppercase letter
@@ -418,6 +449,35 @@ public class ExportSQLInstances {
             else
                 return "varchar(255)";
         return result;
+    }
+    
+    private void createNewDatabaseIfNotExists(String driver, String uri, String userName, String password) throws DAOException, SQLException{
+        IConnectionFactory connectionFactoryCreateTable = new SimpleDbConnectionFactory();
+        //remove database name from uri
+        String extractDbName = uri.split("/")[3];
+        String extractUri = uri.split(extractDbName)[0];
+        System.out.println(extractDbName);
+        System.out.println(extractUri);
+        Connection connection = getConnectionToDatabase(connectionFactoryCreateTable, driver, extractUri, userName, password);
+        Statement statement = connection.createStatement();           
+        int dbcount = 0;
+        ResultSet count = statement.executeQuery(
+                "select count(*) as dbcount from pg_catalog.pg_database where datname = '"+
+                extractDbName+"';");
+        while(count.next()){
+            dbcount = count.getInt("dbcount");
+        }
+        System.out.println(dbcount);
+        count.close();
+        if (dbcount==0){
+            StringBuilder createDatabaseQuery = new StringBuilder(); 
+            createDatabaseQuery.append("create database ").append(extractDbName).append(";\n");
+            statement.executeUpdate(createDatabaseQuery.toString());
+        }  
+    }
+    
+    private boolean checkTablesIntegrityOfExistingDatabase(){
+        return true;
     }
     
     private class ForeignTableKeyConstraints{

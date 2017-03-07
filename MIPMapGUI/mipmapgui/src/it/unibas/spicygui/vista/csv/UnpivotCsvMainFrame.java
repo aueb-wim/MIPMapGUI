@@ -44,6 +44,15 @@ public class UnpivotCsvMainFrame extends javax.swing.JDialog{
         SequentialGroup seq = layout.createSequentialGroup();        
         seq.addContainerGap();
         
+        
+        //Last Panel with New Column Name textfield
+        //and Buttons
+        JPanel instanceMain=new UnpivotCsvColumnBottomPanel(this);
+        pl.addComponent(instanceMain, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
+        seq.addComponent(instanceMain, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap();    
+        
         //Upper Label Panel
         JPanel upperPanel = new JPanel();
         JLabel rowLabel = new JLabel();
@@ -62,6 +71,7 @@ public class UnpivotCsvMainFrame extends javax.swing.JDialog{
         
         //for each column
         columnList = new ArrayList<UnpivotCsvColumnPanel>();
+        
         for (String columnName : columnNames){
             UnpivotCsvColumnPanel columnPanel = new UnpivotCsvColumnPanel(columnName);
             columnPanel.setPreferredSize(new Dimension(300, 25));
@@ -70,15 +80,7 @@ public class UnpivotCsvMainFrame extends javax.swing.JDialog{
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
             columnList.add(columnPanel);
         }  
-        
-        //Last Panel with New Column Name textfield
-        //and Buttons
-        JPanel instanceMain=new UnpivotCsvColumnBottomPanel(this);
-        pl.addComponent(instanceMain, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
-        seq.addComponent(instanceMain, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap();            
-       
+              
         //GroupLayout
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
