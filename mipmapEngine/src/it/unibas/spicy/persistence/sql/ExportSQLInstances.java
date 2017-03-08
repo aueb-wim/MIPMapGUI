@@ -173,14 +173,16 @@ public class ExportSQLInstances {
                         foreignKeyScriptList.add(insertForeignKeyConstraints(foreignKeyConstraintsPerTable, 1));
                     }
                     selectedDatabase = 1;
-                }else if(driver.contains("derby")){
+                }
+                // it is not used at this time
+                else if(driver.contains("derby")){
                     //create table scripts
-                    createTableScriptList.add(createTableSqlScript(columnsPerTables, tableName, 2));
+                    //createTableScriptList.add(createTableSqlScript(columnsPerTables, tableName, 2));
                     //insert primary key constraints,insert foreign key constraints
                     // it is not implemented for Derby
                     // primaryKeyScriptList.add(insertPrimaryKeyConstraints(primaryKeyConstraintsPerTable, 2));
                     //foreignKeyScriptList.add(insertForeignKeyConstraints(foreignKeyConstraintsPerTable, 2));
-                    selectedDatabase = 2;
+                    //selectedDatabase = 2;
                 }
                 
                 //add primary key constraints
@@ -190,74 +192,27 @@ public class ExportSQLInstances {
                     }
                 }
                 primaryKeyScriptList.clear();
-                ResultSet tableRows = statement.executeQuery("SELECT * FROM " + SpicyEngineConstants.TARGET_SCHEMA_NAME+String.valueOf(scenarioNo) 
-                        + "." + tableName + ";");
                 
-                ResultSetMetaData rsmd = tableRows.getMetaData();
-                int columnsNumber = rsmd.getColumnCount();
-                String insertIntoScript = "";
-                
-                    while(tableRows.next()){
-                        insertIntoScript = "INSERT INTO " + tableName + " VALUES \n";
-                        insertIntoScript += "(";
-                        for(int i=1;i<=columnsNumber;i++){
-                            //if the column came from text field and the value is not null
-                            if(isTextColumn(rsmd.getColumnTypeName(i)) && tableRows.getObject(i) != null){
-                                insertIntoScript +=  "'" + tableRows.getObject(i) + "'";
-                            } else {
-                                insertIntoScript +=  tableRows.getObject(i);
-                            }
-                            if(i!=columnsNumber){
-                                insertIntoScript += ",";
-                            }
-                        }
-                        insertIntoScript += ");";
-                        try{
-                            statementCreateAndInsertToTable.executeUpdate(insertIntoScript);
-                        } catch (Exception e){
-                            //System.out.println(e);
-                            //System.out.println(insertIntoScript);
-                        }
-                    }  
-            }
-
-//            try{
-//                Statement statementCreateAndInsertToTable = connectionCreateTable.createStatement();
-//                //execute create table scripts
-////                for(int i=0;i<createTableScriptList.size();i++){
-////                    statementCreateAndInsertToTable.executeUpdate(createTableScriptList.get(i));
-////                }
-//                
-//                //add primary key constraints
-//                for(int i=0;i<primaryKeyScriptList.size();i++){
-//                    if (!primaryKeyScriptList.get(i).equals("")){
-//                        statementCreateAndInsertToTable.executeUpdate(primaryKeyScriptList.get(i));
-//                    }
-//                }
-//                
-//                //add foreign key constraints
+                //add foreign key constraints
+                //it is not used at this time
 //                for(int i=0;i<foreignKeyScriptList.size();i++){
 //                    if (!foreignKeyScriptList.get(i).equals("")){
 //                        statementCreateAndInsertToTable.executeUpdate(foreignKeyScriptList.get(i));
 //                    }
 //                }
-//                //export to csv
-////                try{
-////                        ExportCSVInstances exporter = new ExportCSVInstances();        
-////                        exporter.exportCSVInstances(mappingTask, rootPath, "-temp", scenarioNo);
-////                } catch (Throwable ex) {
-////                        System.out.println("edww");
-////                        throw new DAOException(ex.getMessage());
-////                }
+//                foreignKeyScriptList.clear();
+                
+                ResultSet tableRows = statement.executeQuery("SELECT * FROM " + SpicyEngineConstants.TARGET_SCHEMA_NAME+String.valueOf(scenarioNo) 
+                        + "." + tableName + ";");
+                insertIntoDbPerRow(tableRows, tableName, statementCreateAndInsertToTable);
+            }
+            
+            // batch insert - cannot manage duplicate values and stops the whole insert procedure
+//            try{
+//                Statement statementCreateAndInsertToTable = connectionCreateTable.createStatement();        
 //                // export to db
-////                insertIntoDb(mappingTask, statementCreateAndInsertToTable, rootPath, tableNames, selectedDatabase);
+//                batchInsertIntoDb(mappingTask, statementCreateAndInsertToTable, rootPath, tableNames, selectedDatabase, scenarioNo);
 //            }finally{
-////                try{
-////                    // remove temporary csv
-////                    deleteDir(new File(rootPath + mappingTask.getTargetProxy().getIntermediateSchema().getLabel() + "-temp0/"));
-////                } catch(Exception ex){
-////                    throw new DAOException(ex.getMessage());
-////                }
 //                //close connection
 //                if(connectionFactoryCreateTable != null)
 //                  connectionFactoryCreateTable.close(connectionCreateTable); 
@@ -268,35 +223,69 @@ public class ExportSQLInstances {
                 connectionFactoryCreateTable.close(connectionCreateTable); 
             //close connection
             if(connection != null)
-              connectionFactory.close(connection); 
+                connectionFactory.close(connection); 
         }
     }
     
-    void deleteDir(File file) {
-        File[] contents = file.listFiles();
-        if (contents != null) {
-            for (File f : contents) {
-                deleteDir(f);
+    
+    private boolean checkTablesIntegrityOfExistingDatabase(){
+        return true;
+    }
+    
+    private void insertIntoDbPerRow(ResultSet tableRows, String tableName, Statement statementCreateAndInsertToTable) throws SQLException{
+        ResultSetMetaData rsmd = tableRows.getMetaData();
+        int columnsNumber = rsmd.getColumnCount();
+        while(tableRows.next()){
+            String insertIntoScript = "INSERT INTO " + tableName + " VALUES \n";
+            insertIntoScript += "(";
+            for(int i=1;i<=columnsNumber;i++){
+                //if the column came from text field and the value is not null
+                if(isTextColumn(rsmd.getColumnTypeName(i)) && tableRows.getObject(i) != null){
+                    insertIntoScript +=  "'" + tableRows.getObject(i) + "'";
+                } else {
+                    insertIntoScript +=  tableRows.getObject(i);
+                }
+                if(i!=columnsNumber){
+                    insertIntoScript += ",";
+                }
+            }
+            insertIntoScript += ");";
+            try{
+                statementCreateAndInsertToTable.executeUpdate(insertIntoScript);
+            } catch (Exception e){
+                System.out.println(e);
             }
         }
-        file.delete();
     }
     
-    //creates the insert into scripts in order to save the values permanently in database
-    private void insertIntoDb(MappingTask mappingTask, Statement statementCreateAndInsertToTable, 
-            String rootPath, List<String> tableNames, int database) throws SQLException{
+    //batch insert to database
+    //it is not used at this time
+    private void batchInsertIntoDb(MappingTask mappingTask, Statement statementCreateAndInsertToTable, 
+            String rootPath, List<String> tableNames, int database, int scenarioNo) throws SQLException, DAOException{
+        //export to csv
+        try{
+                ExportCSVInstances exporter = new ExportCSVInstances();        
+                exporter.exportCSVInstances(mappingTask, rootPath, "-temp", scenarioNo);
+        } catch (Throwable ex) {
+                System.out.println("edww");
+                throw new DAOException(ex.getMessage());
+        }
         for(String tableName : tableNames){
             String pathTempFile = "'" + rootPath + mappingTask.getTargetProxy().getIntermediateSchema().getLabel() + "-temp0/" + tableName +".csv'";
             //copy from csv to postgres
             if (database == 0) {
                 statementCreateAndInsertToTable.executeUpdate("COPY " + tableName + " FROM " + pathTempFile + " DELIMITER ',' CSV HEADER;");
             } else if (database == 1) {
-                System.out.println("LOAD DATA LOCAL INFILE " + pathTempFile
-                        + " INTO TABLE " + tableName +" FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n' IGNORE 1 ROWS");
                 statementCreateAndInsertToTable.executeUpdate("LOAD DATA INFILE " + pathTempFile
                         + " INTO TABLE " + tableName +" FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n' IGNORE 1 ROWS");
             }
             
+        }
+        try{
+            // remove temporary csv
+            deleteDir(new File(rootPath + mappingTask.getTargetProxy().getIntermediateSchema().getLabel() + "-temp0/"));
+        } catch(Exception ex){
+            throw new DAOException(ex.getMessage());
         }
     }
     
@@ -308,9 +297,7 @@ public class ExportSQLInstances {
         REFERENCES Persons(P_Id)
         */
         String script = "";
-        boolean hasPrimaryKey = false;
         for(Map.Entry<String, ArrayList<ForeignTableKeyConstraints>> entry : foreignKeyConstraintsPerTable.entrySet()) {
-            hasPrimaryKey = true;
             for(int i=0;i<entry.getValue().size();i++) {
                 String fkTable = entry.getValue().get(i).getForeignTable();
                 String fkColumnName = entry.getValue().get(i).getForeignColumn();
@@ -482,11 +469,16 @@ public class ExportSQLInstances {
         }  
         return dbcount;
     }
-    
-    private boolean checkTablesIntegrityOfExistingDatabase(){
-        return true;
+     
+    void deleteDir(File file) {
+        File[] contents = file.listFiles();
+        if (contents != null) {
+            for (File f : contents) {
+                deleteDir(f);
+            }
+        }
+        file.delete();
     }
-    
     private class ForeignTableKeyConstraints{
     
         private final String tableName, tableColumn, tableNamePK, tableColumnPK;

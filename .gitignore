@@ -1,3 +1,4 @@
+/mipmapEngine/dist/
 /MIPMapGUI/nbproject/private/
 /MIPMapGUI/ibatis/build/
 /MIPMapGUI/opencsv/build/
@@ -57,7 +58,6 @@
 /jep-2.4.1/build/classes/
 /MIPMapGUI/mipmapEngine/release/modules/ext/mipmapEngine-1.0.jar
 /lib/mipmapEngine-1.0.jar
-/mipmapEngine/build.properties
 /mipmapEngine/dist/MANIFEST.MF
 /mipmapEngine/dist/mipmapEngine-1.0.jar
 
