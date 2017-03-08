@@ -55,6 +55,9 @@ public class ActionChangeDelimiter extends CallableSystemAction implements Obser
                 String sourceDelimiter = frame.getSourceDelimiter();
                 String sourceQuotes = frame.getSourceQuotes();
                 boolean useTargetQuotes = frame.getTargetQuotes();
+                System.out.println(sourceDelimiter);
+                System.out.println(sourceQuotes);
+                System.out.println(useTargetQuotes);
                 if (sourceDelimiter!=null && sourceQuotes!=null)
                     try{
                         ChangeDelimiterCSV changer = new ChangeDelimiterCSV();

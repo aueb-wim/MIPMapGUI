@@ -5,13 +5,16 @@
  */
 package it.unibas.spicy.persistence.sql;
 
+import it.unibas.spicy.model.mapping.IDataSourceProxy;
 import it.unibas.spicy.model.mapping.MappingTask;
 import it.unibas.spicy.persistence.AccessConfiguration;
 import it.unibas.spicy.persistence.DAOException;
+import it.unibas.spicy.persistence.csv.ExportCSVInstances;
 import it.unibas.spicy.persistence.relational.IConnectionFactory;
 import it.unibas.spicy.persistence.relational.SimpleDbConnectionFactory;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -26,7 +29,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 /**
  *
  * @author ioannisxar
@@ -58,13 +60,19 @@ public class ExportSQLInstances {
         //connection to Postgres
         IConnectionFactory connectionFactory = new SimpleDbConnectionFactory();
         Connection connection = getConnectionToPostgres(connectionFactory);
-        //establish a connection with the selected database
-        createNewDatabaseIfNotExists(driver, uri, userName, password);
+        int isExisting = 0;
+        if(driver.contains("postgresql")){
+            //establish a connection with the selected database
+            isExisting = createNewDatabaseIfNotExists(driver, uri, userName, password, 0);
+        } else if (driver.contains("mysql")){
+            isExisting = createNewDatabaseIfNotExists(driver, uri, userName, password, 1);
+        }
+        
         IConnectionFactory connectionFactoryCreateTable = new SimpleDbConnectionFactory();
         Connection connectionCreateTable = getConnectionToDatabase(connectionFactoryCreateTable, driver, uri, userName, password );
         DatabaseMetaData exportDatabaseMetaData = connectionCreateTable.getMetaData();
-        
-        
+        int selectedDatabase = 0;
+        String rootPath = "/tmp/";
         try{
             Statement statement = connection.createStatement();            
             //get table names from target database
@@ -78,11 +86,12 @@ public class ExportSQLInstances {
             Map<String, ArrayList<ForeignTableKeyConstraints>> foreignKeyConstraintsPerTable;
             ArrayList<String> cols;
             List<String> createTableScriptList = new ArrayList<>();
-            List<String> insertIntoScriptList = new ArrayList<>();
             List<String> primaryKeyScriptList = new ArrayList<>();
             List<String> foreignKeyScriptList = new ArrayList<>();
+            List<String> tableNames = new ArrayList<>();
             while (tableResultSet.next()) { 
                 String tableName = tableResultSet.getString("TABLE_NAME");
+                tableNames.add(tableName);
                 ResultSet tableColumns = statement.executeQuery("SELECT column_name, data_type, is_nullable "+
                 " FROM information_schema.columns WHERE " + " table_schema = '" + SpicyEngineConstants.TARGET_SCHEMA_NAME+String.valueOf(scenarioNo) 
                         + "' AND table_name = '"+ tableName  + "' ORDER BY ordinal_position;");
@@ -131,14 +140,8 @@ public class ExportSQLInstances {
                     cols.add(tableColumns.getString("data_type"));
                     cols.add(tableColumns.getString("is_nullable"));
                     columnsPerTables.put(tableColumns.getString("column_name"), cols);
-                }
-                
-                // Data rows in the target table
-                ResultSet tableRows = statement.executeQuery("SELECT * FROM " + SpicyEngineConstants.TARGET_SCHEMA_NAME+String.valueOf(scenarioNo) 
-                        + ".\"" + tableName + "\" ;");              
-                       
-                
-                
+                }       
+               
 //                ResultSet exportTableResultSet = exportDatabaseMetaData.getTables(uri, 
 //                "public", null, tableTypes);
 //                while (exportTableResultSet.next()) {
@@ -149,66 +152,38 @@ public class ExportSQLInstances {
                 //Postgres 0
                 //MySql 1
                 //Derby 2
+                
                 if(driver.contains("postgresql")){
                     //create table scripts
                     createTableScriptList.add(createTableSqlScript(columnsPerTables, tableName, 0));
-                    //insert value scripts of the created tables
-                    insertIntoScriptList.add(insertIntoSqlScript(tableName, tableRows, 0));
-                    //insert primary key constraints
-                    primaryKeyScriptList.add(insertPrimaryKeyConstraints(primaryKeyConstraintsPerTable, 0));
-                    //insert foreign key constraints
-                    foreignKeyScriptList.add(insertForeignKeyConstraints(foreignKeyConstraintsPerTable, 0));
+                    if(isExisting == 0) {
+                        //insert primary key constraints
+                        primaryKeyScriptList.add(insertPrimaryKeyConstraints(primaryKeyConstraintsPerTable, 0));
+                        //insert foreign key constraints
+                        foreignKeyScriptList.add(insertForeignKeyConstraints(foreignKeyConstraintsPerTable, 0));
+                    }
+                    selectedDatabase = 0;
                 }else if (driver.contains("mysql")){
                     //create table scripts
                     createTableScriptList.add(createTableSqlScript(columnsPerTables, tableName, 1));
-                    //insert value scripts of the created tables
-                    insertIntoScriptList.add(insertIntoSqlScript(tableName, tableRows, 1));
-                    //insert primary key constraints
-                    primaryKeyScriptList.add(insertPrimaryKeyConstraints(primaryKeyConstraintsPerTable, 1));
-                    //insert foreign key constraints
-                    foreignKeyScriptList.add(insertForeignKeyConstraints(foreignKeyConstraintsPerTable, 1));
+                    if(isExisting == 0) {
+                        //insert primary key constraints
+                        primaryKeyScriptList.add(insertPrimaryKeyConstraints(primaryKeyConstraintsPerTable, 1));
+                        //insert foreign key constraints
+                        foreignKeyScriptList.add(insertForeignKeyConstraints(foreignKeyConstraintsPerTable, 1));
+                    }
+                    selectedDatabase = 1;
                 }else if(driver.contains("derby")){
                     //create table scripts
                     createTableScriptList.add(createTableSqlScript(columnsPerTables, tableName, 2));
-                    //insert value scripts of the created tables
-                    insertIntoScriptList.add(insertIntoSqlScript(tableName, tableRows, 2));
                     //insert primary key constraints,insert foreign key constraints
                     // it is not implemented for Derby
                     // primaryKeyScriptList.add(insertPrimaryKeyConstraints(primaryKeyConstraintsPerTable, 2));
                     //foreignKeyScriptList.add(insertForeignKeyConstraints(foreignKeyConstraintsPerTable, 2));
+                    selectedDatabase = 2;
                 }
             }
-            
-            /*
-            DEBUG
-            */
-            for(int i=0;i<createTableScriptList.size();i++){
-                System.out.println(createTableScriptList.get(i));
-            }
-            
-            for(int i=0;i<insertIntoScriptList.size();i++){
-                if (!insertIntoScriptList.get(i).equals("")){
-                    System.out.println(insertIntoScriptList.get(i));
-                }
-            }
-            
-            for(int i=0;i<primaryKeyScriptList.size();i++){
-                if (!primaryKeyScriptList.get(i).equals("")){
-                    System.out.println(primaryKeyScriptList.get(i));
-                }
-            }
-            
-            for(int i=0;i<foreignKeyScriptList.size();i++){
-                if (!foreignKeyScriptList.get(i).equals("")){
-                    System.out.println(foreignKeyScriptList.get(i));
-                }
-            }
-            System.out.println("xaxa");
-            /*
-            END DEBUG
-            */
-            
-            
+
             try{
                 Statement statementCreateAndInsertToTable = connectionCreateTable.createStatement();
                 //execute create table scripts
@@ -226,29 +201,65 @@ public class ExportSQLInstances {
                 //add foreign key constraints
                 for(int i=0;i<foreignKeyScriptList.size();i++){
                     if (!foreignKeyScriptList.get(i).equals("")){
-                        System.out.println("edw: " + foreignKeyScriptList.get(i));
                         statementCreateAndInsertToTable.executeUpdate(foreignKeyScriptList.get(i));
                     }
                 }
-                
-                //execute insert into scripts
-                for(int i=0;i<insertIntoScriptList.size();i++){
-                    if (!insertIntoScriptList.get(i).equals("")){
-                        statementCreateAndInsertToTable.executeUpdate(insertIntoScriptList.get(i));
-                    }
+                //export to csv
+                try{
+                        ExportCSVInstances exporter = new ExportCSVInstances();        
+                        exporter.exportCSVInstances(mappingTask, rootPath, "-temp", scenarioNo);
+                } catch (Throwable ex) {
+                        System.out.println("edww");
+                        throw new DAOException(ex.getMessage());
                 }
-                
-            }finally{        
+                // export to db
+                insertIntoDb(mappingTask, statementCreateAndInsertToTable, rootPath, tableNames, selectedDatabase);
+                System.out.println("edww1");
+            }finally{
+                try{
+                    // remove temporary csv
+                    deleteDir(new File(rootPath + mappingTask.getTargetProxy().getIntermediateSchema().getLabel() + "-temp0/"));
+                } catch(Exception ex){
+                    throw new DAOException(ex.getMessage());
+                }
                 //close connection
                 if(connection != null)
                   connectionFactoryCreateTable.close(connectionCreateTable); 
             }
 
-        }finally{        
+        }finally{   
             
             //close connection
             if(connection != null)
               connectionFactory.close(connection); 
+        }
+    }
+    
+    void deleteDir(File file) {
+        File[] contents = file.listFiles();
+        if (contents != null) {
+            for (File f : contents) {
+                deleteDir(f);
+            }
+        }
+        file.delete();
+    }
+    
+    //creates the insert into scripts in order to save the values permanently in database
+    private void insertIntoDb(MappingTask mappingTask, Statement statementCreateAndInsertToTable, 
+            String rootPath, List<String> tableNames, int database) throws SQLException{
+        for(String tableName : tableNames){
+            String pathTempFile = "'" + rootPath + mappingTask.getTargetProxy().getIntermediateSchema().getLabel() + "-temp0/" + tableName +".csv'";
+            //copy from csv to postgres
+            if (database == 0) {
+                statementCreateAndInsertToTable.executeUpdate("COPY " + tableName + " FROM " + pathTempFile + " DELIMITER ',' CSV HEADER;");
+            } else if (database == 1) {
+                System.out.println("LOAD DATA LOCAL INFILE " + pathTempFile
+                        + " INTO TABLE " + tableName +" FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n' IGNORE 1 ROWS");
+                statementCreateAndInsertToTable.executeUpdate("LOAD DATA INFILE " + pathTempFile
+                        + " INTO TABLE " + tableName +" FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n' IGNORE 1 ROWS");
+            }
+            
         }
     }
     
@@ -307,7 +318,6 @@ public class ExportSQLInstances {
                     } else {
                         script += entry.getValue().get(i);
                     }
-                    
                 }
             }
         }
@@ -315,52 +325,6 @@ public class ExportSQLInstances {
             script += ");";
         } 
         return script;
-    }
-    
-    //creates the insert into scripts in order to save the values permanently in database
-    private String insertIntoSqlScript(String tableName, ResultSet tableRows, int database) throws SQLException{
-        ResultSetMetaData rsmd = tableRows.getMetaData();
-        int columnsNumber = rsmd.getColumnCount();
-        
-        String insertIntoScript;
-        if (database==0) {
-            insertIntoScript = "INSERT INTO \"" + tableName + "\" VALUES \n";
-        } else { 
-            insertIntoScript = "INSERT INTO " + tableName + " VALUES \n";
-        }
-        
-        boolean hasData = false;
-        while(tableRows.next()){
-            hasData = true;
-            insertIntoScript += "(";
-            for(int i=1;i<=columnsNumber;i++){
-                //if the column came from text field and the value is not null
-                if(isTextColumn(rsmd.getColumnTypeName(i)) && tableRows.getObject(i) != null){
-                    insertIntoScript +=  "'" + tableRows.getObject(i) + "'";
-                } else {
-                    insertIntoScript +=  tableRows.getObject(i);
-                }
-                if(i!=columnsNumber){
-                    insertIntoScript += ",";
-                }
-            }
-            if (!tableRows.isLast()){
-                insertIntoScript += "),\n";
-            }    
-            else{
-                insertIntoScript += ")\n";
-            }
-        }
-        if( database != 2){
-            insertIntoScript += ";";
-        }
-        
-        
-        //if the target doesn't mapped with the source do nothing
-        if(!hasData){
-            insertIntoScript = "";
-        }
-        return insertIntoScript;
     }
     
     //checks if a column has upper case letters inside
@@ -451,29 +415,35 @@ public class ExportSQLInstances {
         return result;
     }
     
-    private void createNewDatabaseIfNotExists(String driver, String uri, String userName, String password) throws DAOException, SQLException{
+    private int createNewDatabaseIfNotExists(String driver, String uri, String userName, String password, int database) throws DAOException, SQLException{
         IConnectionFactory connectionFactoryCreateTable = new SimpleDbConnectionFactory();
         //remove database name from uri
         String extractDbName = uri.split("/")[3];
         String extractUri = uri.split(extractDbName)[0];
-        System.out.println(extractDbName);
-        System.out.println(extractUri);
         Connection connection = getConnectionToDatabase(connectionFactoryCreateTable, driver, extractUri, userName, password);
         Statement statement = connection.createStatement();           
         int dbcount = 0;
-        ResultSet count = statement.executeQuery(
-                "select count(*) as dbcount from pg_catalog.pg_database where datname = '"+
-                extractDbName+"';");
-        while(count.next()){
-            dbcount = count.getInt("dbcount");
+
+        if (database == 0){
+            ResultSet count = statement.executeQuery("select count(*) as dbcount from pg_catalog.pg_database where datname = '"+extractDbName+"';");
+            while(count.next()){
+                dbcount = count.getInt("dbcount");
+            }
+            count.close();
+        } else if (database == 1) {
+            ResultSet count = statement.executeQuery("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '"+extractDbName+"'");
+            while(count.next()){
+                dbcount += 1;
+            }
+            count.close();
         }
-        System.out.println(dbcount);
-        count.close();
+
         if (dbcount==0){
             StringBuilder createDatabaseQuery = new StringBuilder(); 
             createDatabaseQuery.append("create database ").append(extractDbName).append(";\n");
             statement.executeUpdate(createDatabaseQuery.toString());
         }  
+        return dbcount;
     }
     
     private boolean checkTablesIntegrityOfExistingDatabase(){
