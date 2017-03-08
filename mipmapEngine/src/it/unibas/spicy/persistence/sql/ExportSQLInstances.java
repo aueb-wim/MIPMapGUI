@@ -152,10 +152,10 @@ public class ExportSQLInstances {
                 //Postgres 0
                 //MySql 1
                 //Derby 2
-                
+                Statement statementCreateAndInsertToTable = connectionCreateTable.createStatement();
                 if(driver.contains("postgresql")){
                     //create table scripts
-                    createTableScriptList.add(createTableSqlScript(columnsPerTables, tableName, 0));
+                    statementCreateAndInsertToTable.executeUpdate(createTableSqlScript(columnsPerTables, tableName, 0));
                     if(isExisting == 0) {
                         //insert primary key constraints
                         primaryKeyScriptList.add(insertPrimaryKeyConstraints(primaryKeyConstraintsPerTable, 0));
@@ -165,7 +165,7 @@ public class ExportSQLInstances {
                     selectedDatabase = 0;
                 }else if (driver.contains("mysql")){
                     //create table scripts
-                    createTableScriptList.add(createTableSqlScript(columnsPerTables, tableName, 1));
+                    statementCreateAndInsertToTable.executeUpdate(createTableSqlScript(columnsPerTables, tableName, 1));
                     if(isExisting == 0) {
                         //insert primary key constraints
                         primaryKeyScriptList.add(insertPrimaryKeyConstraints(primaryKeyConstraintsPerTable, 1));
@@ -182,14 +182,6 @@ public class ExportSQLInstances {
                     //foreignKeyScriptList.add(insertForeignKeyConstraints(foreignKeyConstraintsPerTable, 2));
                     selectedDatabase = 2;
                 }
-            }
-
-            try{
-                Statement statementCreateAndInsertToTable = connectionCreateTable.createStatement();
-                //execute create table scripts
-                for(int i=0;i<createTableScriptList.size();i++){
-                    statementCreateAndInsertToTable.executeUpdate(createTableScriptList.get(i));
-                }
                 
                 //add primary key constraints
                 for(int i=0;i<primaryKeyScriptList.size();i++){
@@ -197,38 +189,83 @@ public class ExportSQLInstances {
                         statementCreateAndInsertToTable.executeUpdate(primaryKeyScriptList.get(i));
                     }
                 }
+                primaryKeyScriptList.clear();
+                ResultSet tableRows = statement.executeQuery("SELECT * FROM " + SpicyEngineConstants.TARGET_SCHEMA_NAME+String.valueOf(scenarioNo) 
+                        + "." + tableName + ";");
                 
-                //add foreign key constraints
-                for(int i=0;i<foreignKeyScriptList.size();i++){
-                    if (!foreignKeyScriptList.get(i).equals("")){
-                        statementCreateAndInsertToTable.executeUpdate(foreignKeyScriptList.get(i));
-                    }
-                }
-                //export to csv
-                try{
-                        ExportCSVInstances exporter = new ExportCSVInstances();        
-                        exporter.exportCSVInstances(mappingTask, rootPath, "-temp", scenarioNo);
-                } catch (Throwable ex) {
-                        System.out.println("edww");
-                        throw new DAOException(ex.getMessage());
-                }
-                // export to db
-                insertIntoDb(mappingTask, statementCreateAndInsertToTable, rootPath, tableNames, selectedDatabase);
-                System.out.println("edww1");
-            }finally{
-                try{
-                    // remove temporary csv
-                    deleteDir(new File(rootPath + mappingTask.getTargetProxy().getIntermediateSchema().getLabel() + "-temp0/"));
-                } catch(Exception ex){
-                    throw new DAOException(ex.getMessage());
-                }
-                //close connection
-                if(connection != null)
-                  connectionFactoryCreateTable.close(connectionCreateTable); 
+                ResultSetMetaData rsmd = tableRows.getMetaData();
+                int columnsNumber = rsmd.getColumnCount();
+                String insertIntoScript = "";
+                
+                    while(tableRows.next()){
+                        insertIntoScript = "INSERT INTO " + tableName + " VALUES \n";
+                        insertIntoScript += "(";
+                        for(int i=1;i<=columnsNumber;i++){
+                            //if the column came from text field and the value is not null
+                            if(isTextColumn(rsmd.getColumnTypeName(i)) && tableRows.getObject(i) != null){
+                                insertIntoScript +=  "'" + tableRows.getObject(i) + "'";
+                            } else {
+                                insertIntoScript +=  tableRows.getObject(i);
+                            }
+                            if(i!=columnsNumber){
+                                insertIntoScript += ",";
+                            }
+                        }
+                        insertIntoScript += ");";
+                        try{
+                            statementCreateAndInsertToTable.executeUpdate(insertIntoScript);
+                        } catch (Exception e){
+                            //System.out.println(e);
+                            //System.out.println(insertIntoScript);
+                        }
+                    }  
             }
 
+//            try{
+//                Statement statementCreateAndInsertToTable = connectionCreateTable.createStatement();
+//                //execute create table scripts
+////                for(int i=0;i<createTableScriptList.size();i++){
+////                    statementCreateAndInsertToTable.executeUpdate(createTableScriptList.get(i));
+////                }
+//                
+//                //add primary key constraints
+//                for(int i=0;i<primaryKeyScriptList.size();i++){
+//                    if (!primaryKeyScriptList.get(i).equals("")){
+//                        statementCreateAndInsertToTable.executeUpdate(primaryKeyScriptList.get(i));
+//                    }
+//                }
+//                
+//                //add foreign key constraints
+//                for(int i=0;i<foreignKeyScriptList.size();i++){
+//                    if (!foreignKeyScriptList.get(i).equals("")){
+//                        statementCreateAndInsertToTable.executeUpdate(foreignKeyScriptList.get(i));
+//                    }
+//                }
+//                //export to csv
+////                try{
+////                        ExportCSVInstances exporter = new ExportCSVInstances();        
+////                        exporter.exportCSVInstances(mappingTask, rootPath, "-temp", scenarioNo);
+////                } catch (Throwable ex) {
+////                        System.out.println("edww");
+////                        throw new DAOException(ex.getMessage());
+////                }
+//                // export to db
+////                insertIntoDb(mappingTask, statementCreateAndInsertToTable, rootPath, tableNames, selectedDatabase);
+//            }finally{
+////                try{
+////                    // remove temporary csv
+////                    deleteDir(new File(rootPath + mappingTask.getTargetProxy().getIntermediateSchema().getLabel() + "-temp0/"));
+////                } catch(Exception ex){
+////                    throw new DAOException(ex.getMessage());
+////                }
+//                //close connection
+//                if(connectionFactoryCreateTable != null)
+//                  connectionFactoryCreateTable.close(connectionCreateTable); 
+//            }
+
         }finally{   
-            
+            if(connectionFactoryCreateTable != null)
+                connectionFactoryCreateTable.close(connectionCreateTable); 
             //close connection
             if(connection != null)
               connectionFactory.close(connection); 
