@@ -240,7 +240,6 @@ public class ExportSQLInstances {
             DatabaseMetaData exportDatabaseMetaData = connectionCreateTable.getMetaData();
             String[] tableTypes = new String[]{"TABLE"};
             ResultSet exportTableResultSet = exportDatabaseMetaData.getTables(uri, "public", null, tableTypes);
-            System.out.println("Here my man");
             Statement statement = connectionCreateTable.createStatement();
             ArrayList<TableSchema> exportDatabaseTables = new ArrayList<>();
             while (exportTableResultSet.next()) {
@@ -313,8 +312,6 @@ public class ExportSQLInstances {
                 break;
             }
         }
-        System.out.println(column + " " + dataType + " " + nullable);
-        System.out.println(found);
         return found;
     }
     
@@ -324,7 +321,6 @@ public class ExportSQLInstances {
                 return t.get(i);
             }
         }
-        System.out.println("Den vrika ton pinaka");
         return null;
     }
     
