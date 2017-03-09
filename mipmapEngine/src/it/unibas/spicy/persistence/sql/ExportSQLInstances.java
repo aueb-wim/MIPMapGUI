@@ -69,167 +69,263 @@ public class ExportSQLInstances {
         }
         
         IConnectionFactory connectionFactoryCreateTable = new SimpleDbConnectionFactory();
-        Connection connectionCreateTable = getConnectionToDatabase(connectionFactoryCreateTable, driver, uri, userName, password );
-        DatabaseMetaData exportDatabaseMetaData = connectionCreateTable.getMetaData();
-        int selectedDatabase = 0;
-        String rootPath = "/tmp/";
-        try{
-            Statement statement = connection.createStatement();            
-            //get table names from target database
-            DatabaseMetaData databaseMetaData = connection.getMetaData();          
-            String[] tableTypes = new String[]{"TABLE"};
+        Connection connectionCreateTable = getConnectionToDatabase(connectionFactoryCreateTable, driver, uri, userName, password);       
+        
+        boolean isCompatible = checkTablesIntegrityOfExistingDatabase(connectionCreateTable, uri, connection, scenarioNo);
+        System.out.println(isCompatible);
+        // The above commands are used for batch insert
+        //int selectedDatabase = 0;
+        //String rootPath = "/tmp/";
+        if (isCompatible){
+            try{
+                Statement statement = connection.createStatement();            
+                //get table names from target database
+                DatabaseMetaData databaseMetaData = connection.getMetaData();          
+                String[] tableTypes = new String[]{"TABLE"};
 
-            ResultSet tableResultSet = databaseMetaData.getTables(SpicyEngineConstants.MAPPING_TASK_DB_NAME, 
-                    SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo, null, tableTypes);
-            Map<String, ArrayList<String>> columnsPerTables;
-            Map<String, ArrayList<String>> primaryKeyConstraintsPerTable;
-            Map<String, ArrayList<ForeignTableKeyConstraints>> foreignKeyConstraintsPerTable;
-            ArrayList<String> cols;
-            List<String> createTableScriptList = new ArrayList<>();
-            List<String> primaryKeyScriptList = new ArrayList<>();
-            List<String> foreignKeyScriptList = new ArrayList<>();
-            List<String> tableNames = new ArrayList<>();
-            while (tableResultSet.next()) { 
-                String tableName = tableResultSet.getString("TABLE_NAME");
-                tableNames.add(tableName);
-                ResultSet tableColumns = statement.executeQuery("SELECT column_name, data_type, is_nullable "+
-                " FROM information_schema.columns WHERE " + " table_schema = '" + SpicyEngineConstants.TARGET_SCHEMA_NAME+String.valueOf(scenarioNo) 
-                        + "' AND table_name = '"+ tableName  + "' ORDER BY ordinal_position;");
-                
-                ResultSet pkConstraints = databaseMetaData.getPrimaryKeys(SpicyEngineConstants.MAPPING_TASK_DB_NAME, 
-                        SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo, tableName);
-                
-                ResultSet fkConstraints = databaseMetaData.getImportedKeys(SpicyEngineConstants.MAPPING_TASK_DB_NAME, 
-                        SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo, tableName);
-                
-                primaryKeyConstraintsPerTable = new LinkedHashMap<>();
-                while (pkConstraints.next()) {
-                    String pkColumnName = pkConstraints.getString("COLUMN_NAME");
-                    if(primaryKeyConstraintsPerTable.get(tableName) == null) {
-                        ArrayList<String> l = new ArrayList<>();
-                        l.add(pkColumnName);
-                        primaryKeyConstraintsPerTable.put(tableName, l);
-                    } else {
-                        ArrayList<String> l = primaryKeyConstraintsPerTable.get(tableName);
-                        l.add(pkColumnName);
-                        primaryKeyConstraintsPerTable.remove(tableName);
-                        primaryKeyConstraintsPerTable.put(tableName, l);
+                ResultSet tableResultSet = databaseMetaData.getTables(SpicyEngineConstants.MAPPING_TASK_DB_NAME, 
+                        SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo, null, tableTypes);
+                Map<String, ArrayList<String>> columnsPerTables;
+                Map<String, ArrayList<String>> primaryKeyConstraintsPerTable;
+                Map<String, ArrayList<ForeignTableKeyConstraints>> foreignKeyConstraintsPerTable;
+                ArrayList<String> cols;
+                List<String> primaryKeyScriptList = new ArrayList<>();
+                List<String> foreignKeyScriptList = new ArrayList<>();
+                List<String> tableNames = new ArrayList<>();
+                while (tableResultSet.next()) { 
+                    String tableName = tableResultSet.getString("TABLE_NAME");
+                    tableNames.add(tableName);
+                    ResultSet tableColumns = statement.executeQuery("SELECT column_name, data_type, is_nullable "+
+                    " FROM information_schema.columns WHERE " + " table_schema = '" + SpicyEngineConstants.TARGET_SCHEMA_NAME+String.valueOf(scenarioNo) 
+                            + "' AND table_name = '"+ tableName  + "' ORDER BY ordinal_position;");
+
+                    ResultSet pkConstraints = databaseMetaData.getPrimaryKeys(SpicyEngineConstants.MAPPING_TASK_DB_NAME, 
+                            SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo, tableName);
+
+                    ResultSet fkConstraints = databaseMetaData.getImportedKeys(SpicyEngineConstants.MAPPING_TASK_DB_NAME, 
+                            SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo, tableName);
+
+                    primaryKeyConstraintsPerTable = new LinkedHashMap<>();
+                    while (pkConstraints.next()) {
+                        String pkColumnName = pkConstraints.getString("COLUMN_NAME");
+                        if(primaryKeyConstraintsPerTable.get(tableName) == null) {
+                            ArrayList<String> l = new ArrayList<>();
+                            l.add(pkColumnName);
+                            primaryKeyConstraintsPerTable.put(tableName, l);
+                        } else {
+                            ArrayList<String> l = primaryKeyConstraintsPerTable.get(tableName);
+                            l.add(pkColumnName);
+                            primaryKeyConstraintsPerTable.remove(tableName);
+                            primaryKeyConstraintsPerTable.put(tableName, l);
+                        }
                     }
-                }
-                foreignKeyConstraintsPerTable = new LinkedHashMap<>();
-                while (fkConstraints.next()) {
-                    String fkTableName = fkConstraints.getString("FKTABLE_NAME");
-                    String fkColumnName = fkConstraints.getString("FKCOLUMN_NAME");
-                    String pkTableName = fkConstraints.getString("PKTABLE_NAME");
-                    String pkColumnName = fkConstraints.getString("PKCOLUMN_NAME");
-                    if(foreignKeyConstraintsPerTable.get(tableName) == null) {
-                       ArrayList<ForeignTableKeyConstraints> l = new ArrayList<>();
-                       l.add(new ForeignTableKeyConstraints(fkTableName, fkColumnName, pkTableName, pkColumnName));
-                       foreignKeyConstraintsPerTable.put(tableName,  l);
-                    } else {
-                        ArrayList<ForeignTableKeyConstraints> l = foreignKeyConstraintsPerTable.get(tableName);
-                        l.add(new ForeignTableKeyConstraints(fkTableName, fkColumnName, pkTableName, pkColumnName));
-                        foreignKeyConstraintsPerTable.remove(tableName);
-                        foreignKeyConstraintsPerTable.put(tableName,  l);
+                    foreignKeyConstraintsPerTable = new LinkedHashMap<>();
+                    while (fkConstraints.next()) {
+                        String fkTableName = fkConstraints.getString("FKTABLE_NAME");
+                        String fkColumnName = fkConstraints.getString("FKCOLUMN_NAME");
+                        String pkTableName = fkConstraints.getString("PKTABLE_NAME");
+                        String pkColumnName = fkConstraints.getString("PKCOLUMN_NAME");
+                        if(foreignKeyConstraintsPerTable.get(tableName) == null) {
+                           ArrayList<ForeignTableKeyConstraints> l = new ArrayList<>();
+                           l.add(new ForeignTableKeyConstraints(fkTableName, fkColumnName, pkTableName, pkColumnName));
+                           foreignKeyConstraintsPerTable.put(tableName,  l);
+                        } else {
+                            ArrayList<ForeignTableKeyConstraints> l = foreignKeyConstraintsPerTable.get(tableName);
+                            l.add(new ForeignTableKeyConstraints(fkTableName, fkColumnName, pkTableName, pkColumnName));
+                            foreignKeyConstraintsPerTable.remove(tableName);
+                            foreignKeyConstraintsPerTable.put(tableName,  l);
+                        }
                     }
-                }
-                
-                columnsPerTables = new LinkedHashMap<>();
-                while(tableColumns.next()){
-                    cols = new ArrayList<>();
-                    cols.add(tableColumns.getString("data_type"));
-                    cols.add(tableColumns.getString("is_nullable"));
-                    columnsPerTables.put(tableColumns.getString("column_name"), cols);
-                }       
-               
-//                ResultSet exportTableResultSet = exportDatabaseMetaData.getTables(uri, 
-//                "public", null, tableTypes);
-//                while (exportTableResultSet.next()) {
-//                    System.out.println(tableResultSet.getString("TABLE_NAME"));
-//                }
-                
-                //create the appropriate create table script for the three different supported databases
-                //Postgres 0
-                //MySql 1
-                //Derby 2
-                Statement statementCreateAndInsertToTable = connectionCreateTable.createStatement();
-                if(driver.contains("postgresql")){
-                    //create table scripts
-                    statementCreateAndInsertToTable.executeUpdate(createTableSqlScript(columnsPerTables, tableName, 0));
-                    if(isExisting == 0) {
-                        //insert primary key constraints
-                        primaryKeyScriptList.add(insertPrimaryKeyConstraints(primaryKeyConstraintsPerTable, 0));
-                        //insert foreign key constraints
-                        foreignKeyScriptList.add(insertForeignKeyConstraints(foreignKeyConstraintsPerTable, 0));
+
+                    columnsPerTables = new LinkedHashMap<>();
+                    while(tableColumns.next()){
+                        cols = new ArrayList<>();
+                        cols.add(tableColumns.getString("data_type"));
+                        cols.add(tableColumns.getString("is_nullable"));
+                        columnsPerTables.put(tableColumns.getString("column_name"), cols);
+                    }       
+
+                    //create the appropriate create table script for the three different supported databases
+                    //Postgres 0
+                    //MySql 1
+                    //Derby 2
+                    Statement statementCreateAndInsertToTable = connectionCreateTable.createStatement();
+                    if(driver.contains("postgresql")){
+                        //create table scripts
+                        statementCreateAndInsertToTable.executeUpdate(createTableSqlScript(columnsPerTables, tableName, 0));
+                        if(isExisting == 0) {
+                            //insert primary key constraints
+                            primaryKeyScriptList.add(insertPrimaryKeyConstraints(primaryKeyConstraintsPerTable, 0));
+                            //insert foreign key constraints
+                            foreignKeyScriptList.add(insertForeignKeyConstraints(foreignKeyConstraintsPerTable, 0));
+                        }
+                        // The above command are used for batch insert
+                        //selectedDatabase = 0;
+                    }else if (driver.contains("mysql")){
+                        //create table scripts
+                        statementCreateAndInsertToTable.executeUpdate(createTableSqlScript(columnsPerTables, tableName, 1));
+                        if(isExisting == 0) {
+                            //insert primary key constraints
+                            primaryKeyScriptList.add(insertPrimaryKeyConstraints(primaryKeyConstraintsPerTable, 1));
+                            //insert foreign key constraints
+                            foreignKeyScriptList.add(insertForeignKeyConstraints(foreignKeyConstraintsPerTable, 1));
+                        }
+                        // The above command are used for batch insert
+                        //selectedDatabase = 1;
                     }
-                    selectedDatabase = 0;
-                }else if (driver.contains("mysql")){
-                    //create table scripts
-                    statementCreateAndInsertToTable.executeUpdate(createTableSqlScript(columnsPerTables, tableName, 1));
-                    if(isExisting == 0) {
-                        //insert primary key constraints
-                        primaryKeyScriptList.add(insertPrimaryKeyConstraints(primaryKeyConstraintsPerTable, 1));
-                        //insert foreign key constraints
-                        foreignKeyScriptList.add(insertForeignKeyConstraints(foreignKeyConstraintsPerTable, 1));
+                    // it is not used at this time
+                    else if(driver.contains("derby")){
+                        //insert primary key constraints,insert foreign key constraints
+                        // it is not implemented for Derby
+                        // primaryKeyScriptList.add(insertPrimaryKeyConstraints(primaryKeyConstraintsPerTable, 2));
+                        //foreignKeyScriptList.add(insertForeignKeyConstraints(foreignKeyConstraintsPerTable, 2));
+                        //selectedDatabase = 2;
                     }
-                    selectedDatabase = 1;
-                }
-                // it is not used at this time
-                else if(driver.contains("derby")){
-                    //create table scripts
-                    //createTableScriptList.add(createTableSqlScript(columnsPerTables, tableName, 2));
-                    //insert primary key constraints,insert foreign key constraints
-                    // it is not implemented for Derby
-                    // primaryKeyScriptList.add(insertPrimaryKeyConstraints(primaryKeyConstraintsPerTable, 2));
-                    //foreignKeyScriptList.add(insertForeignKeyConstraints(foreignKeyConstraintsPerTable, 2));
-                    //selectedDatabase = 2;
-                }
-                
-                //add primary key constraints
-                for(int i=0;i<primaryKeyScriptList.size();i++){
-                    if (!primaryKeyScriptList.get(i).equals("")){
-                        statementCreateAndInsertToTable.executeUpdate(primaryKeyScriptList.get(i));
+
+                    //add primary key constraints
+                    for(int i=0;i<primaryKeyScriptList.size();i++){
+                        if (!primaryKeyScriptList.get(i).equals("")){
+                            statementCreateAndInsertToTable.executeUpdate(primaryKeyScriptList.get(i));
+                        }
                     }
+                    primaryKeyScriptList.clear();
+
+                    //add foreign key constraints
+                    //it is not used at this time
+    //                for(int i=0;i<foreignKeyScriptList.size();i++){
+    //                    if (!foreignKeyScriptList.get(i).equals("")){
+    //                        statementCreateAndInsertToTable.executeUpdate(foreignKeyScriptList.get(i));
+    //                    }
+    //                }
+    //                foreignKeyScriptList.clear();
+
+                    ResultSet tableRows = statement.executeQuery("SELECT * FROM " + SpicyEngineConstants.TARGET_SCHEMA_NAME+String.valueOf(scenarioNo) 
+                            + "." + tableName + ";");
+                    insertIntoDbPerRow(tableRows, tableName, statementCreateAndInsertToTable);
                 }
-                primaryKeyScriptList.clear();
-                
-                //add foreign key constraints
-                //it is not used at this time
-//                for(int i=0;i<foreignKeyScriptList.size();i++){
-//                    if (!foreignKeyScriptList.get(i).equals("")){
-//                        statementCreateAndInsertToTable.executeUpdate(foreignKeyScriptList.get(i));
-//                    }
-//                }
-//                foreignKeyScriptList.clear();
-                
-                ResultSet tableRows = statement.executeQuery("SELECT * FROM " + SpicyEngineConstants.TARGET_SCHEMA_NAME+String.valueOf(scenarioNo) 
-                        + "." + tableName + ";");
-                insertIntoDbPerRow(tableRows, tableName, statementCreateAndInsertToTable);
+
+                // batch insert - cannot manage duplicate values and stops the whole insert procedure
+    //            try{
+    //                Statement statementCreateAndInsertToTable = connectionCreateTable.createStatement();        
+    //                // export to db
+    //                batchInsertIntoDb(mappingTask, statementCreateAndInsertToTable, rootPath, tableNames, selectedDatabase, scenarioNo);
+    //            }finally{
+    //                //close connection
+    //                if(connectionFactoryCreateTable != null)
+    //                  connectionFactoryCreateTable.close(connectionCreateTable); 
+    //            }
+            } catch (Exception e) {
+                throw new DAOException(e.getMessage());
+            }finally{   
+                if(connectionFactoryCreateTable != null)
+                    connectionFactoryCreateTable.close(connectionCreateTable); 
+                //close connection
+                if(connection != null)
+                    connectionFactory.close(connection); 
             }
-            
-            // batch insert - cannot manage duplicate values and stops the whole insert procedure
-//            try{
-//                Statement statementCreateAndInsertToTable = connectionCreateTable.createStatement();        
-//                // export to db
-//                batchInsertIntoDb(mappingTask, statementCreateAndInsertToTable, rootPath, tableNames, selectedDatabase, scenarioNo);
-//            }finally{
-//                //close connection
-//                if(connectionFactoryCreateTable != null)
-//                  connectionFactoryCreateTable.close(connectionCreateTable); 
-//            }
-
-        }finally{   
+        } else {
             if(connectionFactoryCreateTable != null)
                 connectionFactoryCreateTable.close(connectionCreateTable); 
             //close connection
             if(connection != null)
                 connectionFactory.close(connection); 
+            throw new DAOException("Non compatible target and export tables!");
         }
     }
     
     
-    private boolean checkTablesIntegrityOfExistingDatabase(){
+    private boolean checkTablesIntegrityOfExistingDatabase(Connection connectionCreateTable, 
+            String uri, Connection connection, int scenarioNo) throws SQLException{
+        try{
+            DatabaseMetaData exportDatabaseMetaData = connectionCreateTable.getMetaData();
+            String[] tableTypes = new String[]{"TABLE"};
+            ResultSet exportTableResultSet = exportDatabaseMetaData.getTables(uri, "public", null, tableTypes);
+            System.out.println("Here my man");
+            Statement statement = connectionCreateTable.createStatement();
+            ArrayList<TableSchema> exportDatabaseTables = new ArrayList<>();
+            while (exportTableResultSet.next()) {
+                String tableName = exportTableResultSet.getString("TABLE_NAME");
+                ResultSet tableColumns = statement.executeQuery("SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE " 
+                        + " table_schema = 'public' AND table_name = '"+ tableName  + "' ORDER BY ordinal_position;");
+                TableSchema t = new TableSchema(tableName);
+                while(tableColumns.next()){
+                    t.addDataType(tableColumns.getString("data_type"));
+                    t.addIsNull(tableColumns.getString("is_nullable"));
+                    t.addColumn(tableColumns.getString("column_name"));
+                }
+                exportDatabaseTables.add(t);
+            }
+            
+
+            ArrayList<TableSchema> targetDatabaseTables = new ArrayList<>();
+            statement = connection.createStatement();            
+            //get table names from target database
+            DatabaseMetaData databaseMetaData = connection.getMetaData();          
+            ResultSet tableResultSet = databaseMetaData.getTables(SpicyEngineConstants.MAPPING_TASK_DB_NAME, 
+                    SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo, null, tableTypes);
+            while (tableResultSet.next()) { 
+                String tableName = tableResultSet.getString("TABLE_NAME");
+                ResultSet tableColumns = statement.executeQuery("SELECT column_name, data_type, is_nullable "+
+                " FROM information_schema.columns WHERE " + " table_schema = '" + SpicyEngineConstants.TARGET_SCHEMA_NAME+String.valueOf(scenarioNo) 
+                        + "' AND table_name = '"+ tableName  + "' ORDER BY ordinal_position;");
+                
+                TableSchema t = new TableSchema(tableName);
+                while(tableColumns.next()){
+                    t.addDataType(tableColumns.getString("data_type"));
+                    t.addIsNull(tableColumns.getString("is_nullable"));
+                    t.addColumn(tableColumns.getString("column_name"));
+                }
+                targetDatabaseTables.add(t);
+            }
+            
+            for(int i=0; i<exportDatabaseTables.size();i++){
+                String exportTableName = exportDatabaseTables.get(i).getName();
+                TableSchema searched = searchTableName(exportTableName, targetDatabaseTables);
+                if (searched == null){
+                    return false;
+                } else {     
+                    for(int j=0;j<exportDatabaseTables.get(i).getColumns().size();j++){
+                        String exportTableColumn = exportDatabaseTables.get(i).getColumns().get(j);
+                        String exportTableDataType = exportDatabaseTables.get(i).getDataType().get(j);
+                        String exportTableNullable = exportDatabaseTables.get(i).getIsNull().get(j);
+                        boolean columnCompatibility = searchColumnCompatibility(exportTableColumn, exportTableDataType, exportTableNullable, searched);
+                        if (!columnCompatibility) {
+                            return false;
+                        }
+                    }
+                } 
+            }            
+        } catch(Exception e) {
+            System.out.println(e);
+            connectionCreateTable.close();
+            connection.close();
+        }
         return true;
+    }
+    
+    private boolean searchColumnCompatibility(String column, String dataType, String nullable, TableSchema t){
+        boolean found = false;
+        for(int i=0;i<t.getColumns().size();i++){
+            if (column.equals(t.getColumns().get(i))
+                    && dataType.equals(t.getDataType().get(i))
+                    && nullable.equals(t.getIsNull().get(i))){
+                found = true;
+                break;
+            }
+        }
+        System.out.println(column + " " + dataType + " " + nullable);
+        System.out.println(found);
+        return found;
+    }
+    
+    private TableSchema searchTableName(String tableName, ArrayList<TableSchema> t){
+        for (int i=0;i<t.size();i++){
+            if (tableName.equals(t.get(i).getName())){
+                return t.get(i);
+            }
+        }
+        System.out.println("Den vrika ton pinaka");
+        return null;
     }
     
     private void insertIntoDbPerRow(ResultSet tableRows, String tableName, Statement statementCreateAndInsertToTable) throws SQLException{
@@ -253,7 +349,7 @@ public class ExportSQLInstances {
             try{
                 statementCreateAndInsertToTable.executeUpdate(insertIntoScript);
             } catch (Exception e){
-                System.out.println(e);
+                //System.out.println(e);
             }
         }
     }
@@ -506,4 +602,46 @@ public class ExportSQLInstances {
             return this.tableColumnPK;
         }
     }
+    
+    private class TableSchema {
+    
+        private final String tableName;
+        private ArrayList<String> columns, dataType, isNull;
+        
+        public TableSchema(String tableName){
+            this.tableName = tableName;
+            columns = new ArrayList<String>();
+            dataType = new ArrayList<String>();
+            isNull = new ArrayList<String>();
+        }
+        
+        private String getName(){
+            return this.tableName;
+        }
+        
+        private void addColumn(String col){
+            columns.add(col);
+        }
+        
+        private void addDataType(String dt){
+            dataType.add(dt);
+        }
+        
+        private void addIsNull(String in){
+            isNull.add(in);
+        }
+        
+        private ArrayList<String> getColumns(){
+            return columns;
+        }
+        
+        private ArrayList<String> getDataType(){
+            return dataType;
+        }
+        
+        private ArrayList<String> getIsNull(){
+            return isNull;
+        }
+    }
+    
 }
