@@ -35,6 +35,8 @@ import java.util.Map;
  */
 public class ExportSQLInstances {
     
+    private IConnectionFactory connectionFactory, connectionFactoryCreateTable;
+    
     private Connection getConnectionToPostgres(IConnectionFactory connectionFactory) throws DAOException{
         AccessConfiguration accessConfiguration = new AccessConfiguration();
         accessConfiguration.setDriver(SpicyEngineConstants.ACCESS_CONFIGURATION_DRIVER);
@@ -58,21 +60,25 @@ public class ExportSQLInstances {
     public void exportSQLInstances(MappingTask mappingTask, int scenarioNo, String driver, String uri, 
             String userName, String password) throws DAOException, SQLException, IOException{          
         //connection to Postgres
-        IConnectionFactory connectionFactory = new SimpleDbConnectionFactory();
+        connectionFactory = new SimpleDbConnectionFactory();
         Connection connection = getConnectionToPostgres(connectionFactory);
         int isExisting = 0;
+        
         if(driver.contains("postgresql")){
             //establish a connection with the selected database
             isExisting = createNewDatabaseIfNotExists(driver, uri, userName, password, 0);
         } else if (driver.contains("mysql")){
             isExisting = createNewDatabaseIfNotExists(driver, uri, userName, password, 1);
         }
+        connectionFactoryCreateTable = new SimpleDbConnectionFactory();
+        Connection connectionCreateTable = getConnectionToDatabase(connectionFactoryCreateTable, driver, uri, userName, password);
+        boolean isCompatible = true;
+        if(driver.contains("postgresql") && isExisting != 0){
+            isCompatible = checkTablesIntegrityOfExistingDatabase(connectionCreateTable, uri, connection, scenarioNo, 0);
+        } else if (driver.contains("mysql") && isExisting != 0){
+            isCompatible = checkTablesIntegrityOfExistingDatabase(connectionCreateTable, uri, connection, scenarioNo, 1);
+        }
         
-        IConnectionFactory connectionFactoryCreateTable = new SimpleDbConnectionFactory();
-        Connection connectionCreateTable = getConnectionToDatabase(connectionFactoryCreateTable, driver, uri, userName, password);       
-        
-        boolean isCompatible = checkTablesIntegrityOfExistingDatabase(connectionCreateTable, uri, connection, scenarioNo);
-        System.out.println(isCompatible);
         // The above commands are used for batch insert
         //int selectedDatabase = 0;
         //String rootPath = "/tmp/";
@@ -217,35 +223,48 @@ public class ExportSQLInstances {
             } catch (Exception e) {
                 throw new DAOException(e.getMessage());
             }finally{   
-                if(connectionFactoryCreateTable != null)
+                if(connectionCreateTable != null)
                     connectionFactoryCreateTable.close(connectionCreateTable); 
                 //close connection
                 if(connection != null)
                     connectionFactory.close(connection); 
             }
         } else {
-            if(connectionFactoryCreateTable != null)
-                connectionFactoryCreateTable.close(connectionCreateTable); 
-            //close connection
-            if(connection != null)
-                connectionFactory.close(connection); 
+            if(connectionCreateTable != null)
+                    connectionFactoryCreateTable.close(connectionCreateTable); 
+                //close connection
+                if(connection != null)
+                    connectionFactory.close(connection); 
             throw new DAOException("Non compatible target and export tables!");
         }
     }
     
     
     private boolean checkTablesIntegrityOfExistingDatabase(Connection connectionCreateTable, 
-            String uri, Connection connection, int scenarioNo) throws SQLException{
+            String uri, Connection connection, int scenarioNo, int database) throws SQLException {
         try{
             DatabaseMetaData exportDatabaseMetaData = connectionCreateTable.getMetaData();
             String[] tableTypes = new String[]{"TABLE"};
-            ResultSet exportTableResultSet = exportDatabaseMetaData.getTables(uri, "public", null, tableTypes);
+            ResultSet exportTableResultSet = null;
+            if(database == 0) {
+                exportTableResultSet = exportDatabaseMetaData.getTables(uri, "public", null, tableTypes);
+            } else if (database == 1) {
+                exportTableResultSet = exportDatabaseMetaData.getTables(null, null, "%", tableTypes);
+            } 
             Statement statement = connectionCreateTable.createStatement();
             ArrayList<TableSchema> exportDatabaseTables = new ArrayList<>();
             while (exportTableResultSet.next()) {
                 String tableName = exportTableResultSet.getString("TABLE_NAME");
-                ResultSet tableColumns = statement.executeQuery("SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE " 
+                ResultSet tableColumns = null;
+                if(database == 0) {
+                    tableColumns = statement.executeQuery("SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE " 
                         + " table_schema = 'public' AND table_name = '"+ tableName  + "' ORDER BY ordinal_position;");
+                } else if (database == 1) {
+                    String extractDbName = uri.split("/")[3];
+                    tableColumns = statement.executeQuery("SELECT distinct column_name, data_type, is_nullable FROM information_schema.columns WHERE " 
+                        + " table_schema = '"+ extractDbName + "' AND table_name = '"+ tableName  + "' ORDER BY ordinal_position;");
+                }
+                
                 TableSchema t = new TableSchema(tableName);
                 while(tableColumns.next()){
                     t.addDataType(tableColumns.getString("data_type"));
@@ -254,7 +273,6 @@ public class ExportSQLInstances {
                 }
                 exportDatabaseTables.add(t);
             }
-            
 
             ArrayList<TableSchema> targetDatabaseTables = new ArrayList<>();
             statement = connection.createStatement();            
@@ -270,7 +288,12 @@ public class ExportSQLInstances {
                 
                 TableSchema t = new TableSchema(tableName);
                 while(tableColumns.next()){
-                    t.addDataType(tableColumns.getString("data_type"));
+                    if(database == 0) {
+                        t.addDataType(tableColumns.getString("data_type"));
+                    } else if (database == 1) {
+                        t.addDataType(searchMappings(tableColumns.getString("data_type"), 1));
+                    }
+                    
                     t.addIsNull(tableColumns.getString("is_nullable"));
                     t.addColumn(tableColumns.getString("column_name"));
                 }
@@ -293,11 +316,33 @@ public class ExportSQLInstances {
                         }
                     }
                 } 
-            }            
+            }
+            
+            for(int i=0; i<targetDatabaseTables.size();i++){
+                String targetTableName = targetDatabaseTables.get(i).getName();
+                TableSchema searched = searchTableName(targetTableName, exportDatabaseTables);
+                if (searched == null){
+                    return false;
+                } else {     
+                    for(int j=0;j<targetDatabaseTables.get(i).getColumns().size();j++){
+                        String targetTableColumn = targetDatabaseTables.get(i).getColumns().get(j);
+                        String targetTableDataType = targetDatabaseTables.get(i).getDataType().get(j);
+                        String targetTableNullable = targetDatabaseTables.get(i).getIsNull().get(j);
+                        boolean columnCompatibility = searchColumnCompatibility(targetTableColumn, targetTableDataType, targetTableNullable, searched);
+                        if (!columnCompatibility) {
+                            return false;
+                        }
+                    }
+                } 
+            } 
+            
         } catch(Exception e) {
             System.out.println(e);
-            connectionCreateTable.close();
-            connection.close();
+            if(connectionCreateTable != null)
+                connectionFactoryCreateTable.close(connectionCreateTable); 
+            //close connection
+            if(connection != null)
+                connectionFactory.close(connection); 
         }
         return true;
     }
@@ -306,7 +351,7 @@ public class ExportSQLInstances {
         boolean found = false;
         for(int i=0;i<t.getColumns().size();i++){
             if (column.equals(t.getColumns().get(i))
-                    && dataType.equals(t.getDataType().get(i))
+                    && dataType.split("\\(")[0].toLowerCase().equals(t.getDataType().get(i).split("\\(")[0].toLowerCase())
                     && nullable.equals(t.getIsNull().get(i))){
                 found = true;
                 break;
@@ -359,7 +404,6 @@ public class ExportSQLInstances {
                 ExportCSVInstances exporter = new ExportCSVInstances();        
                 exporter.exportCSVInstances(mappingTask, rootPath, "-temp", scenarioNo);
         } catch (Throwable ex) {
-                System.out.println("edww");
                 throw new DAOException(ex.getMessage());
         }
         for(String tableName : tableNames){
@@ -522,12 +566,13 @@ public class ExportSQLInstances {
         Map<String,String> mappings = loadMappingDataTypes(database);
         String result = mappings.get(value.toLowerCase());
         //if a mapping cannot be found, make the field text
-        if (result == null)
-            //in other than derby databases
+        if (result == null) {
+            //other than derby databases
             if(database != 2)
                 return "text";
             else
                 return "varchar(255)";
+        }
         return result;
     }
     
