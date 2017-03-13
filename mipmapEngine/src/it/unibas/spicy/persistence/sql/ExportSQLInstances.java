@@ -621,7 +621,7 @@ public class ExportSQLInstances {
 
         if (dbcount==0){
             StringBuilder createDatabaseQuery = new StringBuilder(); 
-            createDatabaseQuery.append("create database ").append(extractDbName).append(";\n");
+            createDatabaseQuery.append("create database \"").append(extractDbName).append("\" ;\n");
             statement.executeUpdate(createDatabaseQuery.toString());
         }  
         return dbcount;
