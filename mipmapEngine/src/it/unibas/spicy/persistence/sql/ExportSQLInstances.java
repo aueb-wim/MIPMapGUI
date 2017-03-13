@@ -544,20 +544,40 @@ public class ExportSQLInstances {
     //loads the different database data types which will used in the table creation
     private Map<String,String> loadMappingDataTypes(int database) throws IOException{
         Map<String,String> mappings = new HashMap<>();
-        String fileName = "src/misc/resources/mapDifferentDatabaseDataTypes.txt";
-        BufferedReader in;
-        try {
-            in = new BufferedReader(new FileReader(fileName));
-            String line;
-            while((line = in.readLine()) != null) {
-                if (!line.startsWith("--"))
-                    mappings.put(line.split(",")[0].toLowerCase(), line.split(",")[database].toLowerCase());
-            }
-            in.close();
-        } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
+        if(database == 1){
+            mappings.put("SMALLINT".toLowerCase(),"TINYINT".toLowerCase());
+            mappings.put("INTEGER".toLowerCase(),"INT".toLowerCase());
+            mappings.put("INT".toLowerCase(),"INT".toLowerCase());
+            mappings.put("REAL".toLowerCase(),"FLOAT".toLowerCase());
+            mappings.put("DOUBLE PRECISION".toLowerCase(),"DOUBLE".toLowerCase());
+            mappings.put("BYTEA".toLowerCase(),"BLOB".toLowerCase());
+            mappings.put("not available".toLowerCase(),"ZEROFILL".toLowerCase());
+            mappings.put("TIME WITHOUT TIME ZONE".toLowerCase(),"TIME".toLowerCase());
+            mappings.put("TIMESTAMP".toLowerCase(),"DATETIME".toLowerCase());
+            mappings.put("TIMESTAMP WITHOUT TIME ZONE".toLowerCase(),"DATETIME".toLowerCase());
+            mappings.put("CHARACTER VARYING".toLowerCase(),"VARCHAR(255)".toLowerCase());
+            mappings.put("CHAR".toLowerCase(),"VARCHAR(255)".toLowerCase());
+            mappings.put("SERIAL".toLowerCase(),"INT AUTO_INCREMENT".toLowerCase());
+            mappings.put("TEXT".toLowerCase(),"TEXT".toLowerCase());
+            mappings.put("NUMERIC".toLowerCase(),"DOUBLE".toLowerCase());
+        } else if (database == 0) {
+        mappings.put("SMALLINT".toLowerCase(),"SMALLINT".toLowerCase());
+            mappings.put("INTEGER".toLowerCase(),"INTEGER".toLowerCase());
+            mappings.put("INT".toLowerCase(),"INT".toLowerCase());
+            mappings.put("REAL".toLowerCase(),"REAL".toLowerCase());
+            mappings.put("DOUBLE PRECISION".toLowerCase(),"DOUBLE PRECISION".toLowerCase());
+            mappings.put("BYTEA".toLowerCase(),"BYTEA".toLowerCase());
+            mappings.put("not available".toLowerCase(),"not available".toLowerCase());
+            mappings.put("TIME WITHOUT TIME ZONE".toLowerCase(),"TIME WITHOUT TIME ZONE".toLowerCase());
+            mappings.put("TIMESTAMP".toLowerCase(),"TIMESTAMP".toLowerCase());
+            mappings.put("TIMESTAMP WITHOUT TIME ZONE".toLowerCase(),"TIMESTAMP WITHOUT TIME ZONE".toLowerCase());
+            mappings.put("CHARACTER VARYING".toLowerCase(),"CHARACTER VARYING".toLowerCase());
+            mappings.put("CHAR".toLowerCase(),"CHAR".toLowerCase());
+            mappings.put("SERIAL".toLowerCase(),"SERIAL".toLowerCase());
+            mappings.put("TEXT".toLowerCase(),"TEXT".toLowerCase());
+            mappings.put("NUMERIC".toLowerCase(),"NUMERIC".toLowerCase());
         }
-        
+
         return mappings;
     }
     
