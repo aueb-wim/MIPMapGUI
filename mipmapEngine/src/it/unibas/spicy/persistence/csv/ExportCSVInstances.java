@@ -189,6 +189,9 @@ public class ExportCSVInstances {
                        throw new DAOException("Column names do not match those of the csv file"); 
                     }
                     allRows.close();
+                } else {
+                    System.out.println("The CSV file "+tableName+" cannot be found!");
+                    System.exit(-1);
                 }
             }
         }
