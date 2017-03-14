@@ -34,6 +34,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 //giannisk
 public class UnpivotCSVDAO {
@@ -58,8 +59,10 @@ public class UnpivotCSVDAO {
         }
         
         String createTableQuery = createTableQuery(tableName, databaseNo);
+        
         String insertToTableQuery = insertToTableQuery(file, tableName, databaseNo);
         String createviewQuery = createUnpivotQuery(keepColNames, colNames, newColName, tableName, databaseNo);
+        
         try
         {
             connectionFactory = new SimpleDbConnectionFactory();
@@ -104,8 +107,16 @@ public class UnpivotCSVDAO {
         String columns = "";
         String[] firstline = this.csvTableColumns;
         for (int i=0; i<firstline.length; i++){
+            String columnName = firstline[i];
+            Pattern p = Pattern.compile("[^a-zA-Z0-9]");
+            if (p.matcher(columnName).find()) {
+                columnName = columnName.replaceAll("[\\W]|_", "_");
+            }
+            if (!(columnName.startsWith("\"") && columnName.endsWith("\""))){
+                columnName = "\""+columnName+"\"";
+            }
             String typeOfColumn = Types.POSTGRES_STRING;
-            columns += "\""+firstline[i] + "\" " + typeOfColumn + ",";
+            columns += columnName + " " + typeOfColumn + ",";
         }
         //take out the last ',' character
         columns = columns.substring(0, columns.length()-1);
@@ -155,6 +166,26 @@ public class UnpivotCSVDAO {
         this.csvTableColumns = firstLine;
         reader.close();
         return firstLine;
+    }
+    
+    public String[] getCsvTableColumnsWithoutSpecialCharacters(File csvFile) throws FileNotFoundException, IOException{
+        String [] firstLine;
+        //read only first line
+        CSVReader reader = new CSVReader(new FileReader(csvFile.getAbsolutePath()));
+        //read only first line
+        firstLine = reader.readNext();
+        this.csvTableColumns = firstLine;
+        String[] returnedArray = new String[firstLine.length];
+        for (int i=0; i<firstLine.length; i++){
+            String columnName = firstLine[i];
+            Pattern p = Pattern.compile("[^a-zA-Z0-9]");
+            if (p.matcher(columnName).find()) {
+                columnName = columnName.replaceAll("[\\W]|_", "_");
+            }
+            returnedArray[i] = columnName;
+        }
+        reader.close();
+        return returnedArray;
     }
     
     public ArrayList<String> getCsvTabledata(File csvFile) throws FileNotFoundException, IOException{
