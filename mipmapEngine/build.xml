@@ -26,6 +26,7 @@
             <pathelement location="${lib.dir}/ibatis-${ibatis.ver}.jar" />
             <pathelement location="${lib.dir}/jep-${jep.ver}.jar" />
             <pathelement location="${lib.dir}/opencsv-3.0.jar" /> 	
+            <pathelement location="${lib.dir}/commons-io-2.5.jar" /> 
             <pathelement location="${lib.dir}/jsqlparser-0.9.5-20160211.220353-21.jar" /> 	
         </path>
         <path id="test.classpath">
