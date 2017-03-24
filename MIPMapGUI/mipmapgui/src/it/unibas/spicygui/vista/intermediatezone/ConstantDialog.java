@@ -22,12 +22,17 @@
  
 package it.unibas.spicygui.vista.intermediatezone;
 
+import it.unibas.spicy.utility.SpicyEngineConstants;
 import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.controllo.FormValidation;
 import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetInterConst;
 import it.unibas.spicygui.controllo.validators.ValidatoreCampoTesto;
 import it.unibas.spicygui.controllo.validators.ValidazioneBindingListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
+import javax.swing.JTextField;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.Binding;
 import org.jdesktop.beansbinding.Bindings;
@@ -50,8 +55,27 @@ public class ConstantDialog extends javax.swing.JDialog {
         initComponents();
         initBinding();
         initListener();
+        newIdOffsetVisibility();
     }
 
+    public void newIdOffsetVisibility(){
+        this.getJComboBoxFunction().addActionListener (new ActionListener () {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox comboBox = (JComboBox) e.getSource();
+                Object selected = comboBox.getSelectedItem();
+                if(selected != null) {
+                    if (selected.equals("newId()")) {
+                        offsetPanel.setVisible(true);
+                    } else {
+                        offsetPanel.setVisible(false);
+                    }
+                }
+                
+            }
+        });
+    }
+    
     public void clean() {
         bindingGroup.unbind();
         bindingGroup.bind();
@@ -59,6 +83,7 @@ public class ConstantDialog extends javax.swing.JDialog {
     }
 
     private void initBinding() {
+        offsetText.setText(SpicyEngineConstants.OFFSET);
         offsetPanel.setVisible(false);
         org.jdesktop.beansbinding.Binding binding1 = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, this, org.jdesktop.beansbinding.ELProperty.create("${formValidation.textFieldState}"), jTextFieldConstant, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "textBinding");
         bindingGroup.addBinding(binding1);
@@ -102,7 +127,7 @@ public class ConstantDialog extends javax.swing.JDialog {
         jRadioButtonFunction = new javax.swing.JRadioButton();
         errorLabel = new javax.swing.JLabel();
         offsetPanel = new javax.swing.JPanel();
-        jTextField1 = new javax.swing.JTextField();
+        offsetText = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
 
@@ -168,7 +193,7 @@ public class ConstantDialog extends javax.swing.JDialog {
         errorLabel.setForeground(new java.awt.Color(255, 0, 0));
         errorLabel.setText("");
 
-        jTextField1.setText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.jTextField1.text")); // NOI18N
+        offsetText.setText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.offsetText.text")); // NOI18N
 
         jButton2.setText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.jButton2.text")); // NOI18N
         jButton2.setToolTipText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.jButton2.toolTipText")); // NOI18N
@@ -183,7 +208,7 @@ public class ConstantDialog extends javax.swing.JDialog {
                 .addGroup(offsetPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(offsetPanelLayout.createSequentialGroup()
                         .addGap(24, 24, 24)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(offsetText, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton2))
                     .addGroup(offsetPanelLayout.createSequentialGroup()
@@ -198,7 +223,7 @@ public class ConstantDialog extends javax.swing.JDialog {
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(offsetPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(offsetText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(46, 46, 46))
         );
@@ -298,9 +323,9 @@ public class ConstantDialog extends javax.swing.JDialog {
     private javax.swing.JRadioButton jRadioButtonFunction;
     private javax.swing.JRadioButton jRadioButtonNumber;
     private javax.swing.JRadioButton jRadioButtonString;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextFieldConstant;
     private javax.swing.JPanel offsetPanel;
+    private javax.swing.JTextField offsetText;
     private javax.swing.JButton okButton;
     private it.unibas.spicygui.controllo.validators.ValidatoreConstantFun validatoreConstantFun;
     private it.unibas.spicygui.controllo.validators.ValidatoreConstantStrNum validatoreConstantStrNum;
@@ -334,5 +359,9 @@ public class ConstantDialog extends javax.swing.JDialog {
     
     public javax.swing.JPanel getOffsetPanel(){
         return offsetPanel;
+    }
+    
+    public JTextField getOffsetText(){
+        return offsetText;
     }
 }

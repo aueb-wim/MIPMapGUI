@@ -70,7 +70,13 @@ public class CreateCorrespondencesMappingTask implements ICreateCorrespondences 
     private CreaWidgetAlberiLogic constraintCreator = new CreaWidgetAlberiLogic(CreaWidgetAlberi.MAPPING_TASK_TYPE);
     private static Log logger = LogFactory.getLog(CreateCorrespondencesMappingTask.class);
     private Modello modello;
-
+    private String getIdType;
+    
+    //ioannisxar
+    public void setGetIdType(String getIdType){
+        this.getIdType = getIdType;
+    }
+    
     public CreateCorrespondencesMappingTask() {
         executeInjection();
     }
@@ -96,6 +102,9 @@ public class CreateCorrespondencesMappingTask implements ICreateCorrespondences 
         if (logger.isDebugEnabled()) {
             logger.debug(valueCorrespondence);
         }
+        //ioannisxar
+        valueCorrespondence.getSourceValue().setType("constant");
+        
         MappingTask mappingTask = (MappingTask) modello.getBean(Costanti.MAPPINGTASK_SHOWED);
         mappingTask.addCorrespondence(valueCorrespondence);
         connectionInfo.setValueCorrespondence(valueCorrespondence);

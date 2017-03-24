@@ -1049,7 +1049,6 @@ public class DAOMappingTaskLines {
         if (valueCorrespondence.getSourceValue() != null) {
             Element sourceValue = new Element("source-value");
             sourceValue.setText(valueCorrespondence.getSourceValue().toString());
-            System.out.println(valueCorrespondence.getSourceValue().toString());
             System.out.println("edw " + valueCorrespondence.getSourceValue().getType());
             
             //if the offset is a constant value or get the offset from database

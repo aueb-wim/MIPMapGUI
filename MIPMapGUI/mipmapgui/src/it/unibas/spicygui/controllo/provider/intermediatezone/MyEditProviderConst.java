@@ -23,6 +23,7 @@
 package it.unibas.spicygui.controllo.provider.intermediatezone;
 
 import it.unibas.spicy.model.exceptions.ExpressionSyntaxException;
+import it.unibas.spicy.utility.SpicyEngineConstants;
 import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetInterConst;
 import it.unibas.spicygui.widget.ConstantWidget;
@@ -100,6 +101,7 @@ public class MyEditProviderConst implements EditProvider {
             for (ConnectionInfo connectionInfo : caratteristiche.getConnectionList()) {
                 connectionInfoExtern = connectionInfo;
                 review.removeCorrespondence(connectionInfo.getValueCorrespondence());
+                creator.setGetIdType("constant");
                 creator.createCorrespondenceWithSourceValue((LayerWidget) rootNode.getParentWidget(), rootNode, connectionInfo.getTargetWidget(), connectionInfo);
             }
         } catch (ExpressionSyntaxException ese) {
@@ -112,6 +114,7 @@ public class MyEditProviderConst implements EditProvider {
 
     private void verificaDati() {
         if (this.dialog.getJRadioButtonFunction().isSelected()) {
+            SpicyEngineConstants.OFFSET = this.dialog.getOffsetText().getText().trim();
             caratteristiche.setCostante(this.dialog.getJComboBoxFunction().getSelectedItem());
         }
         if (this.dialog.getJRadioButtonNumber().isSelected()) {
@@ -122,4 +125,6 @@ public class MyEditProviderConst implements EditProvider {
             caratteristiche.setCostante(Utility.sostituisciVirgolette(valoreCostante));
         }
     }
+    
+    
 }
