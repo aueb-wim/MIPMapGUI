@@ -349,7 +349,7 @@ public class GenerateSQLForSourceToTargetExchange {
                             }                            
                             else if (sourcePathName.equalsIgnoreCase("newId()")){
                                 if(GenerateSQL.newSequence){
-                                    sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION;
+                                    sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION + " + " + SpicyEngineConstants.OFFSET;
                                     GenerateSQL.newSequence = false;
                                 }
                                 else{
@@ -380,7 +380,7 @@ public class GenerateSQLForSourceToTargetExchange {
                             }                                                        
                             else if (sourcePathName.equalsIgnoreCase("newId()")){
                                 if(GenerateSQL.newSequence){
-                                    sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION;
+                                    sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION + " + " + SpicyEngineConstants.OFFSET;
                                     GenerateSQL.newSequence = false;
                                 }
                                 else{
@@ -653,7 +653,7 @@ public class GenerateSQLForSourceToTargetExchange {
                     }                              
                     else if (sourcePathName.equalsIgnoreCase("newId()")){
                         if(GenerateSQL.newSequence){
-                            sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION;
+                            sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION + " + " + SpicyEngineConstants.OFFSET;
                             GenerateSQL.newSequence = false;
                         }
                         else{

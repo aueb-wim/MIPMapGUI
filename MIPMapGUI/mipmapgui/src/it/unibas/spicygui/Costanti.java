@@ -261,6 +261,7 @@ public class Costanti {
     public static final String INPUT_TEXT_CONSTANT_FUNCTION1 = "Input_text_constant_function_date";
     public static final String INPUT_TEXT_CONSTANT_FUNCTION2 = "Input_text_constant_function_increment";
     public static final String INPUT_TEXT_CONSTANT_FUNCTION3 = "Input_text_constant_function_datetime";
+    public static final String INPUT_TEXT_CONSTANT_FUNCTION4 = "Input_text_constant_function_increment1";
     public static final String NEW_COLUMN_LABEL = "New_Column_Name";
     public static final String CHANGE_DELIMITER_TITLE = "CHANGE_DELIMITER_TITLE";
     public static final String SOURCE_DELIMITER_TEXT="SOURCE_DELIMITER_TEXT";

@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
 public class NewIdFunction extends AbstractSourceValue {
 
     private static Log logger = LogFactory.getLog(ISourceValue.class);
-
+    private String type;
     @Override
     public String toString() {
         return SpicyEngineConstants.SOURCEVALUE_NEWID_FUNCTION;
@@ -40,5 +40,14 @@ public class NewIdFunction extends AbstractSourceValue {
         }
         return true;
     }
-
+    
+    @Override
+    public void setType(String type){
+        this.type = type;
+    }
+    
+    @Override
+    public String getType(){
+        return this.type;
+    }
 }

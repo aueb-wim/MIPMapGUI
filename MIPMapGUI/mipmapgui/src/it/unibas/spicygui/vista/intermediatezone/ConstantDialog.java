@@ -59,6 +59,7 @@ public class ConstantDialog extends javax.swing.JDialog {
     }
 
     private void initBinding() {
+        offsetPanel.setVisible(false);
         org.jdesktop.beansbinding.Binding binding1 = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, this, org.jdesktop.beansbinding.ELProperty.create("${formValidation.textFieldState}"), jTextFieldConstant, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "textBinding");
         bindingGroup.addBinding(binding1);
         org.jdesktop.beansbinding.Binding binding2 = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, this, org.jdesktop.beansbinding.ELProperty.create("${formValidation.comboBoxState}"), jComboBoxFunction, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "comboBinding");
@@ -100,6 +101,10 @@ public class ConstantDialog extends javax.swing.JDialog {
         jRadioButtonNumber = new javax.swing.JRadioButton();
         jRadioButtonFunction = new javax.swing.JRadioButton();
         errorLabel = new javax.swing.JLabel();
+        offsetPanel = new javax.swing.JPanel();
+        jTextField1 = new javax.swing.JTextField();
+        jButton2 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -163,6 +168,41 @@ public class ConstantDialog extends javax.swing.JDialog {
         errorLabel.setForeground(new java.awt.Color(255, 0, 0));
         errorLabel.setText("");
 
+        jTextField1.setText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.jTextField1.text")); // NOI18N
+
+        jButton2.setText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.jButton2.text")); // NOI18N
+        jButton2.setToolTipText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.jButton2.toolTipText")); // NOI18N
+
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.jLabel1.text")); // NOI18N
+
+        javax.swing.GroupLayout offsetPanelLayout = new javax.swing.GroupLayout(offsetPanel);
+        offsetPanel.setLayout(offsetPanelLayout);
+        offsetPanelLayout.setHorizontalGroup(
+            offsetPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(offsetPanelLayout.createSequentialGroup()
+                .addGroup(offsetPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(offsetPanelLayout.createSequentialGroup()
+                        .addGap(24, 24, 24)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton2))
+                    .addGroup(offsetPanelLayout.createSequentialGroup()
+                        .addGap(61, 61, 61)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(30, Short.MAX_VALUE))
+        );
+        offsetPanelLayout.setVerticalGroup(
+            offsetPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, offsetPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(offsetPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(46, 46, 46))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -170,7 +210,7 @@ public class ConstantDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jComboBoxFunction, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(errorLabel))
@@ -179,12 +219,16 @@ public class ConstantDialog extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cancelButton))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jTextFieldConstant, javax.swing.GroupLayout.PREFERRED_SIZE, 254, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jRadioButtonString)
-                            .addComponent(jRadioButtonFunction)
-                            .addComponent(jRadioButtonNumber))))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jTextFieldConstant, javax.swing.GroupLayout.PREFERRED_SIZE, 254, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jRadioButtonString)
+                                    .addComponent(jRadioButtonFunction)
+                                    .addComponent(jRadioButtonNumber)))
+                            .addComponent(offsetPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -202,7 +246,9 @@ public class ConstantDialog extends javax.swing.JDialog {
                 .addComponent(jRadioButtonFunction)
                 .addGap(9, 9, 9)
                 .addComponent(jComboBoxFunction, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(offsetPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 71, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(cancelButton)
@@ -246,11 +292,15 @@ public class ConstantDialog extends javax.swing.JDialog {
     private javax.swing.ButtonGroup buttonGroup;
     private javax.swing.JButton cancelButton;
     private javax.swing.JLabel errorLabel;
+    private javax.swing.JButton jButton2;
     private javax.swing.JComboBox jComboBoxFunction;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JRadioButton jRadioButtonFunction;
     private javax.swing.JRadioButton jRadioButtonNumber;
     private javax.swing.JRadioButton jRadioButtonString;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextFieldConstant;
+    private javax.swing.JPanel offsetPanel;
     private javax.swing.JButton okButton;
     private it.unibas.spicygui.controllo.validators.ValidatoreConstantFun validatoreConstantFun;
     private it.unibas.spicygui.controllo.validators.ValidatoreConstantStrNum validatoreConstantStrNum;
@@ -280,5 +330,9 @@ public class ConstantDialog extends javax.swing.JDialog {
 
     public javax.swing.JRadioButton getJRadioButtonString() {
         return jRadioButtonString;
+    }
+    
+    public javax.swing.JPanel getOffsetPanel(){
+        return offsetPanel;
     }
 }

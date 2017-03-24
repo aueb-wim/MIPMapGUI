@@ -27,6 +27,10 @@ public interface ISourceValue extends Cloneable {
     public String toString();
 
     public ISourceValue clone();
-    
+        
     public boolean equals(Object o);
+    
+    public void setType(String type);
+    
+    public String getType();
 }

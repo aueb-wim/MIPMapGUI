@@ -21,6 +21,8 @@
  
 package it.unibas.spicy.utility;
 
+import it.unibas.spicy.model.correspondence.GetIdFromDb;
+
 
 public class SpicyEngineConstants {
     
@@ -77,9 +79,12 @@ public class SpicyEngineConstants {
     public static final String POSTGRES_CURRENT_YEAR_FUNCTION = "extract(year from current_date)";
     public static final String POSTGRES_DATETIME_FUNCTION = "date_trunc('second',localtimestamp)";
     public static final String SOURCEVALUE_NEWID_FUNCTION = "newId()";
+    public static final String SOURCEVALUE_NEWID_FUNCTION_GET_ID = "newId(getId())";
     public static final String POSTGRES_NEWID_FUNCTION = "nextval('idsequence')";
     public static final String POSTGRES_CURRENTID_FUNCTION = "currval('idsequence')";
-
+    public static String OFFSET = "0";
+    public static GetIdFromDb GET_ID_FROM_DB = null;
+    
     public static final String MORE_COMPACT = "more compact";
     public static final String MORE_INFORMATIVE = "more informative";
 

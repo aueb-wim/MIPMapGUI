@@ -25,6 +25,7 @@ import it.unibas.spicy.model.mapping.MappingTask;
 import it.unibas.spicy.model.correspondence.ConstantValue;
 import it.unibas.spicy.model.correspondence.DateFunction;
 import it.unibas.spicy.model.correspondence.DatetimeFunction;
+import it.unibas.spicy.model.correspondence.GetIdFromDb;
 import it.unibas.spicy.model.correspondence.ISourceValue;
 import it.unibas.spicy.model.correspondence.NewIdFunction;
 import it.unibas.spicy.model.correspondence.ValueCorrespondence;
@@ -51,7 +52,10 @@ import it.unibas.spicy.persistence.xml.DAOXmlUtility;
 import it.unibas.spicy.persistence.xml.DAOXsd;
 import it.unibas.spicy.persistence.xml.operators.TransformFilePaths;
 import java.io.File;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -504,7 +508,7 @@ public class DAOMappingTaskLines {
     }
 
     @SuppressWarnings("unchecked")
-    private List<ValueCorrespondence> loadValueCorrespondences(Element correspondencesElement) {
+    private List<ValueCorrespondence> loadValueCorrespondences(Element correspondencesElement) throws SQLException, DAOException {
         List<ValueCorrespondence> valueCorrespondenceList = new ArrayList<ValueCorrespondence>();
         List<Element> valueCorrespondenceElementList = correspondencesElement.getChildren("correspondence");
         for (Element valueCorrespondence : valueCorrespondenceElementList) {
@@ -514,7 +518,7 @@ public class DAOMappingTaskLines {
     }
 
     @SuppressWarnings("unchecked")
-    private ValueCorrespondence loadValueCorrespondence(Element correspondenceElement) {
+    private ValueCorrespondence loadValueCorrespondence(Element correspondenceElement) throws SQLException, DAOException {
         Element sourcePathsElement = correspondenceElement.getChild("source-paths");
         List<PathExpression> sourcePaths = null;
         if (sourcePathsElement != null && sourcePathsElement.getChild("source-path") != null) {
@@ -534,8 +538,13 @@ public class DAOMappingTaskLines {
                 sourceValue = new DateFunction();
             } else if (sourceValueString.equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_NEWID_FUNCTION)) {
                 sourceValue = new NewIdFunction();
-            } 
-            else if (sourceValueString.equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_DATETIME_FUNCTION)) {
+                sourceValue.setType("constant");
+                SpicyEngineConstants.OFFSET = sourceValueElement.getChild("offset").getTextTrim();
+            } else if (sourceValueString.equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_NEWID_FUNCTION_GET_ID)) {
+                sourceValue = new NewIdFunction();
+                sourceValue.setType("getId()");
+                getOffSetFromDB(sourceValueElement.getChild("relational"));
+            } else if (sourceValueString.equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_DATETIME_FUNCTION)) {
                 sourceValue = new DatetimeFunction();
             }
             else {
@@ -564,6 +573,48 @@ public class DAOMappingTaskLines {
         return valueCorrespondence;
     }
 
+    private void getOffSetFromDB(Element elementGetId) throws DAOException, SQLException{
+        Element driverElement = elementGetId.getChild("driver");
+        Element uriElement = elementGetId.getChild("uri");
+        Element schemaNameElement = elementGetId.getChild("schema");
+        Element loginElement = elementGetId.getChild("login");
+        Element passwordElement = elementGetId.getChild("password");
+        Element tableElement = elementGetId.getChild("table");
+        Element columnElement = elementGetId.getChild("column");
+        Element functionElement = elementGetId.getChild("function");
+        
+        String schema = "";
+        if (schemaNameElement != null) {
+            schema = schemaNameElement.getTextTrim();
+        }
+        
+        GetIdFromDb newIdFromDb = new GetIdFromDb(driverElement.getTextTrim(), uriElement.getTextTrim(), schema, loginElement.getTextTrim(), 
+                passwordElement.getTextTrim(), tableElement.getTextTrim(), columnElement.getTextTrim(), functionElement.getTextTrim());
+        SpicyEngineConstants.GET_ID_FROM_DB = newIdFromDb;
+        
+        AccessConfiguration accessConfiguration = new AccessConfiguration();
+        accessConfiguration.setDriver(newIdFromDb.getDriver());
+        accessConfiguration.setUri(newIdFromDb.getUri());
+        if (schemaNameElement != null) {
+            accessConfiguration.setSchemaName(newIdFromDb.getSchema());
+        }
+        accessConfiguration.setLogin(newIdFromDb.getLogin());
+        accessConfiguration.setPassword(newIdFromDb.getPassword());
+        IConnectionFactory connectionFactory = new SimpleDbConnectionFactory();
+        Connection connection = connectionFactory.getConnection(accessConfiguration);
+        Statement statement = connection.createStatement();
+        
+        if (newIdFromDb.getFunction().equalsIgnoreCase("max")){
+            statement.execute("SELECT MAX(\""+ newIdFromDb.getColumn() +"\") FROM \"" + newIdFromDb.getTable() + "\";");
+            ResultSet rs = statement.getResultSet();
+            if (rs.next()) {
+                SpicyEngineConstants.OFFSET = String.valueOf(rs.getInt(1));
+            } else {
+                SpicyEngineConstants.OFFSET = "0";
+            }
+        }
+    }
+    
     private PathExpression generatePathExpression(String pathDescription) {
         return pathGenerator.generatePathFromString(pathDescription);
     }
@@ -994,10 +1045,58 @@ public class DAOMappingTaskLines {
                 sourcePaths.addContent(sourcePath);
             }
         }
-        //source-value
+        //source-value - ioannisxar
         if (valueCorrespondence.getSourceValue() != null) {
             Element sourceValue = new Element("source-value");
             sourceValue.setText(valueCorrespondence.getSourceValue().toString());
+            System.out.println(valueCorrespondence.getSourceValue().toString());
+            System.out.println("edw " + valueCorrespondence.getSourceValue().getType());
+            
+            //if the offset is a constant value or get the offset from database
+            if(valueCorrespondence.getSourceValue().toString().equals("newId()") && valueCorrespondence.getSourceValue().getType().equals("constant")){
+                Element offset = new Element("offset");
+                offset.setText(SpicyEngineConstants.OFFSET);
+                sourceValue.addContent(offset);
+            } else if(valueCorrespondence.getSourceValue().toString().equals("newId()") && valueCorrespondence.getSourceValue().getType().equals("getId()")){
+                Element relational = new Element("relational");
+                
+                GetIdFromDb getIdFromDb = SpicyEngineConstants.GET_ID_FROM_DB;
+                
+                //add each element text for getting id from database
+                Element driverElement = new Element("driver");
+                driverElement.setText(getIdFromDb.getDriver());
+                Element uriElement = new Element("uri");
+                uriElement.setText(getIdFromDb.getUri());
+                Element schemaNameElement = new Element("schema");
+                if(!getIdFromDb.getSchema().equals("")){
+                    schemaNameElement.setText(getIdFromDb.getSchema());
+                }
+                Element loginElement = new Element("login");
+                loginElement.setText(getIdFromDb.getLogin());
+                Element passwordElement = new Element("password");
+                passwordElement.setText(getIdFromDb.getPassword());
+                Element tableElement = new Element("table");
+                tableElement.setText(getIdFromDb.getTable());
+                Element columnElement = new Element("column");
+                columnElement.setText(getIdFromDb.getColumn());
+                Element functionElement = new Element("function");
+                functionElement.setText(getIdFromDb.getFunction());
+                
+                //add relational elements to newId
+                relational.addContent(driverElement);
+                relational.addContent(uriElement);
+                if(!getIdFromDb.getSchema().equals("")){
+                    relational.addContent(schemaNameElement);
+                }
+                relational.addContent(loginElement);
+                relational.addContent(passwordElement);
+                relational.addContent(tableElement);
+                relational.addContent(columnElement);
+                relational.addContent(functionElement);
+                
+                sourceValue.setText("newId(getId())");
+                sourceValue.addContent(relational);
+            }
             correspondence.addContent(sourceValue);
         }
         //target-path

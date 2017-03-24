@@ -179,6 +179,7 @@ public class CreateCorrespondencesMappingTask implements ICreateCorrespondences 
         if (caratteristicheConst.getTipoFunzione()) {
             String dateFunction = NbBundle.getMessage(Costanti.class, Costanti.INPUT_TEXT_CONSTANT_FUNCTION1);
             String incrementFunction = NbBundle.getMessage(Costanti.class, Costanti.INPUT_TEXT_CONSTANT_FUNCTION2);
+            String incrementFunction1 = NbBundle.getMessage(Costanti.class, Costanti.INPUT_TEXT_CONSTANT_FUNCTION4);
             String datetimeFunction = NbBundle.getMessage(Costanti.class, Costanti.INPUT_TEXT_CONSTANT_FUNCTION3);
             if (caratteristicheConst.getCostante().equals(dateFunction)) {
                 return new DateFunction();
@@ -186,6 +187,11 @@ public class CreateCorrespondencesMappingTask implements ICreateCorrespondences 
             if (caratteristicheConst.getCostante().equals(incrementFunction)) {
                 return new NewIdFunction();
             }
+            
+            if (caratteristicheConst.getCostante().equals(incrementFunction1)) {
+                return new NewIdFunction();
+            }
+            
             if (caratteristicheConst.getCostante().equals(datetimeFunction)) {
                 return new DatetimeFunction();
             }
