@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class DateFunction extends AbstractSourceValue {
 
+    private String type;
     @Override
     public String toString() {
        return SpicyEngineConstants.SOURCEVALUE_DATE_FUNCTION;
@@ -37,6 +38,16 @@ public class DateFunction extends AbstractSourceValue {
             return false;
         }
         return true;
+    }
+    
+    @Override
+    public void setType(String type){
+        this.type = type;
+    }
+    
+    @Override
+    public String getType(){
+        return this.type;
     }
     
 }

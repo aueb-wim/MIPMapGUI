@@ -130,7 +130,7 @@ public class CheckExpressions {
             if (!(sourceValue instanceof DateFunction)) {
                 throw new ExpressionSyntaxException("Source value of the wrong type (must be a DateFunction): " + sourceValue);
             }
-        } else if (sourceValueString.equals(SpicyEngineConstants.SOURCEVALUE_NEWID_FUNCTION)) {
+        } else if (sourceValueString.split("_")[0].equals(SpicyEngineConstants.SOURCEVALUE_NEWID_FUNCTION)) {
             if (!(sourceValue instanceof NewIdFunction)) {
                 throw new ExpressionSyntaxException("Source value of the wrong type (must be a NewIdFunction): " + sourceValue);
             }

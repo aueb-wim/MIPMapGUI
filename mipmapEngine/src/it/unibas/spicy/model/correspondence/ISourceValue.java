@@ -33,4 +33,8 @@ public interface ISourceValue extends Cloneable {
     public void setType(String type);
     
     public String getType();
+    
+    public void setSequence(String sequence);
+    
+    public String getSequence();
 }

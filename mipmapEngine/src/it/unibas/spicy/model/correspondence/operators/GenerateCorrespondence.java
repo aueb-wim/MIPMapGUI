@@ -50,6 +50,7 @@ public class GenerateCorrespondence {
         checkAttributePath(sourcePath, source.getIntermediateSchema());
         PathExpression targetPath = pathGenerator.generatePathFromString(targetPathString);
         checkAttributePath(targetPath, target.getIntermediateSchema());
+        
         return new ValueCorrespondence(sourcePath, targetPath);
     }
 

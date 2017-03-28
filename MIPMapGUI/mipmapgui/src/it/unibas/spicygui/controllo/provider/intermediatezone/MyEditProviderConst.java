@@ -32,6 +32,7 @@ import it.unibas.spicygui.controllo.mapping.operators.ReviewCorrespondences;
 import it.unibas.spicygui.Utility;
 import it.unibas.spicygui.vista.intermediatezone.ConstantDialog;
 import it.unibas.spicygui.widget.caratteristiche.ConnectionInfo;
+import java.util.Map;
 import javax.swing.JDialog;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,7 +102,7 @@ public class MyEditProviderConst implements EditProvider {
             for (ConnectionInfo connectionInfo : caratteristiche.getConnectionList()) {
                 connectionInfoExtern = connectionInfo;
                 review.removeCorrespondence(connectionInfo.getValueCorrespondence());
-                creator.setGetIdType("constant");
+                
                 creator.createCorrespondenceWithSourceValue((LayerWidget) rootNode.getParentWidget(), rootNode, connectionInfo.getTargetWidget(), connectionInfo);
             }
         } catch (ExpressionSyntaxException ese) {
@@ -114,13 +115,21 @@ public class MyEditProviderConst implements EditProvider {
 
     private void verificaDati() {
         if (this.dialog.getJRadioButtonFunction().isSelected()) {
-            SpicyEngineConstants.OFFSET = this.dialog.getOffsetText().getText().trim();
-            caratteristiche.setCostante(this.dialog.getJComboBoxFunction().getSelectedItem());
+            if(this.dialog.getJComboBoxFunction().getSelectedItem().toString().equalsIgnoreCase("newId()")){
+                SpicyEngineConstants.OFFSET = this.dialog.getOffsetText().getText().trim();
+                SpicyEngineConstants.OFFSET_MAPPING.put(this.dialog.getTextSequenceName().getText().trim(), this.dialog.getOffsetText().getText().trim());
+                creator.setGetIdType("constant");
+                caratteristiche.setCostante(this.dialog.getJComboBoxFunction().getSelectedItem()+"_"+this.dialog.getTextSequenceName().getText().trim());
+            } else {
+                caratteristiche.setCostante(this.dialog.getJComboBoxFunction().getSelectedItem());
+            }
         }
         if (this.dialog.getJRadioButtonNumber().isSelected()) {
+            creator.setGetIdType("number");
             Double.parseDouble((String) caratteristiche.getCostante());
         }
         if (this.dialog.getJRadioButtonString().isSelected()) {
+            creator.setGetIdType("string");
             String valoreCostante = (String) caratteristiche.getCostante();
             caratteristiche.setCostante(Utility.sostituisciVirgolette(valoreCostante));
         }

@@ -536,11 +536,11 @@ public class DAOMappingTaskLines {
             String sourceValueString = sourceValueElement.getTextTrim();
             if (sourceValueString.equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_DATE_FUNCTION)) {
                 sourceValue = new DateFunction();
-            } else if (sourceValueString.equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_NEWID_FUNCTION)) {
+            } else if (sourceValueString.split("_")[0].equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_NEWID_FUNCTION)) {
                 sourceValue = new NewIdFunction();
                 sourceValue.setType("constant");
                 SpicyEngineConstants.OFFSET = sourceValueElement.getChild("offset").getTextTrim();
-            } else if (sourceValueString.equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_NEWID_FUNCTION_GET_ID)) {
+            } else if (sourceValueString.split("_")[0].equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_NEWID_FUNCTION_GET_ID)) {
                 sourceValue = new NewIdFunction();
                 sourceValue.setType("getId()");
                 getOffSetFromDB(sourceValueElement.getChild("relational"));
@@ -1052,11 +1052,11 @@ public class DAOMappingTaskLines {
             System.out.println("edw " + valueCorrespondence.getSourceValue().getType());
             
             //if the offset is a constant value or get the offset from database
-            if(valueCorrespondence.getSourceValue().toString().equals("newId()") && valueCorrespondence.getSourceValue().getType().equals("constant")){
+            if(valueCorrespondence.getSourceValue().toString().split("_")[0].equals("newId()") && valueCorrespondence.getSourceValue().getType().equals("constant")){
                 Element offset = new Element("offset");
                 offset.setText(SpicyEngineConstants.OFFSET);
                 sourceValue.addContent(offset);
-            } else if(valueCorrespondence.getSourceValue().toString().equals("newId()") && valueCorrespondence.getSourceValue().getType().equals("getId()")){
+            } else if(valueCorrespondence.getSourceValue().toString().split("_")[0].equals("newId()") && valueCorrespondence.getSourceValue().getType().equals("getId()")){
                 Element relational = new Element("relational");
                 
                 GetIdFromDb getIdFromDb = SpicyEngineConstants.GET_ID_FROM_DB;

@@ -106,7 +106,11 @@ public class GenerateSQL {
         result.append(this.getDropCreateWorkSchemaScript());
         result.append(this.getDeleteTablesScript(mappingTask));
         GenerateSQLForSourceToTargetExchange stGenerator = new GenerateSQLForSourceToTargetExchange();
-
+        for (Map.Entry<String, String> entry : SpicyEngineConstants.OFFSET_MAPPING.entrySet()){
+            result.append("\ndrop sequence if exists ").append(entry.getKey()).append(";");
+            result.append("\ncreate sequence ").append(entry.getKey()).append(";");
+            System.out.println(result);
+        }
         if (!mappingTask.getConfig().useHashTextForSkolems() && mappingTask.getConfig().useSkolemTable()) {
             result.append(generateSQLForSkolemTable(mappingTask));
         }

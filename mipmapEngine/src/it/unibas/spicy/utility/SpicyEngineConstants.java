@@ -22,6 +22,8 @@
 package it.unibas.spicy.utility;
 
 import it.unibas.spicy.model.correspondence.GetIdFromDb;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class SpicyEngineConstants {
@@ -83,6 +85,7 @@ public class SpicyEngineConstants {
     public static final String POSTGRES_NEWID_FUNCTION = "nextval('idsequence')";
     public static final String POSTGRES_CURRENTID_FUNCTION = "currval('idsequence')";
     public static String OFFSET = "0";
+    public static Map<String, String> OFFSET_MAPPING = new HashMap<>();
     public static GetIdFromDb GET_ID_FROM_DB = null;
     
     public static final String MORE_COMPACT = "more compact";

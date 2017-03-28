@@ -88,6 +88,8 @@ public class CreateCorrespondencesMappingTask implements ICreateCorrespondences 
         PathExpression targetPathExpression = generatePathFromNode.generatePathFromRoot(caratteristicheWidgetTreeTarget.getINode());
         ValueCorrespondence valueCorrespondence = new ValueCorrespondence(sourcePathExpression, targetPathExpression);
         MappingTask mappingTask = (MappingTask) modello.getBean(Costanti.MAPPINGTASK_SHOWED);
+        if(getIdType != null)
+            valueCorrespondence.getSourceValue().setType(getIdType);
         mappingTask.addCorrespondence(valueCorrespondence);
         connectionInfo.setValueCorrespondence(valueCorrespondence);
     }
@@ -97,14 +99,13 @@ public class CreateCorrespondencesMappingTask implements ICreateCorrespondences 
         ISourceValue sourceValue = typeOfSourceValue(caratteristicheConst);
         CaratteristicheWidgetTree caratteristicheWidgetTreeTarget = (CaratteristicheWidgetTree) mainLayer.getChildConstraint(targetWidget);
         PathExpression targetPathExpression = generatePathFromNode.generatePathFromRoot(caratteristicheWidgetTreeTarget.getINode());
-
         ValueCorrespondence valueCorrespondence = new ValueCorrespondence(sourceValue, targetPathExpression);
         if (logger.isDebugEnabled()) {
             logger.debug(valueCorrespondence);
         }
         //ioannisxar
-        valueCorrespondence.getSourceValue().setType("constant");
-        
+        if(getIdType != null)
+            valueCorrespondence.getSourceValue().setType(getIdType);
         MappingTask mappingTask = (MappingTask) modello.getBean(Costanti.MAPPINGTASK_SHOWED);
         mappingTask.addCorrespondence(valueCorrespondence);
         connectionInfo.setValueCorrespondence(valueCorrespondence);
@@ -121,10 +122,12 @@ public class CreateCorrespondencesMappingTask implements ICreateCorrespondences 
         CaratteristicheWidgetTree caratteristicheWidgetTreeTarget = (CaratteristicheWidgetTree) mainLayer.getChildConstraint(targetWidget);
         PathExpression targetPathExpression = generatePathFromNode.generatePathFromRoot(caratteristicheWidgetTreeTarget.getINode());
         Expression transformationFunction = new Expression(caratteristicheFunction.getExpressionFunction());
-
         ValueCorrespondence valueCorrespondence = new ValueCorrespondence(sourcePaths, targetPathExpression, transformationFunction);
         MappingTask mappingTask = (MappingTask) modello.getBean(Costanti.MAPPINGTASK_SHOWED);
+        if(getIdType != null)
+            valueCorrespondence.getSourceValue().setType(getIdType);
         mappingTask.addCorrespondence(valueCorrespondence);
+        
         caratteristicheFunction.setValueCorrespondence(valueCorrespondence);
         if (connectionInfo != null) {
             connectionInfo.setValueCorrespondence(valueCorrespondence);
@@ -193,12 +196,24 @@ public class CreateCorrespondencesMappingTask implements ICreateCorrespondences 
             if (caratteristicheConst.getCostante().equals(dateFunction)) {
                 return new DateFunction();
             }
-            if (caratteristicheConst.getCostante().equals(incrementFunction)) {
-                return new NewIdFunction();
+            if (caratteristicheConst.getCostante().toString().split("_")[0].equals(incrementFunction)) {
+                ISourceValue n = new NewIdFunction();
+                String seq = "";
+                for(int k=1; k<caratteristicheConst.getCostante().toString().split("_").length;k++){
+                    seq += caratteristicheConst.getCostante().toString().split("_")[k]+"_";
+                }
+                n.setSequence(seq.substring(0, seq.length()-1));
+                return n;
             }
             
-            if (caratteristicheConst.getCostante().equals(incrementFunction1)) {
-                return new NewIdFunction();
+            if (caratteristicheConst.getCostante().toString().split("_")[0].equals(incrementFunction1)) {
+                ISourceValue n = new NewIdFunction();
+                String seq = "";
+                for(int k=1; k<caratteristicheConst.getCostante().toString().split("_").length;k++){
+                    seq += caratteristicheConst.getCostante().toString().split("_")[k]+"_";
+                }
+                n.setSequence(seq.substring(0, seq.length()-1));
+                return n;
             }
             
             if (caratteristicheConst.getCostante().equals(datetimeFunction)) {

@@ -24,7 +24,7 @@ package it.unibas.spicy.model.correspondence;
 public class ConstantValue extends AbstractSourceValue {
 
     private Object value;
-
+    private String type;
     public ConstantValue(Object value) {
         this.value = value;
     }
@@ -45,4 +45,13 @@ public class ConstantValue extends AbstractSourceValue {
         return this.value.equals(otherValue.value);
     }
 
+    @Override
+    public void setType(String type){
+        this.type = type;
+    }
+    
+    @Override
+    public String getType(){
+        return this.type;
+    }
 }

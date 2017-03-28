@@ -143,6 +143,10 @@
                         </arity>
                     </context>
                 </action>
+                <action name="debug">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>debug-nb</target>
+                </action>
             </ide-actions>
             <export>
                 <type>folder</type>
@@ -179,6 +183,7 @@
                     <ide-action name="run"/>
                     <ide-action name="test"/>
                     <separator/>
+                    <ide-action name="debug"/>
                 </context-menu>
             </view>
             <subprojects/>

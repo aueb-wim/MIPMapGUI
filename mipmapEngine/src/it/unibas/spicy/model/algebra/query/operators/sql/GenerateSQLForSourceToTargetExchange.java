@@ -108,9 +108,9 @@ public class GenerateSQLForSourceToTargetExchange {
             result.append(analyzeSourceView(tgd.getComplexSourceQuery(), mappingTask));
         }*/
         result.append("\n------------------------------  TGDS  -----------------------------------\n");
-
-        result.append("\ndrop sequence if exists idsequence;");
-        result.append("\ncreate sequence idsequence;");
+        
+//        result.append("\ndrop sequence if exists idsequence;");
+//        result.append("\ncreate sequence idsequence;");
         
         for (FORule tgd : tgds) {
             result.append(generateSQLViewForRule(tgd, mappingTask));
@@ -340,6 +340,7 @@ public class GenerateSQLForSourceToTargetExchange {
                             //Constant
                             String sourcePathName = correspondence.getSourceValue().toString();
                             sourcePathName = sourcePathName.replaceAll("\"", "\'");
+                            System.out.println("Edw1: " + sourcePathName);
                             //replace date function to fit Postgres
                             if (sourcePathName.equalsIgnoreCase("date()")){
                                 sourcePathName = SpicyEngineConstants.POSTGRES_DATE_FUNCTION;
@@ -347,13 +348,16 @@ public class GenerateSQLForSourceToTargetExchange {
                             else if (sourcePathName.equalsIgnoreCase("datetime()")){
                                 sourcePathName = SpicyEngineConstants.POSTGRES_DATETIME_FUNCTION;
                             }                            
-                            else if (sourcePathName.equalsIgnoreCase("newId()")){
+                            else if (sourcePathName.split("_")[0].equalsIgnoreCase("newId()")){
+                                System.out.println("Sequence: " + correspondence.getSourceValue().getSequence());
                                 if(GenerateSQL.newSequence){
-                                    sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION + " + " + SpicyEngineConstants.OFFSET;
+                                    sourcePathName = "nextval('" + correspondence.getSourceValue().getSequence() + "') + " 
+                                            + SpicyEngineConstants.OFFSET_MAPPING.get(correspondence.getSourceValue().getSequence());
                                     GenerateSQL.newSequence = false;
                                 }
                                 else{
-                                   sourcePathName = SpicyEngineConstants.POSTGRES_CURRENTID_FUNCTION;
+                                   sourcePathName = "nextval('" + correspondence.getSourceValue().getSequence() + "') + " 
+                                           + SpicyEngineConstants.OFFSET_MAPPING.get(correspondence.getSourceValue().getSequence());
                                 }
                             }
                             result.append(DOUBLE_INDENT).append(sourcePathName);
@@ -378,13 +382,19 @@ public class GenerateSQLForSourceToTargetExchange {
                             }else if (sourcePathName.equalsIgnoreCase("datetime()")){
                                 sourcePathName = SpicyEngineConstants.POSTGRES_DATETIME_FUNCTION;
                             }                                                        
-                            else if (sourcePathName.equalsIgnoreCase("newId()")){
+                            else if (sourcePathName.split("_")[0].equalsIgnoreCase("newId()")){
+                                System.out.println("getSequence: " + correspondence.getSourceValue().getSequence());
+                                System.out.println("Edw value: "+SpicyEngineConstants.OFFSET_MAPPING.get(correspondence.getSourceValue().getSequence()));
                                 if(GenerateSQL.newSequence){
-                                    sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION + " + " + SpicyEngineConstants.OFFSET;
+                                    sourcePathName = "nextval('" + correspondence.getSourceValue().getSequence() + "') + " 
+                                            + SpicyEngineConstants.OFFSET_MAPPING.get(correspondence.getSourceValue().getSequence());
                                     GenerateSQL.newSequence = false;
                                 }
                                 else{
-                                   sourcePathName = SpicyEngineConstants.POSTGRES_CURRENTID_FUNCTION;
+                                    System.out.println("getSequence1: " + correspondence.getSourceValue().getSequence());
+                                    System.out.println("Edw value1: "+SpicyEngineConstants.OFFSET_MAPPING.get(correspondence.getSourceValue().getSequence()));
+                                   sourcePathName = "nextval('" + correspondence.getSourceValue().getSequence() + "') + " 
+                                           + SpicyEngineConstants.OFFSET_MAPPING.get(correspondence.getSourceValue().getSequence());
                                 }
                             }
                             result.append(DOUBLE_INDENT).append(sourcePathName);
@@ -645,19 +655,21 @@ public class GenerateSQLForSourceToTargetExchange {
                     //Constant
                     String sourcePathName = correspondence.getSourceValue().toString();
                     sourcePathName = sourcePathName.replaceAll("\"", "\'");
+                    System.out.println("Edw: " + sourcePathName);
                     //replace date function to fit Postgres
                     if (sourcePathName.equalsIgnoreCase("date()")){
                         sourcePathName = SpicyEngineConstants.POSTGRES_DATE_FUNCTION;
                     }else if (sourcePathName.equalsIgnoreCase("datetime()")){
                         sourcePathName = SpicyEngineConstants.POSTGRES_DATETIME_FUNCTION;
                     }                              
-                    else if (sourcePathName.equalsIgnoreCase("newId()")){
+                    else if (sourcePathName.split("_")[0].equalsIgnoreCase("newId()")){
+                        System.out.println(correspondence.getSourceValue().getSequence());
                         if(GenerateSQL.newSequence){
-                            sourcePathName = SpicyEngineConstants.POSTGRES_NEWID_FUNCTION + " + " + SpicyEngineConstants.OFFSET;
+                            sourcePathName = "nextval('" + correspondence.getSourceValue().getSequence() + "') + " + SpicyEngineConstants.OFFSET;
                             GenerateSQL.newSequence = false;
                         }
                         else{
-                           sourcePathName = SpicyEngineConstants.POSTGRES_CURRENTID_FUNCTION;
+                           sourcePathName = "nextval('" + correspondence.getSourceValue().getSequence() + "') + " + SpicyEngineConstants.OFFSET;
                         }
                     }
                     result.append(DOUBLE_INDENT).append(sourcePathName);                    
