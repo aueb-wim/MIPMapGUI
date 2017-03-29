@@ -74,11 +74,12 @@ public class MyEditProviderConst implements EditProvider {
             boolean oldButtonState = dialog.getFormValidation().getButtonState();
             dialog.setVisible(true);
             try {
-                verificaDati();
+                String type = verificaDati();
+                
                 if (dialog.getReturnStatus() == ConstantDialog.RET_CANCEL) {
                     ripristina(oldButtonState, oldCaratteristiche);
                 } else if (caratteristiche.getConnectionList().size() > 0) {
-                    updateCorrespondences(oldButtonState, oldCaratteristiche);
+                    updateCorrespondences(oldButtonState, oldCaratteristiche, type);
                 }
             } catch (ExpressionSyntaxException e) {
                 DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.SYNTAX_WARNING) + " : " + e, DialogDescriptor.WARNING_MESSAGE));
@@ -96,13 +97,13 @@ public class MyEditProviderConst implements EditProvider {
         caratteristiche.setTipoStringa(oldCaratteristiche.getTipoStringa());
     }
 
-    private void updateCorrespondences(boolean oldButtonState, CaratteristicheWidgetInterConst oldCaratteristiche) {
+    private void updateCorrespondences(boolean oldButtonState, CaratteristicheWidgetInterConst oldCaratteristiche, String type) {
         ConnectionInfo connectionInfoExtern = null;
         try {
             for (ConnectionInfo connectionInfo : caratteristiche.getConnectionList()) {
                 connectionInfoExtern = connectionInfo;
                 review.removeCorrespondence(connectionInfo.getValueCorrespondence());
-                
+                creator.setGetIdType(type);
                 creator.createCorrespondenceWithSourceValue((LayerWidget) rootNode.getParentWidget(), rootNode, connectionInfo.getTargetWidget(), connectionInfo);
             }
         } catch (ExpressionSyntaxException ese) {
@@ -113,26 +114,29 @@ public class MyEditProviderConst implements EditProvider {
         }
     }
 
-    private void verificaDati() {
+    public String verificaDati() {
+        String type = null;
         if (this.dialog.getJRadioButtonFunction().isSelected()) {
             if(this.dialog.getJComboBoxFunction().getSelectedItem().toString().equalsIgnoreCase("newId()")){
                 SpicyEngineConstants.OFFSET = this.dialog.getOffsetText().getText().trim();
                 SpicyEngineConstants.OFFSET_MAPPING.put(this.dialog.getTextSequenceName().getText().trim(), this.dialog.getOffsetText().getText().trim());
-                creator.setGetIdType("constant");
+                type = "constant";
                 caratteristiche.setCostante(this.dialog.getJComboBoxFunction().getSelectedItem()+"_"+this.dialog.getTextSequenceName().getText().trim());
             } else {
                 caratteristiche.setCostante(this.dialog.getJComboBoxFunction().getSelectedItem());
             }
         }
         if (this.dialog.getJRadioButtonNumber().isSelected()) {
-            creator.setGetIdType("number");
+            type = "number";
             Double.parseDouble((String) caratteristiche.getCostante());
         }
         if (this.dialog.getJRadioButtonString().isSelected()) {
-            creator.setGetIdType("string");
+            type = "string";
             String valoreCostante = (String) caratteristiche.getCostante();
             caratteristiche.setCostante(Utility.sostituisciVirgolette(valoreCostante));
         }
+        caratteristiche.setType(type);
+        return type;
     }
     
     

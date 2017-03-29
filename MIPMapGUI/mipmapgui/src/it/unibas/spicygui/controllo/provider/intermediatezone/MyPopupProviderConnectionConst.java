@@ -119,6 +119,7 @@ public class MyPopupProviderConnectionConst implements PopupMenuProvider, Action
     }
 
     private void setInfoLabel() {
+        
         ConnectionInfo connectionInfo = (ConnectionInfo) connection.getParentWidget().getChildConstraint(connection);
         bindingGroup = new BindingGroup();
 //        vmdNodeWidget = infoCreator.createPropertyWidget(scene, bindingGroup, connectionInfo, connection);

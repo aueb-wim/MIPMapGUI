@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class DateFunction extends AbstractSourceValue {
 
-    private String type;
+    private String type, sequence;
     @Override
     public String toString() {
        return SpicyEngineConstants.SOURCEVALUE_DATE_FUNCTION;
@@ -50,4 +50,13 @@ public class DateFunction extends AbstractSourceValue {
         return this.type;
     }
     
+    @Override
+    public void setSequence(String sequence){
+        this.sequence = sequence;
+    }
+    
+    @Override
+    public String getSequence(){
+        return this.sequence;
+    }
 }

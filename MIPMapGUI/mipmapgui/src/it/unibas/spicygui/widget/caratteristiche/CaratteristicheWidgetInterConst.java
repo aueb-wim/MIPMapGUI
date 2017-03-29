@@ -22,6 +22,7 @@
  
 package it.unibas.spicygui.widget.caratteristiche;
 
+import it.unibas.spicy.model.correspondence.ISourceValue;
 import it.unibas.spicygui.widget.caratteristiche.ConnectionInfo;
 import it.unibas.spicygui.controllo.FormValidation;
 import java.beans.PropertyChangeListener;
@@ -45,7 +46,16 @@ public class CaratteristicheWidgetInterConst implements ICaratteristicheWidget, 
     private FormValidation formValidation;
     private List<ConnectionInfo> connectionList = new ArrayList<ConnectionInfo>();
     private boolean tgdView;
-
+    private String type;
+    
+    public void setType(String type){
+        this.type = type;
+    }
+    
+    public String getType(){
+        return type;
+    }
+    
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         support.addPropertyChangeListener(listener);
     }

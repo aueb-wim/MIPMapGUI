@@ -109,7 +109,6 @@ public class GenerateSQL {
         for (Map.Entry<String, String> entry : SpicyEngineConstants.OFFSET_MAPPING.entrySet()){
             result.append("\ndrop sequence if exists ").append(entry.getKey()).append(";");
             result.append("\ncreate sequence ").append(entry.getKey()).append(";");
-            System.out.println(result);
         }
         if (!mappingTask.getConfig().useHashTextForSkolems() && mappingTask.getConfig().useSkolemTable()) {
             result.append(generateSQLForSkolemTable(mappingTask));

@@ -24,7 +24,7 @@ package it.unibas.spicy.model.correspondence;
 public class ConstantValue extends AbstractSourceValue {
 
     private Object value;
-    private String type;
+    private String type, sequence;
     public ConstantValue(Object value) {
         this.value = value;
     }
@@ -53,5 +53,15 @@ public class ConstantValue extends AbstractSourceValue {
     @Override
     public String getType(){
         return this.type;
+    }
+    
+    @Override
+    public void setSequence(String sequence){
+        this.sequence = sequence;
+    }
+    
+    @Override
+    public String getSequence(){
+        return this.sequence;
     }
 }

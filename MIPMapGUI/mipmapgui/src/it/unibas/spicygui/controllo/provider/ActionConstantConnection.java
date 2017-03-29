@@ -95,7 +95,6 @@ public class ActionConstantConnection implements ConnectProvider {
             connection.setTargetAnchor(AnchorFactory.createRectangularAnchor(targetWidget));
             Stroke stroke = Costanti.BASIC_STROKE;
             connection.setStroke(stroke);
-            
             addConnectionAnnotation(targetWidget, connection);
         
             connection.getActions().addAction(ActionFactory.createPopupMenuAction(new MyPopupProviderConnectionConst(sourceWidget.getScene(), caratteristicheWidget)));
@@ -103,6 +102,8 @@ public class ActionConstantConnection implements ConnectProvider {
             connectionInfo.setTargetWidget(targetWidget);
             connectionInfo.setConnectionWidget(connection);
             caratteristicheWidget.setFormValidation(new FormValidation(false));
+            CaratteristicheWidgetInterConst caratteristicheWidget1 = (CaratteristicheWidgetInterConst) mainLayer.getChildConstraint(sourceWidget);
+            creator.setGetIdType(caratteristicheWidget1.getType());
             creator.createCorrespondenceWithSourceValue(mainLayer, sourceWidget, targetWidget, connectionInfo);
             caratteristicheWidget.addConnectionInfo(connectionInfo);
             connectionLayer.addChild(connection, connectionInfo);

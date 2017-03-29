@@ -539,18 +539,24 @@ public class DAOMappingTaskLines {
             } else if (sourceValueString.split("_")[0].equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_NEWID_FUNCTION)) {
                 sourceValue = new NewIdFunction();
                 sourceValue.setType("constant");
-                SpicyEngineConstants.OFFSET = sourceValueElement.getChild("offset").getTextTrim();
+                sourceValue.setSequence(sourceValueElement.getChild("sequence").getTextTrim());
+                SpicyEngineConstants.OFFSET_MAPPING.put(sourceValueElement.getChild("sequence").getTextTrim(), 
+                        sourceValueElement.getChild("offset").getTextTrim());
             } else if (sourceValueString.split("_")[0].equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_NEWID_FUNCTION_GET_ID)) {
                 sourceValue = new NewIdFunction();
                 sourceValue.setType("getId()");
+                 sourceValue.setSequence(sourceValueElement.getChild("sequence").getTextTrim());
                 getOffSetFromDB(sourceValueElement.getChild("relational"));
             } else if (sourceValueString.equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_DATETIME_FUNCTION)) {
                 sourceValue = new DatetimeFunction();
+                sourceValue.setType("datetime");
             }
             else {
                 sourceValue = new ConstantValue(sourceValueString);
+                sourceValue.setType("string");
             }
         }
+        
         Element targetPathElement = correspondenceElement.getChild("target-path");
         PathExpression targetPathExpression = null;
         if (targetPathElement != null && targetPathElement.getTextTrim() != null) {
@@ -1048,17 +1054,23 @@ public class DAOMappingTaskLines {
         //source-value - ioannisxar
         if (valueCorrespondence.getSourceValue() != null) {
             Element sourceValue = new Element("source-value");
-            sourceValue.setText(valueCorrespondence.getSourceValue().toString());
-            System.out.println("edw " + valueCorrespondence.getSourceValue().getType());
-            
+            if(valueCorrespondence.getSourceValue().getSequence() != null){
+                sourceValue.setText(valueCorrespondence.getSourceValue().toString()+"_"+valueCorrespondence.getSourceValue().getSequence());
+            } else {
+                sourceValue.setText(valueCorrespondence.getSourceValue().toString());
+            }
             //if the offset is a constant value or get the offset from database
             if(valueCorrespondence.getSourceValue().toString().split("_")[0].equals("newId()") && valueCorrespondence.getSourceValue().getType().equals("constant")){
+                Element sequence = new Element("sequence");
+                sequence.setText(valueCorrespondence.getSourceValue().getSequence());
                 Element offset = new Element("offset");
-                offset.setText(SpicyEngineConstants.OFFSET);
+                offset.setText(SpicyEngineConstants.OFFSET_MAPPING.get(valueCorrespondence.getSourceValue().getSequence()));
+                sourceValue.addContent(sequence);
                 sourceValue.addContent(offset);
             } else if(valueCorrespondence.getSourceValue().toString().split("_")[0].equals("newId()") && valueCorrespondence.getSourceValue().getType().equals("getId()")){
                 Element relational = new Element("relational");
-                
+                Element sequence = new Element("sequence");
+                sequence.setText(valueCorrespondence.getSourceValue().getSequence());
                 GetIdFromDb getIdFromDb = SpicyEngineConstants.GET_ID_FROM_DB;
                 
                 //add each element text for getting id from database
@@ -1082,6 +1094,7 @@ public class DAOMappingTaskLines {
                 functionElement.setText(getIdFromDb.getFunction());
                 
                 //add relational elements to newId
+                relational.addContent(sequence);
                 relational.addContent(driverElement);
                 relational.addContent(uriElement);
                 if(!getIdFromDb.getSchema().equals("")){

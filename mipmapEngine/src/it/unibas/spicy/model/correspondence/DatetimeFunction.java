@@ -5,7 +5,7 @@ import it.unibas.spicy.utility.SpicyEngineConstants;
 public class DatetimeFunction extends AbstractSourceValue {
 
     
-    private String type;
+    private String type, sequence;
     @Override
     public String toString() {
        return SpicyEngineConstants.SOURCEVALUE_DATETIME_FUNCTION;
@@ -26,6 +26,16 @@ public class DatetimeFunction extends AbstractSourceValue {
     @Override
     public String getType(){
         return this.type;
+    }
+    
+    @Override
+    public void setSequence(String sequence){
+        this.sequence = sequence;
+    }
+    
+    @Override
+    public String getSequence(){
+        return this.sequence;
     }
 }
     

@@ -74,7 +74,7 @@ public class ConstantWidget extends Widget {
         this.addChild(constantWidget);
         this.setPreferredLocation(new Point(point.x - 1, point.y - 1));
         settaBordoConstant();
-
+        System.out.println("ConstantWidget " + caratteristicheWidget.getType());
         Binding bindingConst = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ, caratteristicheWidget, ELProperty.create("${costante}"), constantWidget, BeanProperty.create("label"));
         bindingConst.bind();
         

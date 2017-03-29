@@ -85,12 +85,10 @@ public class WidgetCreator {
         caratteristicheWidget.setFormValidation(new FormValidation(true));
         //giannisk
         caratteristicheWidget.setTgdView(false);
-        
         ConstantWidget rootWidget = new ConstantWidget(scene, point, caratteristicheWidget);
         rootWidget.getActions().addAction(ActionFactory.createEditAction(new MyEditProviderConst(caratteristicheWidget)));
         rootWidget.getActions().addAction(ActionFactory.createConnectAction(connectionLayer, new ActionConstantConnection(mainLayer, connectionLayer, caratteristicheWidget)));
         rootWidget.getActions().addAction(ActionFactory.createPopupMenuAction(new MyPopupProviderDeleteConst(glassPane)));
-
         CaratteristicheBarra caratteristicheBarra = new CaratteristicheBarra(rootWidget, Costanti.INTERMEDIE_BARRA);
         IconNodeWidget barra = new IconNodeWidget(scene);
         barra.setImage(ImageUtilities.loadImage(Costanti.ICONA_MOVE));
