@@ -30,14 +30,18 @@ import it.unibas.spicygui.controllo.validators.ValidatoreCampoTesto;
 import it.unibas.spicygui.controllo.validators.ValidazioneBindingListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JTextField;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.Binding;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.ELProperty;
 import org.openide.util.NbBundle;
+import org.openide.windows.WindowManager;
 
 public class ConstantDialog extends javax.swing.JDialog {
 
@@ -46,7 +50,9 @@ public class ConstantDialog extends javax.swing.JDialog {
     private FormValidation formValidation /*= new FormValidation(false)*/;
     public static final int RET_CANCEL = 0;
     public static final int RET_OK = 1;
-
+    private ButtonGroup group = new ButtonGroup();
+    private GetConstantFromDbDialog dialog;
+    
     public ConstantDialog(java.awt.Frame parent, CaratteristicheWidgetInterConst caratteristiche, boolean modal) {
         super(parent, modal);
         this.caratteristiche = caratteristiche;
@@ -56,8 +62,10 @@ public class ConstantDialog extends javax.swing.JDialog {
         initBinding();
         initListener();
         newIdOffsetVisibility();
+        
     }
 
+    
     public void newIdOffsetVisibility(){
         this.getJComboBoxFunction().addActionListener (new ActionListener () {
             @Override
@@ -71,7 +79,6 @@ public class ConstantDialog extends javax.swing.JDialog {
                         offsetPanel.setVisible(false);
                     }
                 }
-                
             }
         });
     }
@@ -79,11 +86,25 @@ public class ConstantDialog extends javax.swing.JDialog {
     public void clean() {
         bindingGroup.unbind();
         bindingGroup.bind();
-        
     }
 
     private void initBinding() {
         offsetPanel.setVisible(false);
+        String seq = "";
+        if(caratteristiche.getCostante() != null){
+            for(int k=1; k<caratteristiche.getCostante().toString().split("_").length;k++){
+                seq += caratteristiche.getCostante().toString().split("_")[k]+"_";
+            }
+        }
+        if(!seq.equals("")){
+            textSequenceName.setText(seq.substring(0, seq.length()-1));
+            offsetText.setText(SpicyEngineConstants.OFFSET_MAPPING.get(seq.substring(0, seq.length()-1)));
+        } 
+        if(caratteristiche.getType() != null && caratteristiche.getCostante().toString().split("_")[0].equals("newId()")){
+            jComboBoxFunction.setSelectedIndex(2);
+            offsetPanel.setVisible(true);
+        }
+
         org.jdesktop.beansbinding.Binding binding1 = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, this, org.jdesktop.beansbinding.ELProperty.create("${formValidation.textFieldState}"), jTextFieldConstant, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "textBinding");
         bindingGroup.addBinding(binding1);
         org.jdesktop.beansbinding.Binding binding2 = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, this, org.jdesktop.beansbinding.ELProperty.create("${formValidation.comboBoxState}"), jComboBoxFunction, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "comboBinding");
@@ -430,5 +451,9 @@ public class ConstantDialog extends javax.swing.JDialog {
     
     public JTextField getTextSequenceName(){
         return textSequenceName;
+    }
+    
+    public JButton getOffsetButton(){
+        return btnGetOffset;
     }
 }

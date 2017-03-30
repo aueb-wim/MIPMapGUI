@@ -156,7 +156,7 @@ public class CreaWidgetCorrespondencesMappingTask implements ICreaWidgetCorrespo
                         //giannisk
                         //do not create a new constant widget if a widget with the same value already exists
                         //instead, create a connection from the existing one to the new target
-                        creaSourceValue(valueCorrespondence, variableCorrespondence, mappingTask, false, sourceValue);
+                        creaSourceValue(valueCorrespondence, variableCorrespondence, mappingTask, true, sourceValue);
                     }
                 } else {
                     //function
@@ -206,11 +206,10 @@ public class CreaWidgetCorrespondencesMappingTask implements ICreaWidgetCorrespo
     }
 
     private void creaSourceValue(ValueCorrespondence valueCorrespondence, VariableCorrespondence variableCorrespondence, MappingTask mappingTask, boolean createNew, ISourceValue sourceValue) {
-        //ISourceValue sourceValue = valueCorrespondence.getSourceValue();
-
         Scene scene = glassPane.getScene();
         LayerWidget mainLayer = glassPane.getMainLayer();
         LayerWidget connectionLayer = glassPane.getConnectionLayer();
+        
         Widget sourceWidget;
         if (createNew){
             //Point point = calculateRandomPoint(glassPane);
@@ -219,9 +218,11 @@ public class CreaWidgetCorrespondencesMappingTask implements ICreaWidgetCorrespo
 
             CaratteristicheWidgetInterConst caratteristicheWidget = (CaratteristicheWidgetInterConst) mainLayer.getChildConstraint(sourceWidget);
             impostaTipo(sourceValue, caratteristicheWidget); 
-            sourceWidgetMap.put(sourceValue.toString(), sourceWidget);
-        }
-        else {
+            if(sourceValue.getSequence() != null)
+                sourceWidgetMap.put(sourceValue.toString()+"_"+sourceValue.getSequence(), sourceWidget);
+            else
+                sourceWidgetMap.put(sourceValue.toString(), sourceWidget);
+        } else {
             sourceWidget = sourceWidgetMap.get(sourceValue.toString());
         }
         IDataSourceProxy target = mappingTask.getTargetProxy();   

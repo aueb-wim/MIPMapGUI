@@ -545,8 +545,9 @@ public class DAOMappingTaskLines {
             } else if (sourceValueString.split("_")[0].equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_NEWID_FUNCTION_GET_ID)) {
                 sourceValue = new NewIdFunction();
                 sourceValue.setType("getId()");
-                 sourceValue.setSequence(sourceValueElement.getChild("sequence").getTextTrim());
-                getOffSetFromDB(sourceValueElement.getChild("relational"));
+                String sequence = sourceValueElement.getChild("sequence").getTextTrim();
+                sourceValue.setSequence(sequence);
+                getOffSetFromDB(sourceValueElement.getChild("relational"), sequence);
             } else if (sourceValueString.equalsIgnoreCase(SpicyEngineConstants.SOURCEVALUE_DATETIME_FUNCTION)) {
                 sourceValue = new DatetimeFunction();
                 sourceValue.setType("datetime");
@@ -579,7 +580,7 @@ public class DAOMappingTaskLines {
         return valueCorrespondence;
     }
 
-    private void getOffSetFromDB(Element elementGetId) throws DAOException, SQLException{
+    private void getOffSetFromDB(Element elementGetId, String sequence) throws DAOException, SQLException{
         Element driverElement = elementGetId.getChild("driver");
         Element uriElement = elementGetId.getChild("uri");
         Element schemaNameElement = elementGetId.getChild("schema");
@@ -596,7 +597,7 @@ public class DAOMappingTaskLines {
         
         GetIdFromDb newIdFromDb = new GetIdFromDb(driverElement.getTextTrim(), uriElement.getTextTrim(), schema, loginElement.getTextTrim(), 
                 passwordElement.getTextTrim(), tableElement.getTextTrim(), columnElement.getTextTrim(), functionElement.getTextTrim());
-        SpicyEngineConstants.GET_ID_FROM_DB = newIdFromDb;
+        SpicyEngineConstants.GET_ID_FROM_DB.put(sequence, newIdFromDb);
         
         AccessConfiguration accessConfiguration = new AccessConfiguration();
         accessConfiguration.setDriver(newIdFromDb.getDriver());
@@ -614,9 +615,9 @@ public class DAOMappingTaskLines {
             statement.execute("SELECT MAX(\""+ newIdFromDb.getColumn() +"\") FROM \"" + newIdFromDb.getTable() + "\";");
             ResultSet rs = statement.getResultSet();
             if (rs.next()) {
-                SpicyEngineConstants.OFFSET = String.valueOf(rs.getInt(1));
+                SpicyEngineConstants.OFFSET_MAPPING.put(sequence, String.valueOf(rs.getInt(1)));
             } else {
-                SpicyEngineConstants.OFFSET = "0";
+                SpicyEngineConstants.OFFSET_MAPPING.put(sequence, "0");
             }
         }
     }
@@ -1070,8 +1071,9 @@ public class DAOMappingTaskLines {
             } else if(valueCorrespondence.getSourceValue().toString().split("_")[0].equals("newId()") && valueCorrespondence.getSourceValue().getType().equals("getId()")){
                 Element relational = new Element("relational");
                 Element sequence = new Element("sequence");
-                sequence.setText(valueCorrespondence.getSourceValue().getSequence());
-                GetIdFromDb getIdFromDb = SpicyEngineConstants.GET_ID_FROM_DB;
+                String sequenceName = valueCorrespondence.getSourceValue().getSequence();
+                sequence.setText(sequenceName);
+                GetIdFromDb getIdFromDb = SpicyEngineConstants.GET_ID_FROM_DB.get(sequenceName);
                 
                 //add each element text for getting id from database
                 Element driverElement = new Element("driver");

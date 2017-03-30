@@ -86,7 +86,8 @@ public class SpicyEngineConstants {
     public static final String POSTGRES_CURRENTID_FUNCTION = "currval('idsequence')";
     public static String OFFSET = "0";
     public static Map<String, String> OFFSET_MAPPING = new HashMap<>();
-    public static GetIdFromDb GET_ID_FROM_DB = null;
+    public static Map<String, GetIdFromDb> GET_ID_FROM_DB = new HashMap<>();
+    public static GetIdFromDb TEMP_DB_PROPERTIES = null;
     
     public static final String MORE_COMPACT = "more compact";
     public static final String MORE_INFORMATIVE = "more informative";

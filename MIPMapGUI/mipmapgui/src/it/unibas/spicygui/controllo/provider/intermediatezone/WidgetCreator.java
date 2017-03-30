@@ -70,15 +70,61 @@ public class WidgetCreator {
     private static Log logger = LogFactory.getLog(WidgetCreator.class);
 
     public Widget createConstantWidgetFromSourceValue(Scene scene, LayerWidget mainLayer, LayerWidget connectionLayer, JPanel pannelloPrincipale, Point point, ISourceValue sourceValue, GraphSceneGlassPane glassPane) {
-        Widget widget = createConstantInterWidget(scene, mainLayer, connectionLayer, pannelloPrincipale, point, glassPane);
+        Widget widget = loadConstantInterWidget(scene, mainLayer, connectionLayer, pannelloPrincipale, point, glassPane, sourceValue);
         CaratteristicheWidgetInterConst caratteristicheWidget = (CaratteristicheWidgetInterConst) mainLayer.getChildConstraint(widget);
-        caratteristicheWidget.setCostante(sourceValue.toString());
+        
+        if(sourceValue.getSequence() != null)
+            caratteristicheWidget.setCostante(sourceValue.toString()+"_"+sourceValue.getSequence());
+        else
+            caratteristicheWidget.setCostante(sourceValue.toString());
+        
+        if(sourceValue.getType() != null)
+            caratteristicheWidget.setType(sourceValue.getType());
+        
         //giannisk
         caratteristicheWidget.setTgdView(false);
         
         return widget;
     }
+    
+    public Widget loadConstantInterWidget(Scene scene, LayerWidget mainLayer, LayerWidget connectionLayer, JPanel pannelloPrincipale, Point point, GraphSceneGlassPane glassPane, ISourceValue sourceValue) {
+        CaratteristicheWidgetInterConst caratteristicheWidget = new CaratteristicheWidgetInterConst();
+        caratteristicheWidget.setTreeType(Costanti.INTERMEDIE);
+        caratteristicheWidget.setFormValidation(new FormValidation(true));
+        //giannisk
+        caratteristicheWidget.setTgdView(false);
+        
+        //ioannisxar
+        if(sourceValue.getSequence() != null)
+            caratteristicheWidget.setCostante(sourceValue.toString()+"_"+sourceValue.getSequence());
+        else
+            caratteristicheWidget.setCostante(sourceValue.toString());
+        
+        if(sourceValue.getType() != null)
+            caratteristicheWidget.setType(sourceValue.getType());
+               
+        ConstantWidget rootWidget = new ConstantWidget(scene, point, caratteristicheWidget);
+        rootWidget.getActions().addAction(ActionFactory.createEditAction(new MyEditProviderConst(caratteristicheWidget)));
+        rootWidget.getActions().addAction(ActionFactory.createConnectAction(connectionLayer, new ActionConstantConnection(mainLayer, connectionLayer, caratteristicheWidget)));
+        rootWidget.getActions().addAction(ActionFactory.createPopupMenuAction(new MyPopupProviderDeleteConst(glassPane)));
+        CaratteristicheBarra caratteristicheBarra = new CaratteristicheBarra(rootWidget, Costanti.INTERMEDIE_BARRA);
+        IconNodeWidget barra = new IconNodeWidget(scene);
+        barra.setImage(ImageUtilities.loadImage(Costanti.ICONA_MOVE));
+        Point pointBarra = new Point(rootWidget.getPreferredLocation().x - Costanti.OFF_SET_X_WIDGET_BARRA, rootWidget.getPreferredLocation().y - Costanti.OFF_SET_Y_WIDGET_BARRA);
+        barra.setPreferredLocation(pointBarra);
+        IntermediateMoveProvider moveProvider = new IntermediateMoveProvider(pannelloPrincipale);
+        barra.getActions().addAction(ActionFactory.createMoveAction(moveProvider, moveProvider));
+        caratteristicheWidget.setWidgetBarra(barra);
 
+        mainLayer.addChild(rootWidget, caratteristicheWidget);
+        mainLayer.addChild(barra, caratteristicheBarra);
+
+        glassPane.addConstant(rootWidget);
+        glassPane.addConstant(barra);
+
+        return rootWidget;
+    }
+    
     public Widget createConstantInterWidget(Scene scene, LayerWidget mainLayer, LayerWidget connectionLayer, JPanel pannelloPrincipale, Point point, GraphSceneGlassPane glassPane) {
         CaratteristicheWidgetInterConst caratteristicheWidget = new CaratteristicheWidgetInterConst();
         caratteristicheWidget.setTreeType(Costanti.INTERMEDIE);

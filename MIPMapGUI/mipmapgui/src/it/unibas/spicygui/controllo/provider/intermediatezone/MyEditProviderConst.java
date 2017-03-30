@@ -31,7 +31,10 @@ import it.unibas.spicygui.controllo.mapping.operators.CreateCorrespondencesMappi
 import it.unibas.spicygui.controllo.mapping.operators.ReviewCorrespondences;
 import it.unibas.spicygui.Utility;
 import it.unibas.spicygui.vista.intermediatezone.ConstantDialog;
+import it.unibas.spicygui.vista.intermediatezone.GetConstantFromDbDialog;
 import it.unibas.spicygui.widget.caratteristiche.ConnectionInfo;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Map;
 import javax.swing.JDialog;
 import org.apache.commons.logging.Log;
@@ -61,12 +64,23 @@ public class MyEditProviderConst implements EditProvider {
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     }
 
+    
+    private void getOffsetButton(){
+        this.dialog.getOffsetButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new MyEditProviderConstGetDb(caratteristiche);
+            }
+        });
+    }
+    
     public void edit(Widget widget) {
         if (!(caratteristiche.getTipoFunzione() || caratteristiche.getTipoNumero() || caratteristiche.getTipoStringa())) {
             caratteristiche.setTipoStringa(true);
             caratteristiche.getFormValidation().setTextFieldState(true);
             caratteristiche.getFormValidation().setButtonState(false);
         }
+        getOffsetButton();
         rootNode = (ConstantWidget) widget;
         if (!caratteristiche.getTgdView()) {
             dialog.clean();
@@ -122,7 +136,11 @@ public class MyEditProviderConst implements EditProvider {
                 SpicyEngineConstants.OFFSET_MAPPING.put(this.dialog.getTextSequenceName().getText().trim(), this.dialog.getOffsetText().getText().trim());
                 type = "constant";
                 caratteristiche.setCostante(this.dialog.getJComboBoxFunction().getSelectedItem()+"_"+this.dialog.getTextSequenceName().getText().trim());
+            } else if(this.dialog.getJComboBoxFunction().getSelectedItem().toString().equalsIgnoreCase("date()")){
+                type = "date";
+                caratteristiche.setCostante(this.dialog.getJComboBoxFunction().getSelectedItem());
             } else {
+                type = "datetime";
                 caratteristiche.setCostante(this.dialog.getJComboBoxFunction().getSelectedItem());
             }
         }
