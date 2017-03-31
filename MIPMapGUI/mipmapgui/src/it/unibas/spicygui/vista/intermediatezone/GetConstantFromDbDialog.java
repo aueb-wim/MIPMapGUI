@@ -23,20 +23,31 @@
 package it.unibas.spicygui.vista.intermediatezone;
 
 import it.unibas.spicy.model.correspondence.GetIdFromDb;
+import it.unibas.spicy.persistence.AccessConfiguration;
+import it.unibas.spicy.persistence.DAOException;
+import it.unibas.spicy.persistence.relational.IConnectionFactory;
+import it.unibas.spicy.persistence.relational.SimpleDbConnectionFactory;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.controllo.FormValidation;
 import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetInterConst;
 import it.unibas.spicygui.controllo.validators.ValidatoreCampoTesto;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.Binding;
 import org.jdesktop.beansbinding.Bindings;
 import org.jdesktop.beansbinding.ELProperty;
+import org.openide.util.Exceptions;
+import org.openide.windows.WindowManager;
 
 public class GetConstantFromDbDialog extends javax.swing.JDialog {
 
@@ -58,12 +69,36 @@ public class GetConstantFromDbDialog extends javax.swing.JDialog {
     }
     
     private void initBinding() {
-        this.binding = Bindings.createAutoBinding(AutoBinding.UpdateStrategy.READ_WRITE, this.getCaratteristiche(), ELProperty.create("${costante}"), tfDriver, ELProperty.create("${text}"), "costantBinding");
-        ValidatoreCampoTesto validatoreCampoTesto = new it.unibas.spicygui.controllo.validators.ValidatoreCampoTesto();
-        validatoreCampoTesto.setFormValidation(formValidation);
-        this.binding.setValidator(validatoreCampoTesto);
-        this.binding.bind();
-    }
+        
+        String seq = "";
+        if(caratteristiche.getCostante() != null){
+            for(int k=1; k<caratteristiche.getCostante().toString().split("_").length;k++){
+                seq += caratteristiche.getCostante().toString().split("_")[k]+"_";
+            }
+        }
+        if(!seq.equals(""))
+            seq = seq.substring(0, seq.length()-1);
+        
+        GetIdFromDb dbConnectionProperties = SpicyEngineConstants.GET_ID_FROM_DB.get(seq);
+        if (dbConnectionProperties != null) {
+            getDriver().setText(dbConnectionProperties.getDriver());
+            getUri().setText(dbConnectionProperties.getUri());
+            if(dbConnectionProperties.getSchema() != null)
+                getSchema().setText(dbConnectionProperties.getSchema());
+            getUsername().setText(dbConnectionProperties.getLogin());
+            getPassword().setText(dbConnectionProperties.getPassword());
+            getTable().setText(dbConnectionProperties.getTable());
+            getColumn().setText(dbConnectionProperties.getColumn());
+        } else {
+            getDriver().setText("");
+            getUri().setText("");
+            getSchema().setText("");
+            getUsername().setText("");
+            getPassword().setText("");
+            getTable().setText("");
+            getColumn().setText("");
+        }
+     }
 
     private void initListener() {
         validatoreConstantStrNum.setFormValidation(formValidation);
@@ -83,7 +118,6 @@ public class GetConstantFromDbDialog extends javax.swing.JDialog {
         buttonGroup1 = new javax.swing.ButtonGroup();
         okButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
-        tfDriver = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -100,6 +134,7 @@ public class GetConstantFromDbDialog extends javax.swing.JDialog {
         lFunction = new javax.swing.JList<>();
         jLabel8 = new javax.swing.JLabel();
         tfSchema = new javax.swing.JTextField();
+        tfDriver = new javax.swing.JTextField();
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -118,13 +153,6 @@ public class GetConstantFromDbDialog extends javax.swing.JDialog {
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelButtonActionPerformed(evt);
-            }
-        });
-
-        tfDriver.setText(org.openide.util.NbBundle.getMessage(GetConstantFromDbDialog.class, "GetConstantFromDbDialog.tfDriver.text")); // NOI18N
-        tfDriver.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tfDriverActionPerformed(evt);
             }
         });
 
@@ -209,6 +237,13 @@ public class GetConstantFromDbDialog extends javax.swing.JDialog {
         tfSchema.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tfSchemaActionPerformed(evt);
+            }
+        });
+
+        tfDriver.setText(org.openide.util.NbBundle.getMessage(GetConstantFromDbDialog.class, "GetConstantFromDbDialog.tfDriver.text")); // NOI18N
+        tfDriver.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tfDriverActionPerformed(evt);
             }
         });
 
@@ -303,22 +338,34 @@ public class GetConstantFromDbDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-        doClose(RET_OK);
+        try {
+            doClose(RET_OK);
+        } catch (SQLException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (DAOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }//GEN-LAST:event_okButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        doClose(RET_CANCEL);
+        try {
+            doClose(RET_CANCEL);
+        } catch (SQLException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (DAOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void closeDialog(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_closeDialog
-        doClose(RET_CANCEL);
+        try {
+            doClose(RET_CANCEL);
+        } catch (SQLException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (DAOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }//GEN-LAST:event_closeDialog
-
-    private void tfDriverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfDriverActionPerformed
-        if (this.okButton.isEnabled()) {
-            doClose(RET_OK);
-        }  
-    }//GEN-LAST:event_tfDriverActionPerformed
 
     private void tfUriActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfUriActionPerformed
         // TODO add your handling code here:
@@ -340,13 +387,40 @@ public class GetConstantFromDbDialog extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_tfSchemaActionPerformed
 
-    public void doClose(int retStatus) {
+    private void tfDriverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfDriverActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tfDriverActionPerformed
+
+    public void doClose(int retStatus) throws SQLException, DAOException {
         returnStatus = retStatus;
         if(returnStatus == RET_OK){
-            getValuesFromDialog();
+            driverValue = tfDriver.getText().trim();
+            uriValue = tfUri.getText().trim();
+            schemaValue = tfSchema.getText().trim();
+            usernameValue = tfUsername.getText().trim();
+            passwordValue = tfPassword.getText().trim();
+            tableValue = tfTable.getText().trim();
+            columnValue = tfColumn.getText().trim();
+            try {
+                functionValue = lFunction.getSelectedValue().trim();
+            } catch(NullPointerException ex) {
+                functionValue="";
+            }
+            if(!driverValue.equals("") && !uriValue.equals("") && !usernameValue.equals("") 
+                    && !passwordValue.equals("") && !tableValue.equals("") && !columnValue.equals("") && !functionValue.equals("")){
+                SpicyEngineConstants.TEMP_DB_PROPERTIES 
+                    = new GetIdFromDb(driverValue, uriValue, schemaValue, usernameValue, passwordValue, tableValue, columnValue, functionValue);               
+                setVisible(false);
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(), 
+                        "Please complete all the necessary fields!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            setVisible(false);
+            dispose();
         }
-        setVisible(false);
-        dispose();
+        
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup;
@@ -373,7 +447,7 @@ public class GetConstantFromDbDialog extends javax.swing.JDialog {
     private it.unibas.spicygui.controllo.validators.ValidatoreConstantFun validatoreConstantFun;
     private it.unibas.spicygui.controllo.validators.ValidatoreConstantStrNum validatoreConstantStrNum;
     // End of variables declaration//GEN-END:variables
-    private int returnStatus = RET_CANCEL;
+    private int returnStatus;
 
     public CaratteristicheWidgetInterConst getCaratteristiche() {
         return caratteristiche;
@@ -419,18 +493,5 @@ public class GetConstantFromDbDialog extends javax.swing.JDialog {
         return okButton;
     }
 
-    private void getValuesFromDialog() { 
-        driverValue = tfDriver.getText().trim();
-        uriValue = tfUri.getText().trim();
-        schemaValue = tfSchema.getText().trim();
-        usernameValue = tfUsername.getText().trim();
-        passwordValue = tfPassword.getText().trim();
-        tableValue = tfTable.getText().trim();
-        columnValue = tfColumn.getText().trim();
-        functionValue = lFunction.getSelectedValue().trim();
-        
-        SpicyEngineConstants.TEMP_DB_PROPERTIES 
-                = new GetIdFromDb(driverValue, uriValue, schemaValue, uriValue, passwordValue, tableValue, columnValue, functionValue);
     
-    }
 }

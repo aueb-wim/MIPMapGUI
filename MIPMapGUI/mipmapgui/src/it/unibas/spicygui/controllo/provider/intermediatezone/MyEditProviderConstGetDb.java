@@ -23,8 +23,6 @@
 package it.unibas.spicygui.controllo.provider.intermediatezone;
 import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetInterConst;
 import it.unibas.spicygui.vista.intermediatezone.GetConstantFromDbDialog;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.JDialog;
 import org.netbeans.api.visual.action.EditProvider;
 import org.netbeans.api.visual.widget.Widget;
@@ -45,7 +43,6 @@ public class MyEditProviderConstGetDb implements EditProvider {
 
     @Override
     public void edit(Widget widget) {
-           
     }
 
 

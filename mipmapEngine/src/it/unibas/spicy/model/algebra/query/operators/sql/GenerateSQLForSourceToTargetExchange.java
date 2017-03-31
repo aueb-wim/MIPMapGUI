@@ -657,11 +657,13 @@ public class GenerateSQLForSourceToTargetExchange {
                     }                              
                     else if (sourcePathName.split("_")[0].equalsIgnoreCase("newId()")){
                         if(GenerateSQL.newSequence){
-                            sourcePathName = "nextval('" + correspondence.getSourceValue().getSequence() + "') + " + SpicyEngineConstants.OFFSET;
+                            sourcePathName = "nextval('" + correspondence.getSourceValue().getSequence() + "') + " 
+                                           + SpicyEngineConstants.OFFSET_MAPPING.get(correspondence.getSourceValue().getSequence());
                             GenerateSQL.newSequence = false;
                         }
                         else{
-                           sourcePathName = "nextval('" + correspondence.getSourceValue().getSequence() + "') + " + SpicyEngineConstants.OFFSET;
+                           sourcePathName = "nextval('" + correspondence.getSourceValue().getSequence() + "') + " 
+                                           + SpicyEngineConstants.OFFSET_MAPPING.get(correspondence.getSourceValue().getSequence());
                         }
                     }
                     result.append(DOUBLE_INDENT).append(sourcePathName);                    

@@ -103,6 +103,11 @@ public class ConstantDialog extends javax.swing.JDialog {
         if(caratteristiche.getType() != null && caratteristiche.getCostante().toString().split("_")[0].equals("newId()")){
             jComboBoxFunction.setSelectedIndex(2);
             offsetPanel.setVisible(true);
+            if(caratteristiche.getType().equals("getId()")){
+                rbDatabase.setSelected(true);
+            } else if (caratteristiche.getType().equals("constant")){
+                rbConstant.setSelected(true);
+            }
         }
 
         org.jdesktop.beansbinding.Binding binding1 = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ, this, org.jdesktop.beansbinding.ELProperty.create("${formValidation.textFieldState}"), jTextFieldConstant, org.jdesktop.beansbinding.BeanProperty.create("enabled"), "textBinding");
@@ -153,8 +158,8 @@ public class ConstantDialog extends javax.swing.JDialog {
         textSequenceName = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         btnGetOffset = new javax.swing.JButton();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
+        rbDatabase = new javax.swing.JRadioButton();
+        rbConstant = new javax.swing.JRadioButton();
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -240,14 +245,14 @@ public class ConstantDialog extends javax.swing.JDialog {
         btnGetOffset.setText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.btnGetOffset.text")); // NOI18N
         btnGetOffset.setToolTipText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.btnGetOffset.toolTipText")); // NOI18N
 
-        jRadioButton1.setText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.jRadioButton1.text")); // NOI18N
-        jRadioButton1.addActionListener(new java.awt.event.ActionListener() {
+        rbDatabase.setText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.rbDatabase.text")); // NOI18N
+        rbDatabase.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jRadioButton1ActionPerformed(evt);
+                rbDatabaseActionPerformed(evt);
             }
         });
 
-        jRadioButton2.setText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.jRadioButton2.text")); // NOI18N
+        rbConstant.setText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.rbConstant.text")); // NOI18N
 
         javax.swing.GroupLayout offsetPanelLayout = new javax.swing.GroupLayout(offsetPanel);
         offsetPanel.setLayout(offsetPanelLayout);
@@ -272,9 +277,9 @@ public class ConstantDialog extends javax.swing.JDialog {
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(52, 52, 52))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, offsetPanelLayout.createSequentialGroup()
-                        .addComponent(jRadioButton2)
+                        .addComponent(rbConstant)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jRadioButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(rbDatabase, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addContainerGap())))
         );
         offsetPanelLayout.setVerticalGroup(
@@ -292,8 +297,8 @@ public class ConstantDialog extends javax.swing.JDialog {
                     .addComponent(textSequenceName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(offsetPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jRadioButton1)
-                    .addComponent(jRadioButton2))
+                    .addComponent(rbDatabase)
+                    .addComponent(rbConstant))
                 .addContainerGap())
         );
 
@@ -375,9 +380,9 @@ public class ConstantDialog extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_jComboBoxFunctionActionPerformed
 
-    private void jRadioButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton1ActionPerformed
+    private void rbDatabaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbDatabaseActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jRadioButton1ActionPerformed
+    }//GEN-LAST:event_rbDatabaseActionPerformed
 
     private void textSequenceNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textSequenceNameActionPerformed
         // TODO add your handling code here:
@@ -401,8 +406,6 @@ public class ConstantDialog extends javax.swing.JDialog {
     private javax.swing.JComboBox jComboBoxFunction;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JRadioButton jRadioButtonFunction;
     private javax.swing.JRadioButton jRadioButtonNumber;
     private javax.swing.JRadioButton jRadioButtonString;
@@ -410,6 +413,8 @@ public class ConstantDialog extends javax.swing.JDialog {
     private javax.swing.JPanel offsetPanel;
     private javax.swing.JTextField offsetText;
     private javax.swing.JButton okButton;
+    private javax.swing.JRadioButton rbConstant;
+    private javax.swing.JRadioButton rbDatabase;
     private javax.swing.JTextField textSequenceName;
     private it.unibas.spicygui.controllo.validators.ValidatoreConstantFun validatoreConstantFun;
     private it.unibas.spicygui.controllo.validators.ValidatoreConstantStrNum validatoreConstantStrNum;
@@ -439,6 +444,14 @@ public class ConstantDialog extends javax.swing.JDialog {
 
     public javax.swing.JRadioButton getJRadioButtonString() {
         return jRadioButtonString;
+    }
+    
+    public javax.swing.JRadioButton getJRadioButtonConstant() {
+        return rbConstant;
+    }
+    
+    public javax.swing.JRadioButton getJRadioButtonDatabase() {
+        return rbDatabase;
     }
     
     public javax.swing.JPanel getOffsetPanel(){

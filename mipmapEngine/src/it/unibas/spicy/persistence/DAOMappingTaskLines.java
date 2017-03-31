@@ -1096,7 +1096,6 @@ public class DAOMappingTaskLines {
                 functionElement.setText(getIdFromDb.getFunction());
                 
                 //add relational elements to newId
-                relational.addContent(sequence);
                 relational.addContent(driverElement);
                 relational.addContent(uriElement);
                 if(!getIdFromDb.getSchema().equals("")){
@@ -1108,7 +1107,9 @@ public class DAOMappingTaskLines {
                 relational.addContent(columnElement);
                 relational.addContent(functionElement);
                 
-                sourceValue.setText("newId(getId())");
+                
+                sourceValue.setText("newId(getId())_"+sequenceName);
+                sourceValue.addContent(sequence);
                 sourceValue.addContent(relational);
             }
             correspondence.addContent(sourceValue);

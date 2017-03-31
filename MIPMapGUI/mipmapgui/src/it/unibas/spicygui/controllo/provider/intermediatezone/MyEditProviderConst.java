@@ -23,6 +23,10 @@
 package it.unibas.spicygui.controllo.provider.intermediatezone;
 
 import it.unibas.spicy.model.exceptions.ExpressionSyntaxException;
+import it.unibas.spicy.persistence.AccessConfiguration;
+import it.unibas.spicy.persistence.DAOException;
+import it.unibas.spicy.persistence.relational.IConnectionFactory;
+import it.unibas.spicy.persistence.relational.SimpleDbConnectionFactory;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetInterConst;
@@ -35,8 +39,13 @@ import it.unibas.spicygui.vista.intermediatezone.GetConstantFromDbDialog;
 import it.unibas.spicygui.widget.caratteristiche.ConnectionInfo;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.netbeans.api.visual.action.EditProvider;
@@ -46,6 +55,7 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 
@@ -65,11 +75,15 @@ public class MyEditProviderConst implements EditProvider {
     }
 
     
-    private void getOffsetButton(){
+    private void getOffsetButton() {
         this.dialog.getOffsetButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new MyEditProviderConstGetDb(caratteristiche);
+                if(!dialog.getTextSequenceName().getText().trim().equals("")){
+                    new MyEditProviderConstGetDb(caratteristiche);
+                } else {
+                    JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(), "Please insert a sequence name!", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
     }
@@ -99,6 +113,10 @@ public class MyEditProviderConst implements EditProvider {
                 DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.SYNTAX_WARNING) + " : " + e, DialogDescriptor.WARNING_MESSAGE));
                 StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(Costanti.class, Costanti.SYNTAX_WARNING));
                 ripristina(oldButtonState, oldCaratteristiche);
+            } catch (DAOException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (SQLException ex) {
+                Exceptions.printStackTrace(ex);
             }
         }
     }
@@ -128,14 +146,48 @@ public class MyEditProviderConst implements EditProvider {
         }
     }
 
-    public String verificaDati() {
+    public String verificaDati() throws DAOException, SQLException {
         String type = null;
         if (this.dialog.getJRadioButtonFunction().isSelected()) {
             if(this.dialog.getJComboBoxFunction().getSelectedItem().toString().equalsIgnoreCase("newId()")){
-                SpicyEngineConstants.OFFSET = this.dialog.getOffsetText().getText().trim();
-                SpicyEngineConstants.OFFSET_MAPPING.put(this.dialog.getTextSequenceName().getText().trim(), this.dialog.getOffsetText().getText().trim());
-                type = "constant";
-                caratteristiche.setCostante(this.dialog.getJComboBoxFunction().getSelectedItem()+"_"+this.dialog.getTextSequenceName().getText().trim());
+                String sequence = this.dialog.getTextSequenceName().getText().trim();
+                if(SpicyEngineConstants.GET_ID_FROM_DB.get(sequence) != null)
+                    SpicyEngineConstants.TEMP_DB_PROPERTIES = SpicyEngineConstants.GET_ID_FROM_DB.get(sequence);
+                              
+                caratteristiche.setCostante(this.dialog.getJComboBoxFunction().getSelectedItem() + "_" + sequence);
+                
+                if(this.dialog.getJRadioButtonConstant().isSelected()){
+                    SpicyEngineConstants.OFFSET_MAPPING.put(sequence, this.dialog.getOffsetText().getText().trim());
+                    type = "constant";
+                } else if(this.dialog.getJRadioButtonDatabase().isSelected()){
+                    if(SpicyEngineConstants.TEMP_DB_PROPERTIES != null){
+                        Connection connection = connectToDb();
+                        Statement statement = connection.createStatement();
+                        if (SpicyEngineConstants.TEMP_DB_PROPERTIES.getFunction().equalsIgnoreCase("max")){
+                            statement.execute("SELECT MAX(\""+ SpicyEngineConstants.TEMP_DB_PROPERTIES.getColumn() 
+                                    +"\") FROM \"" + SpicyEngineConstants.TEMP_DB_PROPERTIES.getTable() + "\";");
+                        }
+                        ResultSet rs = statement.getResultSet();
+                        if (rs.next()) {
+                            SpicyEngineConstants.OFFSET = String.valueOf(rs.getInt(1));
+                        } else {
+                            SpicyEngineConstants.OFFSET = "0";
+                        }
+                        SpicyEngineConstants.OFFSET_MAPPING.put(sequence,SpicyEngineConstants.OFFSET);
+                        SpicyEngineConstants.GET_ID_FROM_DB.put(sequence, SpicyEngineConstants.TEMP_DB_PROPERTIES);
+                        type = "getId()";
+                    } else {
+                        if(dialog.getReturnStatus() == ConstantDialog.RET_OK){
+                            JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(), 
+                                "Please setup the database configuration!", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                } else {
+                    if(dialog.getReturnStatus() == ConstantDialog.RET_OK){
+                        JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(), 
+                            "Please select offset source input!", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
             } else if(this.dialog.getJComboBoxFunction().getSelectedItem().toString().equalsIgnoreCase("date()")){
                 type = "date";
                 caratteristiche.setCostante(this.dialog.getJComboBoxFunction().getSelectedItem());
@@ -157,5 +209,17 @@ public class MyEditProviderConst implements EditProvider {
         return type;
     }
     
+    private Connection connectToDb() throws DAOException {
+        AccessConfiguration accessConfiguration = new AccessConfiguration();
+        accessConfiguration.setDriver(SpicyEngineConstants.TEMP_DB_PROPERTIES.getDriver());
+        accessConfiguration.setUri(SpicyEngineConstants.TEMP_DB_PROPERTIES.getUri());
+        if (!SpicyEngineConstants.TEMP_DB_PROPERTIES.getSchema().equals("")) {
+            accessConfiguration.setSchemaName(SpicyEngineConstants.TEMP_DB_PROPERTIES.getSchema());
+        }
+        accessConfiguration.setLogin(SpicyEngineConstants.TEMP_DB_PROPERTIES.getLogin());
+        accessConfiguration.setPassword(SpicyEngineConstants.TEMP_DB_PROPERTIES.getPassword());
+        IConnectionFactory connectionFactory = new SimpleDbConnectionFactory();
+        return connectionFactory.getConnection(accessConfiguration);
+    }
     
 }
