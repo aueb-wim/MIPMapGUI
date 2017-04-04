@@ -23,30 +23,18 @@
 package it.unibas.spicygui.vista.intermediatezone;
 
 import it.unibas.spicy.model.correspondence.GetIdFromDb;
-import it.unibas.spicy.persistence.AccessConfiguration;
-import it.unibas.spicy.persistence.DAOException;
-import it.unibas.spicy.persistence.relational.IConnectionFactory;
-import it.unibas.spicy.persistence.relational.SimpleDbConnectionFactory;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import it.unibas.spicygui.Costanti;
 import it.unibas.spicygui.controllo.FormValidation;
 import it.unibas.spicygui.widget.caratteristiche.CaratteristicheWidgetInterConst;
-import it.unibas.spicygui.controllo.validators.ValidatoreCampoTesto;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.Binding;
-import org.jdesktop.beansbinding.Bindings;
-import org.jdesktop.beansbinding.ELProperty;
-import org.openide.util.Exceptions;
 import org.openide.windows.WindowManager;
 
 public class GetConstantFromDbDialog extends javax.swing.JDialog {
@@ -338,33 +326,15 @@ public class GetConstantFromDbDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-        try {
-            doClose(RET_OK);
-        } catch (SQLException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (DAOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        doClose(RET_OK);
     }//GEN-LAST:event_okButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        try {
-            doClose(RET_CANCEL);
-        } catch (SQLException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (DAOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        doClose(RET_CANCEL);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void closeDialog(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_closeDialog
-        try {
-            doClose(RET_CANCEL);
-        } catch (SQLException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (DAOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        doClose(RET_CANCEL);
     }//GEN-LAST:event_closeDialog
 
     private void tfUriActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfUriActionPerformed
@@ -391,7 +361,7 @@ public class GetConstantFromDbDialog extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_tfDriverActionPerformed
 
-    public void doClose(int retStatus) throws SQLException, DAOException {
+    public void doClose(int retStatus){
         returnStatus = retStatus;
         if(returnStatus == RET_OK){
             driverValue = tfDriver.getText().trim();

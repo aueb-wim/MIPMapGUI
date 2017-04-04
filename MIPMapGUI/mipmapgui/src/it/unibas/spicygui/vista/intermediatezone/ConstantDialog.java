@@ -144,6 +144,7 @@ public class ConstantDialog extends javax.swing.JDialog {
         validatoreConstantFun = new it.unibas.spicygui.controllo.validators.ValidatoreConstantFun();
         validatoreConstantStrNum = new it.unibas.spicygui.controllo.validators.ValidatoreConstantStrNum();
         buttonGroup1 = new javax.swing.ButtonGroup();
+        buttonGroup2 = new javax.swing.ButtonGroup();
         okButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
         jTextFieldConstant = new javax.swing.JTextField();
@@ -245,6 +246,7 @@ public class ConstantDialog extends javax.swing.JDialog {
         btnGetOffset.setText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.btnGetOffset.text")); // NOI18N
         btnGetOffset.setToolTipText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.btnGetOffset.toolTipText")); // NOI18N
 
+        buttonGroup2.add(rbDatabase);
         rbDatabase.setText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.rbDatabase.text")); // NOI18N
         rbDatabase.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -252,7 +254,13 @@ public class ConstantDialog extends javax.swing.JDialog {
             }
         });
 
+        buttonGroup2.add(rbConstant);
         rbConstant.setText(org.openide.util.NbBundle.getMessage(ConstantDialog.class, "ConstantDialog.rbConstant.text")); // NOI18N
+        rbConstant.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rbConstantActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout offsetPanelLayout = new javax.swing.GroupLayout(offsetPanel);
         offsetPanel.setLayout(offsetPanelLayout);
@@ -392,6 +400,10 @@ public class ConstantDialog extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_offsetTextActionPerformed
 
+    private void rbConstantActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbConstantActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_rbConstantActionPerformed
+
     private void doClose(int retStatus) {
         returnStatus = retStatus;
         setVisible(false);
@@ -401,6 +413,7 @@ public class ConstantDialog extends javax.swing.JDialog {
     private javax.swing.JButton btnGetOffset;
     private javax.swing.ButtonGroup buttonGroup;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JButton cancelButton;
     private javax.swing.JLabel errorLabel;
     private javax.swing.JComboBox jComboBoxFunction;
