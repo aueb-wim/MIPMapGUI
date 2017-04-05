@@ -159,7 +159,7 @@ public class MyEditProviderConst implements EditProvider {
         if (this.dialog.getJRadioButtonFunction().isSelected()) {
             if(this.dialog.getJComboBoxFunction().getSelectedItem().toString().equalsIgnoreCase("newId()")){
                 String sequence = this.dialog.getTextSequenceName().getText().trim();
-                if(SpicyEngineConstants.GET_ID_FROM_DB.get(sequence) == null)
+                if(SpicyEngineConstants.GET_ID_FROM_DB.get(sequence) != null)
                     SpicyEngineConstants.TEMP_DB_PROPERTIES = SpicyEngineConstants.GET_ID_FROM_DB.get(sequence);
                               
                 caratteristiche.setCostante(this.dialog.getJComboBoxFunction().getSelectedItem() + "_" + sequence);
