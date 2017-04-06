@@ -43,7 +43,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Map;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import org.apache.commons.logging.Log;
@@ -65,6 +64,7 @@ public class MyEditProviderConst implements EditProvider {
     private CreateCorrespondencesMappingTask creator = new CreateCorrespondencesMappingTask();
     private CaratteristicheWidgetInterConst caratteristiche;
     private ConstantDialog dialog;
+    private GetConstantFromDbDialog dbDialog = null;
     private ConstantWidget rootNode;
     private Log logger = LogFactory.getLog(MyEditProviderConst.class);
 
@@ -80,7 +80,13 @@ public class MyEditProviderConst implements EditProvider {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(!dialog.getTextSequenceName().getText().trim().equals("")){
-                    new MyEditProviderConstGetDb(caratteristiche);
+                    if(dbDialog == null){
+                        dbDialog = new GetConstantFromDbDialog(WindowManager.getDefault().getMainWindow(), caratteristiche, true);
+                        dbDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                        dbDialog.setVisible(true);
+                    } else {
+                        dbDialog.setVisible(true);
+                    }
                 } else {
                     JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(), "Please insert a sequence name!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -94,7 +100,9 @@ public class MyEditProviderConst implements EditProvider {
             caratteristiche.getFormValidation().setTextFieldState(true);
             caratteristiche.getFormValidation().setButtonState(false);
         }
-        getOffsetButton();
+        if(dbDialog == null){
+            getOffsetButton();
+        }
         rootNode = (ConstantWidget) widget;
         if (!caratteristiche.getTgdView()) {
             dialog.clean();
@@ -175,6 +183,7 @@ public class MyEditProviderConst implements EditProvider {
                         }
                         SpicyEngineConstants.OFFSET_MAPPING.put(sequence,SpicyEngineConstants.OFFSET);
                         SpicyEngineConstants.GET_ID_FROM_DB.put(sequence, SpicyEngineConstants.TEMP_DB_PROPERTIES);
+                        SpicyEngineConstants.TEMP_DB_PROPERTIES = null;
                         type = "getId()";
                     } else {
                         if(dialog.getReturnStatus() == ConstantDialog.RET_OK){
