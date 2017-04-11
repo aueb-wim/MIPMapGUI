@@ -67,6 +67,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.input.MouseButton;
 import javax.swing.BorderFactory;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
@@ -628,6 +629,7 @@ public class JLayeredPaneCorrespondences extends JLayeredPane {
         }
 
         private void maybeShowPopup(MouseEvent e) {
+            
             if (e.isPopupTrigger()) {
                 TreeNodeAdapter adapter = getAdapterFromEvent(e);
                 if (adapter.getINode() instanceof SetCloneNode) {
