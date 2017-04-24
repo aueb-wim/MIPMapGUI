@@ -600,8 +600,10 @@ public class ExportSQLInstances {
         IConnectionFactory connectionFactoryCreateTable = new SimpleDbConnectionFactory();
         //remove database name from uri
         String extractDbName = uri.split("/")[3];
-        String extractUri = uri.split(extractDbName)[0];
+//        String extractUri = uri.split(extractDbName)[0];
+        String extractUri = uri.substring(0, uri.lastIndexOf(extractDbName));
         Connection connection = getConnectionToDatabase(connectionFactoryCreateTable, driver, extractUri, userName, password);
+//        System.out.println("connection created");
         Statement statement = connection.createStatement();           
         int dbcount = 0;
 
