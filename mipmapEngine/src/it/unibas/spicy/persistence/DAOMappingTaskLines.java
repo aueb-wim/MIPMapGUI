@@ -1052,11 +1052,11 @@ public class DAOMappingTaskLines {
                 sourcePaths.addContent(sourcePath);
             }
         }
-        System.out.println("edw");
+//        System.out.println("edw");
         //source-value - ioannisxar
         if (valueCorrespondence.getSourceValue() != null) {
             Element sourceValue = new Element("source-value");
-            System.out.println("edw1: " + valueCorrespondence.getSourceValue().toString());
+//            System.out.println("edw1: " + valueCorrespondence.getSourceValue().toString());
             if(valueCorrespondence.getSourceValue().getSequence() != null){
                 sourceValue.setText(valueCorrespondence.getSourceValue().toString()+"_"+valueCorrespondence.getSourceValue().getSequence());
             } else {
