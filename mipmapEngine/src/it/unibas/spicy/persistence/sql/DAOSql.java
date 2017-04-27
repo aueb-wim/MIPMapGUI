@@ -150,7 +150,7 @@ public class DAOSql {
             if(connection != null)
               connectionFactory.close(connection);
         }
-        System.out.println("Load Schema Completed");
+//        System.out.println("Load Schema Completed");
         return dataSource;
     }
     
