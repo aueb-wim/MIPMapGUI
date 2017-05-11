@@ -69,8 +69,10 @@ public class ActionUnpivotCSV extends CallableSystemAction implements Observer {
             String ext = file.getPath().substring(file.getPath().lastIndexOf(".")+1);
             if (ext.equalsIgnoreCase("csv")){
                 UnpivotCSVDAO daoUnpivot = new UnpivotCSVDAO();
-                try {          
-                    String[] columnNames = daoUnpivot.getCsvTableColumns(file);
+                try {         
+//                    avenet 20170410 
+//                    String[] columnNames = daoUnpivot.getCsvTableColumns(file);
+                    String[] columnNames = daoUnpivot.getCsvTableColumnsWithoutSpecialCharacters(file);
                     UnpivotCsvMainFrame unpivotMain = new UnpivotCsvMainFrame(columnNames);
                     List<String> colNames = unpivotMain.getColNames();
                     List<String> keepColNames = unpivotMain.getKeepColNames();

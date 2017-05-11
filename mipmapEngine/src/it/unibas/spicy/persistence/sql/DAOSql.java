@@ -92,6 +92,7 @@ public class DAOSql {
     }
     
     public IDataSourceProxy loadSchema (int scenarioNo, String catalog, String filePath, boolean source) throws DAOException {
+//        System.out.println("Starting loading schema!!!");
         INode root = null;
         IDataSourceProxy dataSource = null;
         
@@ -149,6 +150,7 @@ public class DAOSql {
             if(connection != null)
               connectionFactory.close(connection);
         }
+//        System.out.println("Load Schema Completed");
         return dataSource;
     }
     

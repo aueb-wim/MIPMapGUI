@@ -98,6 +98,10 @@ public class ExportCSVInstances {
     }
     
     public void createCSVDocument(String tableName, String schema, IDataSourceProxy dataSourceTarget, String folderPath, Statement statement, String[] columnNames) throws SQLException, IOException{        
+        createCSVDocument(tableName,  schema, dataSourceTarget, folderPath, statement, columnNames, false);
+    }
+        
+    public void createCSVDocument(String tableName, String schema, IDataSourceProxy dataSourceTarget, String folderPath, Statement statement, String[] columnNames, boolean unpivot) throws SQLException, IOException{        
         File file = new File(folderPath+File.separator+tableName+".csv"); 
         ResultSet allRows = statement.executeQuery("SELECT * FROM "+schema+".\""+tableName+"\";");
         int columnCount = allRows.getMetaData().getColumnCount();                
@@ -135,8 +139,11 @@ public class ExportCSVInstances {
                     String value = allRows.getString(j);                     
                     //if the value is null write null to csv file
                     if (value == null){
+                        if ( unpivot )
+                            value = "null";
+                        else
                         //avenet 20170215 null values in Postgres csv mode correspond to ,,
-                        value = "";
+                            value = "";
 //                        value = "null";
                     }       
                     //if the type is String/text etc and is not null put the value between double quotes

@@ -107,6 +107,7 @@ public class DAOCsv {
                  if (filename.indexOf(".") > 0) {
                      filename = filename.substring(0, filename.lastIndexOf("."));
                  }
+//                 System.out.println("Table name = " + tablefullPath);
                  INode setTable = this.createSetNode (filename, root, tablefullPath);
                  dataSource = new ConstantDataSourceProxy(new DataSource(SpicyEngineConstants.TYPE_CSV, root));
                 

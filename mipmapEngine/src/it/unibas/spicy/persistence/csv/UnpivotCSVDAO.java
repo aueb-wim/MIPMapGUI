@@ -81,7 +81,9 @@ public class UnpivotCSVDAO {
             }
             newTableColumns[keepColNames.size()] = newColName;
             newTableColumns[keepColNames.size()+1] = "Value";
-            export.createCSVDocument("unpivoted_"+tableName, SpicyEngineConstants.TARGET_SCHEMA_NAME+databaseNo, null, file.getParent(), statement, newTableColumns);
+//            export.createCSVDocument("unpivoted_"+tableName, SpicyEngineConstants.TARGET_SCHEMA_NAME+databaseNo, null, file.getParent(), statement, newTableColumns);
+            //avenet - when creatingCSV from unpivot null values should be represented as null (they probably will be used as input to MIPMap)
+            export.createCSVDocument("unpivoted_"+tableName, SpicyEngineConstants.TARGET_SCHEMA_NAME+databaseNo, null, file.getParent(), statement, newTableColumns,true);
         }     
         finally
         {
@@ -162,7 +164,7 @@ public class UnpivotCSVDAO {
         //read only first line
         CSVReader reader = new CSVReader(new FileReader(csvFile.getAbsolutePath()));
         //read only first line
-        firstLine = reader.readNext();        
+        firstLine = reader.readNext();
         this.csvTableColumns = firstLine;
         reader.close();
         return firstLine;

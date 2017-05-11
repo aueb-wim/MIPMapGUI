@@ -300,7 +300,11 @@ public class JepToPostgresConverter {
             case "toupper":
                 output = "upper(" + parameters[0] + ")";
                 break;
-            default:
+           case "isNumeric":
+//                System.out.println("\n\nHERE\n\n");
+                output = parameters[0] + " ~ \'^[-]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$\'"; 
+                break;
+           default:
                 break;
         }        
         return output;
