@@ -301,8 +301,11 @@ public class JepToPostgresConverter {
                 output = "upper(" + parameters[0] + ")";
                 break;
            case "isNumeric":
-//                System.out.println("\n\nHERE\n\n");
                 output = parameters[0] + " ~ \'^[-]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$\'"; 
+                break;
+           case "funcGenerator":
+                String delimeter = "_mipmap_function_";
+                output = "functionevaluation(replace("+parameters[0]+", '"+delimeter+"',cast("+parameters[1]+" as text)))";
                 break;
            default:
                 break;
