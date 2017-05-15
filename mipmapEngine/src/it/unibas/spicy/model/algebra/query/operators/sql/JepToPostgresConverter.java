@@ -33,6 +33,7 @@ public class JepToPostgresConverter {
         for (VariablePathExpression vpe: transformationFunctionExpression.getAttributePaths()){                    
             if (functionExpression.contains(vpe.toString())){
                 String expressionToCheckForSigns = transformationFunctionExpression.getJepExpression().toString();
+                System.out.println(expressionToCheckForSigns);
                 int startIndex = expressionToCheckForSigns.indexOf(vpe.toString());
                 int endIndex = startIndex+vpe.toString().length();
                 boolean castToFloat = false;
@@ -61,6 +62,7 @@ public class JepToPostgresConverter {
                 else{
                     newAttrName = GenerateSQL.attributeNameInVariable(vpe);       
                  }
+                System.out.println(newAttrName);
                 //if previous or next character is one of {+,-,*,/,<,>} cast it to float
                 if(castToFloat){
                     functionExpression = functionExpression.replaceAll(vpe.toString(), "cast(" + newAttrName + " as float)");

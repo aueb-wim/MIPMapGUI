@@ -21,7 +21,7 @@ package it.unibas.spicygui.vista.intermediatezone;
 public class FunctionProperties {
     public static final String[][] functionArray = {
         {"Abs","Returns the absolute value of same type for Numbers / returns the Modulus for Complex","abs(x)"},
-        {"Aggregate Function","Execute an aggregation function","aggregation(function,value,(group_col),(where_col1(val1)))"},
+        {"Aggregate Function","Execute an aggregation function","aggregation(function,value,\"group_col\",\"where_col1==\"val1\"\")"},
         {"Append","Appends second parameter to first paramenter as string","append(str1, str2)"},
         {"Arc Cosine","Inverse Cosine","acos(x)"},
         {"Arc Cosine Hyperbolic","Inverse Hyperbolic Cosine","acosh(x)"},
