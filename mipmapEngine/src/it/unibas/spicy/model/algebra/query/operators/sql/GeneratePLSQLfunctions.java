@@ -13,14 +13,12 @@ public class GeneratePLSQLfunctions {
     
     public String generateNumericFunctionEvaluation(){
         String function = "";
-        function += "create or replace function functionevaluation(text) returns int as '\n";
-        function += "declare res record;\n";
+        function += "create or replace function functionevaluation(text) returns text as '\n";
+        function += "declare result text;\n";
         function += "begin\n";
-        function += "for res in execute ''select '' || $1 || '' as result'' loop\n";
-        function += "return res.result;\n";
-        function += "end loop;\n";
+        function += "execute ''select '' || $1 || '' as result'' into result;\n";
+        function += "return result;\n";
         function += "end' language plpgsql;\n";
         return function;
-        
     }
 }

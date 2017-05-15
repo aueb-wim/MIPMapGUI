@@ -307,6 +307,13 @@ public class JepToPostgresConverter {
                 String delimeter = "_mipmap_function_";
                 output = "functionevaluation(replace("+parameters[0]+", '"+delimeter+"',cast("+parameters[1]+" as text)))";
                 break;
+           case "aggregation":
+                System.out.println("aggregation");
+                System.out.println(parameters[0]);
+                System.out.println(parameters[1]);
+                System.out.println(parameters[2]);
+                System.out.println(parameters[3]);
+                break;
            default:
                 break;
         }        

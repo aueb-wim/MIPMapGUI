@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Vector;
 import org.nfunk.jep.function.Abs;
+import org.nfunk.jep.function.Aggregation;
 import org.nfunk.jep.function.Append;
 import org.nfunk.jep.function.ArcCosine;
 import org.nfunk.jep.function.ArcCosineH;
@@ -299,6 +300,7 @@ public class JEP implements Cloneable {
         
         funTab.put("isNumeric", new IsNumeric());
         funTab.put("funcGenerator", new funcGenerator());
+        funTab.put("aggregation", new Aggregation());
     
         funTab.put("newId", new NewId());
         funTab.put("date", new Date());
