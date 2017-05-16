@@ -265,7 +265,7 @@ public class GenerateSQL {
     }
     
     public static String functionSql(Expression transformationFunctionExpression, boolean withRel){
-        String functionString = postgresConv.convertToPostgres(transformationFunctionExpression, withRel);
+        String functionString = postgresConv.convertToPostgres(transformationFunctionExpression, withRel, scenarioNo);
         //replace (for selection conditions)
         functionString = functionString.replaceAll("==", "=");
         functionString = functionString.replaceAll("&&", "AND");

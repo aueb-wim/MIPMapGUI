@@ -21,19 +21,21 @@ import it.unibas.spicy.model.expressions.Expression;
 import it.unibas.spicy.model.paths.VariablePathExpression;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JepToPostgresConverter {
     private static final List<Character> math_sign = Arrays.asList('+', '-', '*', '/', '<', '>');
     
-    public String convertToPostgres(Expression transformationFunctionExpression, boolean withRel){
-        
+    public String convertToPostgres(Expression transformationFunctionExpression, boolean withRel, int scenarioNo){
+        Map<String, String> oldToNewRelation = new HashMap<>();
         String functionExpression = transformationFunctionExpression.getJepExpression().toStringForSql();
         //first fix attribute names
         for (VariablePathExpression vpe: transformationFunctionExpression.getAttributePaths()){                    
             if (functionExpression.contains(vpe.toString())){
                 String expressionToCheckForSigns = transformationFunctionExpression.getJepExpression().toString();
-                System.out.println(expressionToCheckForSigns);
+                oldToNewRelation.put(vpe.toString().split("\\.")[1], vpe.toString().split("\\.")[0]);
                 int startIndex = expressionToCheckForSigns.indexOf(vpe.toString());
                 int endIndex = startIndex+vpe.toString().length();
                 boolean castToFloat = false;
@@ -62,7 +64,6 @@ public class JepToPostgresConverter {
                 else{
                     newAttrName = GenerateSQL.attributeNameInVariable(vpe);       
                  }
-                System.out.println(newAttrName);
                 //if previous or next character is one of {+,-,*,/,<,>} cast it to float
                 if(castToFloat){
                     functionExpression = functionExpression.replaceAll(vpe.toString(), "cast(" + newAttrName + " as float)");
@@ -76,10 +77,10 @@ public class JepToPostgresConverter {
         //in order to avoid considering postgres values separated by commas as different parameters
         //a COMMA_REPLACEMENT pattern is used instead of commas and it is replaced after the final statement has been completed
         //current COMMA_REPLACEMENT string is "#COMMA_CHAR#", a string that is unlikely to be used as user input
-        return replaceExpression(functionExpression).replaceAll(SpicyEngineConstants.COMMA_REPLACEMENT, ",");
+        return replaceExpression(functionExpression, oldToNewRelation, scenarioNo).replaceAll(SpicyEngineConstants.COMMA_REPLACEMENT, ",");
     }
     
-    private String replaceExpression(String functionExpression){
+    private String replaceExpression(String functionExpression, Map<String, String> oldToNewRelation, int scenarioNo){
         while (functionExpression.contains("<fn=")){
             int startIndex = functionExpression.indexOf("<fn=");
             int endIndex = findEndIndex(functionExpression, startIndex+5);
@@ -90,7 +91,7 @@ public class JepToPostgresConverter {
             startIndex = textToReplace.indexOf('>') + 1;
             endIndex = findEndIndex(textToReplace, startIndex);
             String parametersString = textToReplace.substring(startIndex, endIndex); 
-            parametersString = replaceExpression(parametersString);
+            parametersString = replaceExpression(parametersString, oldToNewRelation, scenarioNo);
             //split into parameters - if there is a comma character inside double quotes ignore it
             //(split on the comma only if that comma has zero, or an even number of quotes ahead of it)
             String[] parameters = parametersString.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"); 
@@ -104,7 +105,7 @@ public class JepToPostgresConverter {
                     parameters[i] = parameters[i].replaceAll("UMinus", "-");                  
                 }
             }
-            functionExpression = functionExpression.replace(textToReplace, replaceFunctionText(functionName, parameters));            
+            functionExpression = functionExpression.replace(textToReplace, replaceFunctionText(functionName, parameters, oldToNewRelation, scenarioNo));            
         }
         return functionExpression;
     }
@@ -128,7 +129,7 @@ public class JepToPostgresConverter {
         return --pos;
     }
     
-    private String replaceFunctionText(String functionName, String[] parameters){
+    private String replaceFunctionText(String functionName, String[] parameters, Map<String, String> oldToNewRelation, int scenarioNo){
         String output = "";
         switch(functionName){
             case "abs":
@@ -310,11 +311,8 @@ public class JepToPostgresConverter {
                 output = "functionevaluation(replace("+parameters[0]+", '"+delimeter+"',cast("+parameters[1]+" as text)))";
                 break;
            case "aggregation":
-                System.out.println("aggregation");
-                System.out.println(parameters[0]);
-                System.out.println(parameters[1]);
-                System.out.println(parameters[2]);
-                System.out.println(parameters[3]);
+                GenerateAggregation ga = new GenerateAggregation(parameters, oldToNewRelation, scenarioNo);
+                output = ga.getQuery();
                 break;
            default:
                 break;
