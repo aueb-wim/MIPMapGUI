@@ -8,8 +8,6 @@ package it.unibas.spicy.model.algebra.query.operators.sql;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  *
@@ -28,29 +26,20 @@ public class GenerateAggregation {
     }
     
     public String getQuery(){
-        System.out.println("---- aggregation ----");
-        String query = "(SELECT sum(";
         String function = params[0];
+        String query = "(SELECT "+ function.replace("'", "") +"(";
         String value = params[1];
         String[] groupby;
         groupby = params[2].replace("'", "").split(",");
         String[] where;
         where = params[3].replace("'", "").split(",");
-
-        
-        //it hasnt been used yet
-        System.out.println("Function: "+ function);
-        
-        
         query += "#DOUBLE_QUOTES#" + extractAttributeFromNewRelation(value)+"#DOUBLE_QUOTES#) FROM \"";
-        
         String []relation = groupby[0].split("\\.");
         String relationName = "";
         for(int i=1;i<relation.length-2;i++){
             relationName += relation[i]+".";
         }
         query += SpicyEngineConstants.SOURCE_SCHEMA_NAME + String.valueOf(scenarioNo) + "\"." + relationName.substring(0,relationName.length()-1) + " WHERE ";
-        
         String groupByValues = "";
         for (String gb : groupby) {
             String []oldRelationParts = gb.split("\\.");
@@ -58,30 +47,25 @@ public class GenerateAggregation {
             query += transformToNewRelation(gb, oldToNewRelation) + " = #DOUBLE_QUOTES#" + attribute + "#DOUBLE_QUOTES# AND ";
             groupByValues += "#DOUBLE_QUOTES#" + attribute + "#DOUBLE_QUOTES#,";
         }
+        //remove the final AND
         query = query.substring(0, query.length()-5);
-        
-        
-        
         for (String w : where) {
-            System.out.println(w);
+            //check if no where clause defined
             if(!w.equals("")){
-                System.out.println("mpika");
                 query += " AND (";
                 for(String clause: getOrClauses(w)){
-                    System.out.println(clause);
                     query += clause + " OR ";
                 }
+                //remove the final OR 
                 query = query.substring(0, query.length()-4);
                 query += ")";
             }
         }
-
         query += " GROUP BY "+ groupByValues.substring(0, groupByValues.length()-1) +")";
-        System.out.println("FINAL QUERY ---> " + query);
-        System.out.println("POSTGRESQL QUERY ---> " + query.replace("#DOUBLE_QUOTES#", ""));
         return query;
     }
     
+    //takes the old relation format and transform it to the new 
     private String transformToNewRelation(String oldRelation, Map<String, String> oldToNewRelation){
         String []oldRelationParts = oldRelation.split("\\.");
         String attribute = oldRelationParts[oldRelationParts.length-1];
@@ -95,17 +79,20 @@ public class GenerateAggregation {
         return "rel_"+relation+".#DOUBLE_QUOTES#"+ attribute +"#DOUBLE_QUOTES#";
     }
     
+    //find how many possible values are defined for one attribute
     private ArrayList<String> getOrClauses(String w){
         ArrayList<String> orClauses = new ArrayList<>();
         String[] whereClause = w.split("\\|");
         String []relationNameParts = whereClause[0].split("\\.");
         String tableName = relationNameParts[relationNameParts.length-1];
         for(int i=1; i<whereClause.length;i++){
-            orClauses.add(tableName + whereClause[i]);
+            String clause = tableName + whereClause[i];
+            orClauses.add(clause.replaceAll("\\$", "\\'"));
         }        
         return orClauses;
     }
     
+    //find the attribute which included in the new relation format
     private String extractAttributeFromNewRelation(String newAttribute){
         return newAttribute.replace("#DOUBLE_QUOTES#", "").split("\\.")[1];
     }
