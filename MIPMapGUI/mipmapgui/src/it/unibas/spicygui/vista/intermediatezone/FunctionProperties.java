@@ -44,7 +44,7 @@ public class FunctionProperties {
         {"DateTime","Returns current date in datetime format","datetime()"},
         {"Exponential","The result of the exponential function (e^x)","exp(x)"},
         {"Floor","The smallest integer below the number","floor(x)"},
-        {"Func Generator","Gets a function from an input file","funcGenerator(field,field)"},
+        {"Func Generator","Gets a function from an input file","funcGenerator(field,field,field,field)"},
         {"If","The if function; trueval will be returned if cond is >0 or True and falseval will be returned if cond is <= 0 or False","if(cond, trueval, falseval)"},
         {"Imaginary","Imaginary Component","im(c)"},
         {"Index Of","Returns the position of the first occurrence of a specified value in a string","indexof(str, subStr)"},

@@ -16,7 +16,7 @@ public class funcGenerator extends PostfixMathCommand{
     
     public funcGenerator()
     {
-         numberOfParameters = 2;
+         numberOfParameters = 4;
     }
     
     public void run(Stack inStack) throws ParseException 
