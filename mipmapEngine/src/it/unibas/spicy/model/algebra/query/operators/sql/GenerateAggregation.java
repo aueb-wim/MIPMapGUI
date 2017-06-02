@@ -39,7 +39,7 @@ public class GenerateAggregation {
         for(int i=1;i<relation.length-2;i++){
             relationName += relation[i]+".";
         }
-        query += SpicyEngineConstants.SOURCE_SCHEMA_NAME + String.valueOf(scenarioNo) + "\"." + relationName.substring(0,relationName.length()-1) + " WHERE ";
+        query += SpicyEngineConstants.SOURCE_SCHEMA_NAME + String.valueOf(scenarioNo) + "\".\"" + relationName.substring(0,relationName.length()-1) + "\" WHERE ";
         String groupByValues = "";
         for (String gb : groupby) {
             String []oldRelationParts = gb.split("\\.");
