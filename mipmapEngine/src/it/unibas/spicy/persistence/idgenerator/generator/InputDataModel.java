@@ -53,7 +53,7 @@ public class InputDataModel {
     public static int getMaxValue(ArrayList<InputDataModel> targetValues){
         int max = 0;
         ArrayList<Integer> l = new ArrayList<>();
-        for(int i=0;i<targetValues.size();i++){      
+        for(int i=0;i<targetValues.size();i++){
             l.add(targetValues.get(i).getId());
         }
         if (l.size()>0){

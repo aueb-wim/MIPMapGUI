@@ -48,7 +48,7 @@ public class GenerateId {
     }
 
     private void getFromCsv(ReadPropertiesFile rpf, ArrayList<ColumnMatcherModel> cmmList) throws SQLException, IOException, ClassNotFoundException {
-
+       
         String[] targetCols = rpf.getTargetColumns().substring(1, rpf.getTargetColumns().length()-1).split(",(?![^(]*\\))");
         String generatedColumn = targetCols[targetCols.length-1].trim();
         
@@ -70,9 +70,9 @@ public class GenerateId {
         
         ReadCsv rcSource = new ReadCsv(rpf.getSourceInputPath());
         ArrayList<InputDataModel> sourceValues = rcSource.readInputCsv(cmmList);
-       
+
         targetValues = generateId(sourceValues, targetValues, cmmList);
-        
+
         ExportCsv export = new ExportCsv(rpf.getOutputFile(), targetValues, targetCols);
         export.performAction();
     }
@@ -122,7 +122,7 @@ public class GenerateId {
                 InputDataModel idm = new InputDataModel();
                 for(String value: sourceInput.getValue()){
                     idm.addValue(value);
-                }
+                }                
                 max_value = max_value + 1;
                 idm.addValue(String.valueOf(max_value));
                 targetValues.add(idm);
@@ -166,7 +166,7 @@ public class GenerateId {
 
     private String getFunctionValue(String value, String function, List<String> functionProperties) {
         try{
-            
+            System.out.println("gamw");
             if(function.equalsIgnoreCase("split")){
                 value = Functions.split(value, functionProperties.get(1), Integer.valueOf(functionProperties.get(2)));
             }
