@@ -630,7 +630,7 @@ public class JLayeredPaneCorrespondences extends JLayeredPane {
 
         private void maybeShowPopup(MouseEvent e) {
             
-            if (e.isPopupTrigger()) {
+            if (e.isPopupTrigger() || e.getButton() == 3) {
                 TreeNodeAdapter adapter = getAdapterFromEvent(e);
                 if (adapter.getINode() instanceof SetCloneNode) {
                     popUpMenuTargetDeleteDuplicate.show(targetSchemaTree, e.getX(), e.getY());
