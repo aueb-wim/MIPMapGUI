@@ -106,7 +106,7 @@ public class ActionProjectTree extends CallableSystemAction implements Observer 
         projectTreeTopComponent.open();
 
     }
-
+    
     @Override
     public String getName() {
         return NbBundle.getMessage(Costanti.class, Costanti.ACTION_PROJECT);

@@ -44,6 +44,7 @@ import it.unibas.spicygui.controllo.Scenarios;
 import it.unibas.spicygui.controllo.Scenario;
 import it.unibas.spicygui.controllo.datasource.ActionViewSchema;
 import it.unibas.spicygui.controllo.window.ActionProjectTree;
+import it.unibas.spicygui.vista.treepm.TreeTopComponentAdapter;
 import it.unibas.spicygui.vista.wizard.NewMappingTaskWizardPanel1;
 import it.unibas.spicygui.vista.wizard.NewMappingTaskWizardPanel2;
 import java.awt.Component;
@@ -68,6 +69,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openide.DialogDescriptor;
@@ -131,9 +133,30 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
                 Scenarios.releaseNumber();
                 DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.NEW_ERROR) + " : " + ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
             } 
+        } else {
+            CSVConfigurationPM configuration = (CSVConfigurationPM) modello.getBean(Costanti.CSV_CONFIGURATION_SOURCE);
+            try {
+                
+                MappingTask mappingTask = (MappingTask) this.modello.getBean(Costanti.MAPPINGTASK_SHOWED);
+                IDataSourceProxy old = mappingTask.getSourceProxy();
+                
+                ArrayList<String> a = (ArrayList) old.getAnnotation(SpicyEngineConstants.CSV_TABLE_FILE_LIST);
+                
+                for(String s: a){
+                    configuration.addToSchemaPathList(s);
+                }
+                IDataSourceProxy source = loadCSVDataSource(configuration, true);
+                mappingTask.addSource(source);
+                updateScenario(mappingTask);
+                enableActions();
+                actionViewSchema.performAction();
+                actionProjectTree.performAction();
+            } catch(Exception e){
+                e.printStackTrace();
+            }
         }
     }
-
+    
     private void confirmAddForeignKeyToJoin(IDataSourceProxy dataSource, boolean source) {
         NotifyDescriptor notifyDescriptor = null;
         if (source) {
@@ -164,13 +187,22 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
         scenario.addObserver(this.actionProjectTree);
         scenarios.addScenario(scenario);
         Scenario scenarioOld = (Scenario) modello.getBean(Costanti.CURRENT_SCENARIO);
-        if (scenarioOld != null) {
-            LastActionBean lab = (LastActionBean) modello.getBean(Costanti.LAST_ACTION_BEAN);
-            scenarioOld.setStato(lab.getLastAction());
-        }
+//        if (scenarioOld != null) {
+//            LastActionBean lab = (LastActionBean) modello.getBean(Costanti.LAST_ACTION_BEAN);
+//            scenarioOld.setStato(lab.getLastAction());
+//        }
         modello.putBean(Costanti.CURRENT_SCENARIO, scenario);
     }
 
+    private void updateScenario(MappingTask mappingTask){
+        Scenarios scenarios = (Scenarios) modello.getBean(Costanti.SCENARIOS);
+        AbstractScenario scenario = new Scenario("SCENARIO DI PROVA", mappingTask, true);
+        scenario.addObserver(this.actionProjectTree);
+        scenarios.addScenario(scenario);
+        Scenario scenarioOld = (Scenario) modello.getBean(Costanti.CURRENT_SCENARIO);
+        scenarioOld.getMappingTaskTopComponent().forceClose();
+        modello.putBean(Costanti.CURRENT_SCENARIO, scenario);
+    }
     private IDataSourceProxy loadDataSource(String type, boolean source) throws DAOException, SQLException {
         if (type.equals(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_RELATIONAL))) {
             if (source) {

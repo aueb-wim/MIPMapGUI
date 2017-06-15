@@ -248,6 +248,14 @@ public class ActionCloseMappingTask extends CallableSystemAction implements Obse
         return false;
     }
 
+    public void forceClose(MappingTaskTopComponent mappingTaskTopComponent){
+        Scenario scenario = mappingTaskTopComponent.getScenario();
+        closeInstancesView(scenario);
+        Scenarios scenarios = (Scenarios) modello.getBean(Costanti.SCENARIOS);
+        clearModello();
+        scenarios.removeScenario(scenario);
+    }
+    
     @Override
     public String getName() {
         return NbBundle.getMessage(Costanti.class, Costanti.ACTION_CLOSE);

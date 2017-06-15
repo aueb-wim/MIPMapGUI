@@ -231,6 +231,10 @@ public class MappingTask {
         setModified(true);
     }
 
+    public void addSource(IDataSourceProxy sourceProxy){
+        this.sourceProxy = sourceProxy;
+    }
+    
     public String toString() {
         StringBuilder result = new StringBuilder("=============================== MAPPING TASK ================================\n");
         result.append(config);
