@@ -38,17 +38,29 @@ public class NewMappingTaskWizardPanel1 implements WizardDescriptor.Panel {
 
     private static Log logger = LogFactory.getLog(NewMappingTaskWizardPanel1.class);
     private Component component;
-
+    private boolean addExtraTables;
+    
+    public NewMappingTaskWizardPanel1(){this.addExtraTables = false;}
+    
+    public NewMappingTaskWizardPanel1(boolean addExtraTables){
+        this.addExtraTables = addExtraTables;
+    }
+    
+    public boolean getExtraTables(){
+        return this.addExtraTables;
+                
+    }
+    
     public Component getComponent() {
         if (component == null) {
-            component = new NewMappingTaskVisualPanel1(this);
+            component = new NewMappingTaskVisualPanel1(this, this.addExtraTables);
 
         }
         return component;
     }
 
     public Component getMyComponent() {
-        component = new NewMappingTaskVisualPanel1(this);
+        component = new NewMappingTaskVisualPanel1(this, this.addExtraTables);
         return component;
     }
 

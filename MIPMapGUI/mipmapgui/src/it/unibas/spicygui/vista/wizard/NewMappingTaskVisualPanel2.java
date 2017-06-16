@@ -32,7 +32,7 @@ import javax.swing.JPanel;
 import org.openide.WizardDescriptor;
 
 public final class NewMappingTaskVisualPanel2 extends JPanel {
-
+    private boolean extraTables = false;
     /** Creates new form NewMappingTaskVisualPanel2 */
     public NewMappingTaskVisualPanel2(WizardDescriptor.Panel newMappingTaskWizardPanel2) {
         initComponents();
@@ -40,8 +40,17 @@ public final class NewMappingTaskVisualPanel2 extends JPanel {
         this.add(panelWizardImpl, BorderLayout.CENTER);
     }
 
+        public NewMappingTaskVisualPanel2(WizardDescriptor.Panel newMappingTaskWizardPanel2, boolean extraTables) {
+        this.extraTables = extraTables;
+        initComponents();
+        PanelWizardImpl panelWizardImpl = new PanelWizardImpl(Costanti.TARGET, newMappingTaskWizardPanel2);
+        this.add(panelWizardImpl, BorderLayout.CENTER);
+    }
+        
     @Override
     public String getName() {
+        if(extraTables)
+            return Costanti.TARGET;
         return "Step 2 - " + Costanti.TARGET;
     }
 
