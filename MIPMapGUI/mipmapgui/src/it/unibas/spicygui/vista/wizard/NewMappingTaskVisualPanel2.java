@@ -40,11 +40,17 @@ public final class NewMappingTaskVisualPanel2 extends JPanel {
         this.add(panelWizardImpl, BorderLayout.CENTER);
     }
 
-        public NewMappingTaskVisualPanel2(WizardDescriptor.Panel newMappingTaskWizardPanel2, boolean extraTables) {
+    public NewMappingTaskVisualPanel2(WizardDescriptor.Panel newMappingTaskWizardPanel2, boolean extraTables) {
         this.extraTables = extraTables;
         initComponents();
-        PanelWizardImpl panelWizardImpl = new PanelWizardImpl(Costanti.TARGET, newMappingTaskWizardPanel2);
+        if(extraTables){
+            PanelWizardImpl panelWizardImpl = new PanelWizardImpl(Costanti.TARGET, newMappingTaskWizardPanel2, extraTables);
         this.add(panelWizardImpl, BorderLayout.CENTER);
+        } else {
+            PanelWizardImpl panelWizardImpl = new PanelWizardImpl(Costanti.TARGET, newMappingTaskWizardPanel2);
+            this.add(panelWizardImpl, BorderLayout.CENTER);
+        }
+        
     }
         
     @Override

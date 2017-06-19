@@ -43,12 +43,27 @@ public class CSVPanel extends javax.swing.JPanel {
     private ActionCsvFileChooserSchema actionFileChooserSS;
     private DefaultListModel listModel;
     private FileNameExtensionFilter filtro = new FileNameExtensionFilter(null, "csv");
-
+    private boolean extraTables;
+    
     public CSVPanel(PanelWizardImpl panelWizardImpl) {
         this.panelWizardImpl = panelWizardImpl;
+        this.extraTables = false;
         initComponents();
         initLabels();
         initActions();
+    }
+    
+    //add extra tables
+    public CSVPanel(PanelWizardImpl panelWizardImpl, boolean extraTables) {
+        this.panelWizardImpl = panelWizardImpl;
+        this.extraTables = extraTables;
+        initComponents();
+        initLabels();
+        initActions();
+        if(extraTables){
+            this.dbNameSource.setEnabled(false);
+            this.dbNameSource.setText("");
+        }
     }
     
 /*
@@ -76,6 +91,9 @@ public class CSVPanel extends javax.swing.JPanel {
 
     public void setCsvConfigurationPM(CSVConfigurationPM csvConfigurationPM) {
         this.csvConfigurationPM = csvConfigurationPM;
+        //add extra tables, keep old database name
+        if(extraTables)
+            this.csvConfigurationPM.setDBName(" ");
         removeListener();
         initListener();
         //initButtonBean();

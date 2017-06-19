@@ -76,6 +76,7 @@ public final class ActionAddSourceTable extends CallableSystemAction implements 
     public ActionAddSourceTable() {
         executeInjection();
         registraAzione();
+        this.setEnabled(false);
     }
 
     public void performAction() {
@@ -88,18 +89,10 @@ public final class ActionAddSourceTable extends CallableSystemAction implements 
         dialog.toFront();
         boolean cancelled = wizardDescriptor.getValue() != WizardDescriptor.FINISH_OPTION;
         if (!cancelled) {
-            CSVConfigurationPM configuration = (CSVConfigurationPM) modello.getBean(Costanti.CSV_CONFIGURATION_SOURCE);
             try {
-                
                 MappingTask mappingTask = (MappingTask) this.modello.getBean(Costanti.MAPPINGTASK_SHOWED);
-                IDataSourceProxy old = mappingTask.getSourceProxy();
-                
-                ArrayList<String> a = (ArrayList) old.getAnnotation(SpicyEngineConstants.CSV_TABLE_FILE_LIST);
-                
-                for(String s: a){
-                    configuration.addToSchemaPathList(s);
-                }
-                IDataSourceProxy source = loadCSVDataSource(configuration, true);
+                NewMappingTaskPM newMappingTaskPM = (NewMappingTaskPM) this.modello.getBean(Costanti.NEW_MAPPING_TASK_PM);
+                IDataSourceProxy source = loadDataSource(newMappingTaskPM.getSourceElement(), true);
                 mappingTask.addSource(source);
                 updateScenario(mappingTask);
                 enableActions();
@@ -186,9 +179,16 @@ public final class ActionAddSourceTable extends CallableSystemAction implements 
         }
         return dataSource;
     }
+
     
-    //giannisk  
-    private IDataSourceProxy loadCSVDataSource(CSVConfigurationPM configuration, boolean source) throws DAOException, SQLException {        
+    private IDataSourceProxy loadCSVDataSource(CSVConfigurationPM configuration, boolean source) throws DAOException, SQLException { 
+        MappingTask mappingTask = (MappingTask) this.modello.getBean(Costanti.MAPPINGTASK_SHOWED);
+        IDataSourceProxy old = mappingTask.getSourceProxy();
+        String dbName = (String) old.getAnnotation(SpicyEngineConstants.CSV_DB_NAME);
+        ArrayList<String> oldCsvPaths = (ArrayList) old.getAnnotation(SpicyEngineConstants.CSV_TABLE_FILE_LIST);
+        for(String csvPath: oldCsvPaths){
+            configuration.addToSchemaPathList(csvPath);
+        }
         HashMap<String,ArrayList<Object>> instancePathList = new HashMap<String,ArrayList<Object>>();
         if(!configuration.getSchemaOnly()){            
             for (String path : configuration.getSchemaPathList()){
@@ -207,12 +207,18 @@ public final class ActionAddSourceTable extends CallableSystemAction implements 
                 instancePathList.put(path,valSet);
             }
         }
-        IDataSourceProxy dataSource = daoCsv.loadSchema(Scenarios.lastScenarioNo, configuration.getSchemaPathList(), configuration.getDBName(), source, instancePathList);
-        daoCsv.loadInstanceSample(dataSource, instancePathList, configuration.getDBName());        
+        IDataSourceProxy dataSource = daoCsv.loadSchema(Scenarios.lastScenarioNo, configuration.getSchemaPathList(), dbName, source, instancePathList);
+        daoCsv.loadInstanceSample(dataSource, instancePathList, dbName);        
         return dataSource;        
     }
 
-    public void update(Observable o, Object stato) {}
+    public void update(Observable o, Object stato) {
+        if (stato.equals(LastActionBean.CLOSE) || (stato.equals(LastActionBean.NO_SCENARIO_SELECTED)) ) {
+            this.setEnabled(false);
+        } else {
+            this.setEnabled(true);
+        }
+    }
 
     private void registraAzione() {
         lastActionBean = (LastActionBean) modello.getBean(Costanti.LAST_ACTION_BEAN);

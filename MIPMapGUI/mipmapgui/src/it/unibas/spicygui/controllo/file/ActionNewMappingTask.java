@@ -133,27 +133,6 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
                 Scenarios.releaseNumber();
                 DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.NEW_ERROR) + " : " + ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
             } 
-        } else {
-            CSVConfigurationPM configuration = (CSVConfigurationPM) modello.getBean(Costanti.CSV_CONFIGURATION_SOURCE);
-            try {
-                
-                MappingTask mappingTask = (MappingTask) this.modello.getBean(Costanti.MAPPINGTASK_SHOWED);
-                IDataSourceProxy old = mappingTask.getSourceProxy();
-                
-                ArrayList<String> a = (ArrayList) old.getAnnotation(SpicyEngineConstants.CSV_TABLE_FILE_LIST);
-                
-                for(String s: a){
-                    configuration.addToSchemaPathList(s);
-                }
-                IDataSourceProxy source = loadCSVDataSource(configuration, true);
-                mappingTask.addSource(source);
-                updateScenario(mappingTask);
-                enableActions();
-                actionViewSchema.performAction();
-                actionProjectTree.performAction();
-            } catch(Exception e){
-                e.printStackTrace();
-            }
         }
     }
     
@@ -236,7 +215,7 @@ public final class ActionNewMappingTask extends CallableSystemAction implements 
         return dataSource;
     }
     
-    private IDataSourceProxy loadSQLDataSource(SQLConfigurationPM configuration, boolean source) throws DAOException, SQLException {
+    private IDataSourceProxy loadSQLDataSource(SQLConfigurationPM configuration, boolean source) throws DAOException, SQLException {       
         IDataSourceProxy dataSource = daoSql.loadSchema(Scenarios.lastScenarioNo, configuration.getDBName(), configuration.getSchemaPath(), source);
         daoSql.loadInstanceSample(dataSource, configuration.getDBName(), configuration.getSchemaPath());
         return dataSource;
