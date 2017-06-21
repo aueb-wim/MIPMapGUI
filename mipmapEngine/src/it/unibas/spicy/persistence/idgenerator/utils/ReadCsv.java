@@ -77,18 +77,13 @@ public class ReadCsv {
                 }
             }        
             for(int i=0;i<nextLine.length;i++){
-                System.out.println(nextLine[i]);
-                System.out.println(generatedColumn.trim());
                 if(nextLine[i].trim().equals(generatedColumn.trim())){
                     colNums.add(i);
                     colName.add(generatedColumn.trim());
                     break;
                 }
             }
-//            for(String s: colName){
-//            System.out.println(s);
-//            }
-            
+
             while((nextLine = reader.readNext()) != null){
                 InputDataModel idm = new InputDataModel();
                 for (int i=0; i<colNums.size(); i++){             

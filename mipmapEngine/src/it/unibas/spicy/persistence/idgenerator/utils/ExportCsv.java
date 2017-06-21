@@ -30,11 +30,12 @@ public class ExportCsv {
     public void performAction(){
         CSVWriter csvWriter;
         try {
-            csvWriter = new CSVWriter(new FileWriter(FilenameUtils.separatorsToSystem(pathToExport)), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.NO_ESCAPE_CHARACTER);
+            csvWriter = new CSVWriter(new FileWriter(FilenameUtils.separatorsToSystem(pathToExport)), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.NO_ESCAPE_CHARACTER);
             csvWriter.writeNext(header, false);
             for(InputDataModel output: targetValues){
                 String row = "";
                 for(String s: output.getValue()){
+                    row = row.replace("\"", "");
                     row += s + ",";
                 }
                 csvWriter.writeNext(row.substring(0, row.length()-1).split(","));
