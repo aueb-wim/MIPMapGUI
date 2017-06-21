@@ -231,6 +231,16 @@ public class MappingTask {
         setModified(true);
     }
 
+    //ioannisxar
+    //add extra tables to the existing mapping task
+    public void addSource(IDataSourceProxy sourceProxy){
+        this.sourceProxy = sourceProxy;
+    }
+    
+    public void addTarget(IDataSourceProxy targetProxy){
+        this.targetProxy = targetProxy;
+    }
+    
     public String toString() {
         StringBuilder result = new StringBuilder("=============================== MAPPING TASK ================================\n");
         result.append(config);

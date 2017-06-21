@@ -39,16 +39,28 @@ public class NewMappingTaskWizardPanel2 implements WizardDescriptor.Panel {
      * component from this class, just use getComponent().
      */
     private Component component;
-
+    private boolean addExtraTables;
+    
+    public NewMappingTaskWizardPanel2(){this.addExtraTables = false;}
+    
+    public NewMappingTaskWizardPanel2(boolean addExtraTables){
+        this.addExtraTables = addExtraTables;
+    }
+    
+    public boolean getExtraTables(){
+        return this.addExtraTables;
+                
+    }
+    
     public Component getComponent() {
         if (component == null) {
-            component = new NewMappingTaskVisualPanel2(this);
+            component = new NewMappingTaskVisualPanel2(this, this.addExtraTables);
         }
         return component;
     }
 
     public Component getMyComponent() {
-        component = new NewMappingTaskVisualPanel2(this);
+        component = new NewMappingTaskVisualPanel2(this, this.addExtraTables);
         return component;
     }
 

@@ -44,6 +44,10 @@ public class Costanti {
     public static final String ACTION_ADD_SOURCE_INSTANCE = "ACTION_ADD_SOURCE_INSTANCE";
     public static final String ACTION_ADD_TARGET_INSTANCE_CSV = "ACTION_ADD_TARGET_INSTANCE_CSV";
     public static final String ACTION_ADD_SOURCE_INSTANCE_CSV = "ACTION_ADD_SOURCE_INSTANCE_CSV";
+    
+    public static final String ACTION_ADD_SOURCE_TABLE = "ACTION_ADD_SOURCE_TABLE";
+    public static final String ACTION_ADD_TARGET_TABLE = "ACTION_ADD_TARGET_TABLE";
+    
     public static final String ACTION_SAVE = "ACTION_SAVE";
     public static final String ACTION_SAVE_AS = "ACTION_SAVE_AS";
     public static final String ACTION_CLOSE = "ACTION_CLOSE";

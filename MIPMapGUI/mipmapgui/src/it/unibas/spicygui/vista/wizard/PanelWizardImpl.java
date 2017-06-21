@@ -49,15 +49,30 @@ public class PanelWizardImpl extends javax.swing.JPanel {
     private RelationalPanel relationalPanel = new RelationalPanel(this);
     private XMLPanel xmlPanel = new XMLPanel(this);
     private SQLPanel sqlPanel = new SQLPanel(this);
-    private CSVPanel csvPanel = new CSVPanel(this);
+    private CSVPanel csvPanel;
     private String dataSource;
     private NewMappingTaskPM newMappingTaskPM;
     private WizardDescriptor.Panel wizardDescriptor;
     private Modello modello;
-
+    private boolean extraTables;
+    
     public PanelWizardImpl(String dataSource, WizardDescriptor.Panel wizardDescriptor) {
         this.dataSource = dataSource;
         this.wizardDescriptor = wizardDescriptor;
+        this.extraTables = false;
+        csvPanel = new CSVPanel(this, false);
+        executeIjection();
+        initComponents();
+        initI18N();
+        initBinding();
+        initListener();
+    }
+    
+    public PanelWizardImpl(String dataSource, WizardDescriptor.Panel wizardDescriptor, boolean extraTables) {
+        this.dataSource = dataSource;
+        this.wizardDescriptor = wizardDescriptor;
+        this.extraTables = extraTables;
+        csvPanel = new CSVPanel(this, extraTables);
         executeIjection();
         initComponents();
         initI18N();
@@ -81,10 +96,15 @@ public class PanelWizardImpl extends javax.swing.JPanel {
         this.comboDataSourceType.removeAllItems();
         //giannsik new selection for CSV files
         this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_CSV));
-        this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_SQL));
-        //giannsik selection for XML files removed from combo box
-        //this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_XML));
-        this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_RELATIONAL));
+        
+        //ioannisxar
+        //functionality for extended relation and SQL inputs does not implemented yet
+        if(!this.extraTables){
+            this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_SQL));
+            //giannsik selection for XML files removed from combo box
+            //this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_XML));
+            this.comboDataSourceType.addItem(NbBundle.getMessage(Costanti.class, Costanti.DATASOURCE_TYPE_RELATIONAL));
+        }
         this.labelDataSourceType.setText(NbBundle.getMessage(Costanti.class, Costanti.LABEL_DATA_SOURCE_TYPE));
         //giannisk make CSV Panel the default one
         this.createCSVPanel();

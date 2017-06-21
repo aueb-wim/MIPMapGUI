@@ -166,7 +166,6 @@ public class GenerateId {
 
     private String getFunctionValue(String value, String function, List<String> functionProperties) {
         try{
-            System.out.println("gamw");
             if(function.equalsIgnoreCase("split")){
                 value = Functions.split(value, functionProperties.get(1), Integer.valueOf(functionProperties.get(2)));
             }

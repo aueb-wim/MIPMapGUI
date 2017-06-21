@@ -120,6 +120,8 @@
         <file name="it-unibas-spicygui-controllo-datasource-ActionAddTargetInstanceCsv.instance"/>
         <file name="it-unibas-spicygui-controllo-datasource-ActionAddSourceInstanceXml.instance"/>
         <file name="it-unibas-spicygui-controllo-datasource-ActionAddSourceInstanceCsv.instance"/>
+        <file name="it-unibas-spicygui-controllo-addtable-ActionAddSourceTable.instance"/>
+        <file name="it-unibas-spicygui-controllo-addtable-ActionAddTargetTable.instance"/>
         <file name="it-unibas-spicygui-controllo-datasource-ActionViewInstances.instance"/>
         <file name="it-unibas-spicygui-controllo-tree-ActionShowHideConstraints.instance"/>
         <file name="it-unibas-spicygui-controllo-tree-ActionShowHideJoinConditions.instance"/>
@@ -222,6 +224,20 @@
             <file name="org-openide-actions-SaveAllAction.instance_hidden"/>
             <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
             <file name="org-openide-actions-SaveAsAction.shadow_hidden"/>
+        </folder>
+        
+        <folder name="AddTable">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="it.unibas.spicygui.Bundle"/>
+            <attr name="position" intvalue="130"/>
+            <file name="DS1.shadow">
+                <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-addtable-ActionAddSourceTable.instance"/>
+                <attr name="position" intvalue="100"/>
+            </file>
+            <file name="DS2.shadow">
+                <attr name="originalFile" stringvalue="Azione/it-unibas-spicygui-controllo-addtable-ActionAddTargetTable.instance"/>
+                <attr name="position" intvalue="200"/>
+            </file>
+            
         </folder>
         
         <folder name="DataSource">

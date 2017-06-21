@@ -29,7 +29,7 @@ import org.openide.WizardDescriptor;
 
 public final class NewMappingTaskVisualPanel1 extends JPanel {
     
-
+    private boolean extraTables = false;
     public NewMappingTaskVisualPanel1(WizardDescriptor.Panel newMappingTaskWizardPanel1) {
         initComponents();
         PanelWizardImpl panelWizardImpl = new PanelWizardImpl(Costanti.SOURCE, newMappingTaskWizardPanel1);
@@ -37,9 +37,24 @@ public final class NewMappingTaskVisualPanel1 extends JPanel {
     }
     
     
+    public NewMappingTaskVisualPanel1(WizardDescriptor.Panel newMappingTaskWizardPanel1, boolean extraTables) {
+        initComponents();
+        this.extraTables = extraTables;
+        if(extraTables){
+            PanelWizardImpl panelWizardImpl = new PanelWizardImpl(Costanti.SOURCE, newMappingTaskWizardPanel1, extraTables);
+            this.add(panelWizardImpl, BorderLayout.CENTER);
+        } else {
+            PanelWizardImpl panelWizardImpl = new PanelWizardImpl(Costanti.SOURCE, newMappingTaskWizardPanel1);
+            this.add(panelWizardImpl, BorderLayout.CENTER);
+        }
+        
+    }
+    
     
     @Override
     public String getName() {
+        if(extraTables)
+            return Costanti.SOURCE;
         return "Step 1 - " + Costanti.SOURCE;
     }
 

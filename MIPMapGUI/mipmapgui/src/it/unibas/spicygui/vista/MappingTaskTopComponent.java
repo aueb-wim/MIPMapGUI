@@ -48,7 +48,7 @@ public final class MappingTaskTopComponent extends TopComponent {
     private JLayeredPaneCorrespondences jLayeredPane;
     private Scenario scenario;
     private Modello modello;
-
+    private boolean flag = true;
 //    public MappingTaskTopComponent(Scenario scenrario) {
 //        this.scenario = scenrario;
 //        executeInjection();
@@ -154,14 +154,25 @@ public final class MappingTaskTopComponent extends TopComponent {
         //this.close();
     }
 
+    public void forceClose(){
+        flag = false;
+        ActionCloseMappingTask action = Lookups.forPath("Azione").lookup(ActionCloseMappingTask.class);
+        action.forceClose(this);
+        this.jLayeredPane.clear();
+        this.jLayeredPane.removeAll();
+        this.jLayeredPane.updateUI();
+        this.close();
+    }
+    
+    
     /////////////////////////     LISTENER       /////////////////////////////////
     @Override
     public boolean canClose() {
-//        if (this.jLayeredPane.isAnalizzato()) {
+        if (flag) {
             ActionCloseMappingTask action = Lookups.forPath("Azione").lookup(ActionCloseMappingTask.class);
             return action.checkClosure(this);
-//        }
-//        return true;
+        }
+        return true;
     }
 
 
