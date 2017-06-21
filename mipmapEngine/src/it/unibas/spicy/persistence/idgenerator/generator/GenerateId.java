@@ -138,7 +138,7 @@ public class GenerateId {
             for(ColumnMatcherModel cmm: cmmList){
 
                 if(cmm.getFunction().equals("CONSTANT_VALUE")){
-                    newIdm.addValue(cmm.getFunctionProperties().get(0));
+                    newIdm.addValue(cmm.getFunctionProperties().get(0).replaceAll("\"", ""));
                 } else if (cmm.getFunction().equals(cmm.getSourceColumn())){
                     Set<String> a = new HashSet<>();
                     for(int i=0;i<idm.getValue().size();i++){
