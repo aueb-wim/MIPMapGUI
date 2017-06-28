@@ -24,10 +24,6 @@ public class funcGenerator extends PostfixMathCommand{
         checkStack(inStack);// check the stack
         Object param1 = inStack.pop();
         Object param2 = inStack.pop();
-        System.out.println("---funcGenerator---");
-        System.out.println(param1);
-        System.out.println(param2);
-        System.out.println("---funcGenerator---");
         inStack.push(funcGenerator(param1.toString(), param2.toString()));//push the result on the inStack
         return; 
     } 

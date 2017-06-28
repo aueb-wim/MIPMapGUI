@@ -94,7 +94,7 @@ public class GenerateSQL {
         //ioannisxar
         //evaluate string operation in postgres - plsql function
         result.append("\n---------------------------- GENERATE PLSQL FUNCTIONS ---------------------------------\n");
-        result.append(functionEvaluation.generateNumericFunctionEvaluation());
+        result.append(functionEvaluation.generateFuncGenerator());
         if (mappingTask.getConfig().useSortInSkolems()) {
             result.append(mappingTask.getDBMSHandler().generateSortArrayFunction());
         }

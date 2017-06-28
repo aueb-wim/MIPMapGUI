@@ -307,8 +307,13 @@ public class JepToPostgresConverter {
                 output = parameters[0] + " ~ \'^[-]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$\'"; 
                 break;
            case "funcGenerator":
-                String delimeter = "_mipmap_function_";
-                output = "functionevaluation(replace("+parameters[0]+", '"+delimeter+"',cast("+parameters[1]+" as text)))";
+                String idToNewRelationFormat = 
+                        "rel_"+oldToNewRelation.get(parameters[2].split("\\.")[parameters[2].split("\\.").length-2])
+                        +".#DOUBLE_QUOTES#"+parameters[2].split("\\.")[parameters[2].split("\\.").length-1].replaceAll("'", "")+"#DOUBLE_QUOTES#";
+                
+                output = "functionevaluation("+parameters[0]+", '"+parameters[1]+
+                        "', " + parameters[2] + "," + parameters[3] + ",cast("+ idToNewRelationFormat +" as text), "
+                        + "cast("+parameters[1]+" as text),'" + scenarioNo + "')";
                 break;
            case "aggregation":
                 GenerateAggregation ga = new GenerateAggregation(parameters, oldToNewRelation, scenarioNo);
