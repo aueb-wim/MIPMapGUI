@@ -18,6 +18,7 @@
 package it.unibas.spicy.persistence.csv;
 
 import au.com.bytecode.opencsv.CSVReader;
+import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import it.unibas.spicy.persistence.AccessConfiguration;
 import it.unibas.spicy.persistence.DAOException;
 import it.unibas.spicy.persistence.DAOHandleDB;
@@ -29,6 +30,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -193,7 +195,10 @@ public class UnpivotCSVDAO {
     public ArrayList<String> getCsvTabledata(File csvFile) throws FileNotFoundException, IOException{
         ArrayList<String> stmnt_list = new ArrayList<String>();
         String sql_insert_stmnt;
-        CSVReader reader = new CSVReader(new FileReader(csvFile.getAbsolutePath())); 
+//        CSVReader reader = new CSVReader(new FileReader(csvFile.getAbsolutePath())); 
+        Reader r = new FileReader(csvFile.getAbsolutePath());
+        com.opencsv.CSVReader reader = new com.opencsv.CSVReaderBuilder(r).withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
+
         reader.readNext();
         String [] nextLine;
         String values;

@@ -139,9 +139,7 @@ public class ExportCSVInstances {
                     String value = allRows.getString(j);                     
                     //if the value is null write null to csv file
                     if (value == null){
-                        if ( unpivot )
-                            value = "null";
-                        else
+                        //avenet 20170721 - here we can export either null or ,,. Postgres treats them the same - we export ,, because it is more correct
                         //avenet 20170215 null values in Postgres csv mode correspond to ,,
                             value = "";
 //                        value = "null";

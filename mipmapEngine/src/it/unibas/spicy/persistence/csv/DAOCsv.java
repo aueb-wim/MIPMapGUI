@@ -18,6 +18,7 @@
 
 package it.unibas.spicy.persistence.csv;
 
+import com.opencsv.CSVReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import it.unibas.spicy.model.datasource.INode;
@@ -38,7 +39,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
-import au.com.bytecode.opencsv.CSVReader;
+//import au.com.bytecode.opencsv.CSVReader;
+//import au.com.bytecode.opencsv.CSVReaderBuilder;
+import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import it.unibas.spicy.model.mapping.MappingTask;
 import it.unibas.spicy.persistence.AccessConfiguration;
 import it.unibas.spicy.persistence.relational.DAORelationalUtility;
@@ -46,6 +49,7 @@ import it.unibas.spicy.persistence.relational.IConnectionFactory;
 import it.unibas.spicy.persistence.relational.SimpleDbConnectionFactory;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -107,7 +111,6 @@ public class DAOCsv {
                  if (filename.indexOf(".") > 0) {
                      filename = filename.substring(0, filename.lastIndexOf("."));
                  }
-//                 System.out.println("Table name = " + tablefullPath);
                  INode setTable = this.createSetNode (filename, root, tablefullPath);
                  dataSource = new ConstantDataSourceProxy(new DataSource(SpicyEngineConstants.TYPE_CSV, root));
                 
@@ -120,7 +123,12 @@ public class DAOCsv {
                  try{
                      String[] nextLine;        
                      // nextLine[] is an array of values from the line
-                     CSVReader reader = new CSVReader(new FileReader(tablefullPath));
+//avenet 20/7
+//                     CSVReader reader = new CSVReader(new FileReader(tablefullPath));
+//                     CSVReader reader = new CSVReader(new FileReader(tablefullPath));
+                    Reader r = new FileReader(tablefullPath);
+                    CSVReader reader = new com.opencsv.CSVReaderBuilder(r).withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
+                    
                      //read only first line
                      nextLine = reader.readNext();
                      String columns = "";
@@ -254,13 +262,19 @@ public class DAOCsv {
         try{
             String[] nextLine;        
             // nextLine[] is an array of values from the line
-            CSVReader reader = new CSVReader(new FileReader(filepath));
+            //avenet
+//          CSVReader reader = new CSVReader(new FileReader(filepath));
+            Reader r = new FileReader(filepath);
+            CSVReader reader = new com.opencsv.CSVReaderBuilder(r).withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
+
             //read only first line
             nextLine = reader.readNext();
             
             for (int i=0; i<nextLine.length; i++){
                 //trim and remove quotes                
+                
                 String columnName = nextLine[i].trim().replace("\"","");
+                
                 //avenet 28/1/2017
                 Pattern p = Pattern.compile("[^a-zA-Z0-9]");
                 if (p.matcher(columnName).find()) {
@@ -314,6 +328,7 @@ public class DAOCsv {
     /////////////////////////////////////////////////////////////
     @SuppressWarnings("unchecked")
     public void loadInstance(int scenarioNo, IDataSourceProxy dataSource, boolean source) throws DAOException, SQLException {
+        
         IConnectionFactory connectionFactory = null;
         Connection connection = null;
         AccessConfiguration accessConfiguration = new AccessConfiguration();
@@ -345,7 +360,11 @@ public class DAOCsv {
                 }
                 boolean colNames = (Boolean) entry.getValue().get(1);
 
-                CSVReader reader = new CSVReader(new FileReader(filePath));
+                //avenet
+                //CSVReader reader = new CSVReader(new FileReader(filePath));
+                Reader r = new FileReader(filePath);
+                CSVReader reader = new com.opencsv.CSVReaderBuilder(r).withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
+
                 try{
                      //ignore the first line if file includes column names
                      if (colNames){
@@ -370,19 +389,25 @@ public class DAOCsv {
                              }
                              values = "";
                              for (int i=0; i<nextLine.length; i++){
-                                 if (!nextLine[i].equalsIgnoreCase("null")){
-                                     //replace double quotes with single quotes
-                                     //while first escape the character ' for SQL (the "replaceAll" method call)
-                                     values += "'"+ nextLine[i].trim().replaceAll("'", "''") + "',";
+                                 //avenet 20/7
+                                 if( nextLine[i]!= null) {
+                                    if (!nextLine[i].equalsIgnoreCase("null")){
+                                        //replace double quotes with single quotes
+                                        //while first escape the character ' for SQL (the "replaceAll" method call)
+                                        values += "'"+ nextLine[i].trim().replaceAll("'", "''") + "',";
+                                    }
+                                    //do not put quotes if value is the string null
+                                    else{
+                                        values += nextLine[i].trim().replaceAll("'", "''") + ",";   
+                                    }
                                  }
-                                 //do not put quotes if value is the string null
-                                 else{
-                                     values += nextLine[i].trim().replaceAll("'", "''") + ",";   
+                                 else {
+                                     values += "null,";
                                  }
                              }
                              //take out the last ',' character
                              values = values.substring(0, values.length()-1);
-                             sql_insert_stmnt += "("+values+"),";   
+                             sql_insert_stmnt += "("+values+"),";
                          }
                     }
                      reader.close();                  
@@ -451,7 +476,12 @@ public class DAOCsv {
     }
     
     private void getInstanceByTable(String tableName, SetNode setTable, String filepath, Boolean includesColNames) throws DAOException, FileNotFoundException, IOException {
-        CSVReader reader = new CSVReader(new FileReader(filepath));
+
+//avenet
+//CSVReader reader = new CSVReader(new FileReader(filepath));
+        Reader r = new FileReader(filepath);
+        CSVReader reader = new com.opencsv.CSVReaderBuilder(r).withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
+
         try{
             //ignore the first line if file includes column names
             if (includesColNames){
@@ -468,7 +498,10 @@ public class DAOCsv {
                     int i=0;
                     for (INode attributeNodeSchema : getNode(tableName + TUPLE_SUFFIX).getChildren()) { 
                         AttributeNode attributeNode = new AttributeNode(attributeNodeSchema.getLabel(), getOID());
-                        Object columnValue = (Object)nextLine[i].trim();
+                        Object columnValue = null;
+                        if ( nextLine[i] != null ){
+                            columnValue = (Object)nextLine[i].trim();
+                        }
                         i++;
                         LeafNode leafNode = createLeafNode(attributeNodeSchema, columnValue);
                         attributeNode.addChild(leafNode);
