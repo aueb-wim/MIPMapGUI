@@ -161,7 +161,7 @@ public class GenerateId {
             sourceValuesTransformed.add(newIdm);
         }
         return sourceValuesTransformed;
-        }
+    }
     
 
     private String getFunctionValue(String value, String function, List<String> functionProperties) {

@@ -7,14 +7,6 @@
             <suite-component/>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>au.com.bytecode.opencsv</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <specification-version>1.0</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
                     <code-name-base>com.ibatis.common.jdbc</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -32,6 +24,14 @@
                 </dependency>
                 <dependency>
                     <code-name-base>com.jgoodies.validation</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>com.opencsv</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>

@@ -32,13 +32,17 @@ public class ExportCsv {
         try {
             csvWriter = new CSVWriter(new FileWriter(FilenameUtils.separatorsToSystem(pathToExport)), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.NO_ESCAPE_CHARACTER);
             csvWriter.writeNext(header, false);
+            int line = 1;
             for(InputDataModel output: targetValues){
                 String row = "";
                 for(String s: output.getValue()){
+                    if (s != null )
+                        row += s + ",";
+                    else 
+                        row += ",";
                     row = row.replace("\"", "");
-                    row += s + ",";
                 }
-                csvWriter.writeNext(row.substring(0, row.length()-1).split(","));
+                csvWriter.writeNext(row.substring(0, row.length()-1).split(","),false);
             }
             csvWriter.close();
         } catch (IOException e) {

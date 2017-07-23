@@ -5,14 +5,22 @@
  */
 package it.unibas.spicy.persistence.csv;
 
-import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.CSVWriter;
+//import au.com.bytecode.opencsv.CSVReader;
+//import au.com.bytecode.opencsv.CSVReader;
+//import au.com.bytecode.opencsv.CSVWriter;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.CSVWriter;
+import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 
 public class ChangeDelimiterCSV {
@@ -20,7 +28,13 @@ public class ChangeDelimiterCSV {
     public void changeDelimiter(File file, String oldDelimiterString, String oldQuotesString, boolean quotesOnTarget) throws FileNotFoundException, IOException{
         char oldDelimiter = mapDelimiter(oldDelimiterString);
         char oldQuotes = mapQuotes(oldQuotesString);
-        CSVReader reader = new CSVReader(new FileReader(file), oldDelimiter, oldQuotes);
+        
+//        CSVReader reader = new CSVReader(new FileReader(file), oldDelimiter, oldQuotes);
+        
+        Reader r = new FileReader(file);
+        
+        CSVReader reader = new CSVReaderBuilder(r).withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).withCSVParser(new CSVParser(oldDelimiter, oldQuotes)).build();
+        
         String folderPath = file.getParent();
         String fileName = file.getName();
         //exclude filename extension
@@ -31,9 +45,9 @@ public class ChangeDelimiterCSV {
         reader.close();   
         File file2 = new File(folderPath+File.separator+fileName+"_withChangedDelimiter.csv");
         CSVWriter writer;
-        if (quotesOnTarget)
-            writer = new CSVWriter(new FileWriter(file2), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER);
-        else
+//        if (quotesOnTarget)
+//            writer = new CSVWriter(new FileWriter(file2), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER);
+//        else
             writer = new CSVWriter(new FileWriter(file2), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER);
         writer.writeAll(dataCsv);
         writer.close();    

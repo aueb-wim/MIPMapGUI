@@ -12,6 +12,8 @@ package it.unibas.spicy.persistence.idgenerator.functions;
 public class Functions {
     
     public static String split(String value, String delimeter, int part){
+        //avenet 20170721
+        if (value == null ) return null;
         return value.split(delimeter.trim().replace("\"", ""))[part];
     }
     

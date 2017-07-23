@@ -65,13 +65,21 @@ public class InputDataModel {
     public boolean exists(ArrayList<InputDataModel> targetValues){
         for(InputDataModel target: targetValues){
             int matches = 0;
+            int sameNulls = 0;
             for(int i=0; i<this.values.size();i++){
-                if(this.values.get(i).trim().equals(target.getValue().get(i).trim())){
-                    matches++;
+                //avenet 20170721
+                if (this.values.get(i)!=null && target.getValue().get(i)!=null ) {
+                    if(this.values.get(i).trim().equals(target.getValue().get(i).trim())){
+                        matches++;
+                    }
                 }
-                if(matches==this.values.size()){
+                else {
+                    sameNulls++;
+                }
+                if((matches+sameNulls)==this.values.size()){
                     return true;
                 }
+
             }
         }
         return false;
