@@ -217,7 +217,7 @@ public class UnpivotCSVDAO {
             for (String nextLine1 : nextLine) {
                 //replace double quotes with single quotes
                 //while first escape the character ' for SQL (the "replaceAll" method call)
-                if (nextLine1!=null && !nextLine1.equalsIgnoreCase("null")){
+                if (nextLine1!=null) { //avenet 20170724 - "null" values in the csv should not be considered as nulls && !nextLine1.equalsIgnoreCase("null")){
                     values += "'" + nextLine1.replaceAll("'", "''") + "',";
                 }
                 //if value is null or string 'null' insert null value to the database

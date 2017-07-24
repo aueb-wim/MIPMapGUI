@@ -149,7 +149,8 @@ public class ExportCSVInstances {
                                 dataType.toLowerCase().startsWith("text") || dataType.equalsIgnoreCase("bpchar") ||
                                 dataType.equalsIgnoreCase("bit") || dataType.equalsIgnoreCase("mediumtext") ||
                                 dataType.equalsIgnoreCase("longtext")||dataType.equalsIgnoreCase("serial") || 
-                                dataType.equalsIgnoreCase("enum")){                            
+                                dataType.equalsIgnoreCase("enum")){     
+                        //avenet 20170724 - by adding these double quotes string values are stored in the form ,"value", and nulls as ,,
                         value="\""+value+"\"";  
                     } 
                     row[j-1] = value;
