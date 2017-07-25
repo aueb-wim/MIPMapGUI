@@ -35,7 +35,7 @@ public class ChangeDelimiterCSV {
         
         Reader r = new FileReader(file);
         CSVParserBuilder parserBuilder = new CSVParserBuilder();
-        CSVParser parser = parserBuilder.withSeparator(';').withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
+        CSVParser parser = parserBuilder.withSeparator(oldDelimiter).withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
         
 //        CSVParser cp = parserBuilder.withSeparator(';').with
                 
