@@ -34,7 +34,7 @@ public class ChangeDelimiterCSV {
         Reader r = new FileReader(file);
 //        CSVReader reader = new CSVReaderBuilder(r).withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).withCSVParser(new CSVParser(oldDelimiter, oldQuotes)).build();
         CSVParserBuilder parserBuilder = new CSVParserBuilder();
-        CSVParser parser = parserBuilder.withSeparator(oldDelimiterString.toCharArray()[0]).withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
+        CSVParser parser = parserBuilder.withSeparator(oldDelimiter).withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
         CSVReader reader = new CSVReader(r, CSVReader.DEFAULT_SKIP_LINES, parser);
 
         
