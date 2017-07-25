@@ -34,6 +34,6 @@ public class IsNumeric  extends PostfixMathCommand{
         {  
             return new Double(0.0);  
         }  
-        return new Double(1.0);          
+        return new Double(1.0);
     }
 }

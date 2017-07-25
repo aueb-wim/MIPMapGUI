@@ -391,7 +391,6 @@ public class DAOCsv {
                              for (int i=0; i<nextLine.length; i++){
                                  //avenet 20/7
                                  if( nextLine[i]!= null) {
-                                     //avenet 20170724 - ,"null", or ,null, should not be considered as null values
 //                                    if (!nextLine[i].equalsIgnoreCase("null")){
 //                                        //replace double quotes with single quotes
 //                                        //while first escape the character ' for SQL (the "replaceAll" method call)

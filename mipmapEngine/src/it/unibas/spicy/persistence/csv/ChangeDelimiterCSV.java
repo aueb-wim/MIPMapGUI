@@ -76,8 +76,18 @@ public class ChangeDelimiterCSV {
         reader.close();
         bwriter.write(str);
         bwriter.close();
-
-    }
+        
+//        List<String[]> dataCsv = reader.readAll();
+//        reader.close();   
+//        File file2 = new File(folderPath+File.separator+fileName+"_withChangedDelimiter.csv");
+//        CSVWriter writer;
+////        if (quotesOnTarget)
+////            writer = new CSVWriter(new FileWriter(file2), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER);
+////        else
+//            writer = new CSVWriter(new FileWriter(file2), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER);
+//        writer.writeAll(dataCsv);
+//        writer.close();    
+   }
     
     private char mapDelimiter(String oldDelimiterString){
         switch (oldDelimiterString) {
