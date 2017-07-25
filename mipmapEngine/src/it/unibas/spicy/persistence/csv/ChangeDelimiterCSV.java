@@ -11,8 +11,6 @@ package it.unibas.spicy.persistence.csv;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
-import com.opencsv.CSVWriter;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import java.io.BufferedWriter;
@@ -34,6 +32,7 @@ public class ChangeDelimiterCSV {
 //        CSVReader reader = new CSVReader(new FileReader(file), oldDelimiter, oldQuotes);
         
         Reader r = new FileReader(file);
+//        CSVReader reader = new CSVReaderBuilder(r).withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).withCSVParser(new CSVParser(oldDelimiter, oldQuotes)).build();
         CSVParserBuilder parserBuilder = new CSVParserBuilder();
         CSVParser parser = parserBuilder.withSeparator(oldDelimiter).withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
         
@@ -47,12 +46,22 @@ public class ChangeDelimiterCSV {
         if (fileName.indexOf(".") > 0) {
             fileName = fileName.substring(0, fileName.lastIndexOf("."));
         }
-        
+//        List<String[]> dataCsv = reader.readAll();
+//        reader.close();   
+//        CSVWriter writer;
+////        if (quotesOnTarget)
+////            writer = new CSVWriter(new FileWriter(file2), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER);
+////        else
+//            writer = new CSVWriter(new FileWriter(file2), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER);
+//            
+//        writer.writeAll(dataCsv);
+//        writer.close();    
         BufferedWriter bwriter = new BufferedWriter(new FileWriter(folderPath + File.separator + fileName + "_withChangedDelimiter.csv"));
 
         String[] nextLine;
         String str = "";
         while ((nextLine = reader.readNext()) != null) {
+            String[] row = new String[nextLine.length];
             String line = "";
             for (int i = 0; i < nextLine.length; i++) {
                 String value = nextLine[i];
@@ -80,7 +89,7 @@ public class ChangeDelimiterCSV {
 //            writer = new CSVWriter(new FileWriter(file2), CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER);
 //        writer.writeAll(dataCsv);
 //        writer.close();    
-    }
+   }
     
     private char mapDelimiter(String oldDelimiterString){
         switch (oldDelimiterString) {
