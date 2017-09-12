@@ -288,6 +288,9 @@ public class JepToPostgresConverter {
             case "todate":
                 output = "to_date(" + parameters[0] + SpicyEngineConstants.COMMA_REPLACEMENT + parameters[1] + ")";
                 break;
+            case "totimestamp":
+                output = "to_timestamp(" + parameters[0] + SpicyEngineConstants.COMMA_REPLACEMENT + parameters[1] + ")";
+                break;
             case "todouble":
                 output = "cast(" + parameters[0] + " as float)";
                 break;

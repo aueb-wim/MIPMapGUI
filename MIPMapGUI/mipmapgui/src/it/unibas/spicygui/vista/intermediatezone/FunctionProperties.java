@@ -73,6 +73,7 @@ public class FunctionProperties {
         {"To Integer","Returns the integer value of a number","toint(x)"},
         {"To Lowercase","Converts a string to lowercase letters","tolower(str)"},
         {"To String","Converts a data type to text","tostring(data)"},
+        {"To Timestamp","Converts a string to datetime format given a specific template pattern, e.g. \"MM/DD/YYYY hh:mi:ss\", for the input data, provided by the user","totimestamp(str, pattern)"},
         {"To Uppercase","Converts a string to uppercase letters","toupper(str)"}
     };
     
