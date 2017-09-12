@@ -66,6 +66,7 @@ import org.nfunk.jep.function.ToLowercase;
 import org.nfunk.jep.function.ToUppercase;
 import org.nfunk.jep.function.ToString;
 import org.nfunk.jep.function.IsNumeric;
+import org.nfunk.jep.function.ToTimestamp;
 import org.nfunk.jep.function.funcGenerator;
 import org.nfunk.jep.type.Complex;
 import org.nfunk.jep.type.DoubleNumberFactory;
@@ -271,6 +272,7 @@ public class JEP implements Cloneable {
         funTab.put("toint", new ToInt());
         funTab.put("todouble", new ToDouble());
         funTab.put("todate", new ToDate());
+        funTab.put("totimestamp", new ToTimestamp());
 
         funTab.put("rand", new org.nfunk.jep.function.Random());
 
