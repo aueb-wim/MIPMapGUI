@@ -102,10 +102,10 @@ public class JepToPostgresConverter {
                     //replace double quotes with quotes
                     parameters[i] = parameters[i].replaceAll("\"", "\'");
                     //replace the UMinus JEP class name with "-"
-                    parameters[i] = parameters[i].replaceAll("UMinus", "-");                  
+                    parameters[i] = parameters[i].replaceAll("UMinus", "-");
                 }
             }
-            functionExpression = functionExpression.replace(textToReplace, replaceFunctionText(functionName, parameters, oldToNewRelation, scenarioNo));            
+            functionExpression = functionExpression.replace(textToReplace, replaceFunctionText(functionName, parameters, oldToNewRelation, scenarioNo));
         }
         return functionExpression;
     }
@@ -314,9 +314,9 @@ public class JepToPostgresConverter {
                         "rel_"+oldToNewRelation.get(parameters[2].split("\\.")[parameters[2].split("\\.").length-2])
                         +".#DOUBLE_QUOTES#"+parameters[2].split("\\.")[parameters[2].split("\\.").length-1].replaceAll("'", "")+"#DOUBLE_QUOTES#";
                 
-                output = "functionevaluation("+parameters[0]+", '"+parameters[1]+
-                        "', " + parameters[2] + "," + parameters[3] + ",cast("+ idToNewRelationFormat +" as text), "
-                        + "cast("+parameters[1]+" as text),'" + scenarioNo + "')";
+                output = "functionevaluation("+parameters[0]+ SpicyEngineConstants.COMMA_REPLACEMENT + " '"+parameters[1]+
+                        "'" + SpicyEngineConstants.COMMA_REPLACEMENT + " " + parameters[2] + SpicyEngineConstants.COMMA_REPLACEMENT  + parameters[3] + SpicyEngineConstants.COMMA_REPLACEMENT + "cast("+ idToNewRelationFormat +" as text)" + SpicyEngineConstants.COMMA_REPLACEMENT
+                        + "cast("+parameters[1]+" as text)" + SpicyEngineConstants.COMMA_REPLACEMENT + "'" + scenarioNo + "')";
                 break;
            case "aggregation":
                 GenerateAggregation ga = new GenerateAggregation(parameters, oldToNewRelation, scenarioNo);
