@@ -68,6 +68,7 @@ import org.nfunk.jep.function.ToString;
 import org.nfunk.jep.function.IsNumeric;
 import org.nfunk.jep.function.ToTimestamp;
 import org.nfunk.jep.function.funcGenerator;
+import org.nfunk.jep.function.MD5;
 import org.nfunk.jep.type.Complex;
 import org.nfunk.jep.type.DoubleNumberFactory;
 import org.nfunk.jep.type.NumberFactory;
@@ -311,7 +312,9 @@ public class JEP implements Cloneable {
         
         funTab.put("null", new Null());
         funTab.put("isNull", new IsNull());
-        funTab.put("isNotNull", new IsNotNull());     
+        funTab.put("isNotNull", new IsNotNull()); 
+        
+        funTab.put("md5", new MD5()); 
          
     }
 

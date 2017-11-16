@@ -220,6 +220,9 @@ public class JepToPostgresConverter {
             case "ln":
                 output = "ln(cast(" + parameters[0] + " as float))";
                 break;
+            case "md5":
+                output = "md5(" + parameters[0] + "::text)";
+                break;
             case "mod":
                 output = "mod(round(cast(" + parameters[0] +" as numeric))"+SpicyEngineConstants.COMMA_REPLACEMENT+" round(cast(" + parameters[1] + " as numeric)))";
                 break;

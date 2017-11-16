@@ -54,6 +54,7 @@ public class FunctionProperties {
         {"Length","Returns the length of a string","len(str)"},
         {"Log","Logarithm base 10","log(x)"},
         {"Ln","Natural Logarithm","ln(x)"},
+        {"MD5","Uses MD5 function to create hash of a value","md5(x)"},
         {"Modulus","Calculates the modulus x % y of the arguments","mod(x,y)"},
         {"New Id","Gets the next number in a sequence","newId()"},
         {"Null","Returns null value","null()"},
