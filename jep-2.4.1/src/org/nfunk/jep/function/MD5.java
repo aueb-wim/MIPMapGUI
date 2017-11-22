@@ -41,7 +41,13 @@ public class MD5 extends PostfixMathCommand
 			byte[] bytes = md.digest();
 			StringBuilder sb = new StringBuilder();
 			for (int i=0; i < bytes.length; i++) {
-				sb.append(Integer.toString((bytes[i] & 0xff) + 0x100 ).substring(1)); 
+//				sb.append(Integer.toString((bytes[i] & 0xff) + 0x100 ).substring(1)); 
+			    byte b = bytes[ i ];
+			    String hex = Integer.toHexString((int) 0x00FF & b);
+			    if (hex.length() == 1) {
+		    		sb.append("0");
+			    }
+			    sb.append( hex );
 			}
 			generatedHash = sb.toString();
 		}
