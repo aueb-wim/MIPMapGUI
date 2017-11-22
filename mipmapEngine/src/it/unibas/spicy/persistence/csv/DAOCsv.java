@@ -47,9 +47,12 @@ import it.unibas.spicy.persistence.AccessConfiguration;
 import it.unibas.spicy.persistence.relational.DAORelationalUtility;
 import it.unibas.spicy.persistence.relational.IConnectionFactory;
 import it.unibas.spicy.persistence.relational.SimpleDbConnectionFactory;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -79,7 +82,7 @@ public class DAOCsv {
     public IDataSourceProxy loadSchema(int scenarioNo, HashSet<String> tablefullPathList, String catalog, boolean source, HashMap<String,ArrayList<Object>> instancePathList) throws DAOException {
         INode root = null;
         IDataSourceProxy dataSource = null;
-
+        
         //postgres
         IConnectionFactory connectionFactory = null;
         Connection connection = null;
@@ -506,7 +509,7 @@ public class DAOCsv {
                         LeafNode leafNode = createLeafNode(attributeNodeSchema, columnValue);
                         attributeNode.addChild(leafNode);
                         tupleNode.addChild(attributeNode);                   
-                    }
+               }
                     sampleSize++;
                 }
             }
@@ -528,7 +531,9 @@ public class DAOCsv {
         LeafNode leafNodeInSchema = (LeafNode) attributeNode.getChild(0);
         String type = leafNodeInSchema.getLabel();
         Object typedValue = Types.getTypedValue(type, untypedValue);
-        return new LeafNode(type, typedValue);
+         //avenet 26/9/2017 - Add support of UTF-8
+System.out.println("getInstanceByTable");
+   return new LeafNode(type, typedValue);
     }
     
     @SuppressWarnings("unchecked")
