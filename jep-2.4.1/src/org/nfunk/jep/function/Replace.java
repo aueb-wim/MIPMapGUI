@@ -23,6 +23,6 @@ public class Replace extends PostfixMathCommand {
             Object param2 = inStack.pop();
             Object param1 = inStack.pop();
             inStack.push(param1.toString().replaceAll(param2.toString(), param3.toString()));//push the result on the inStack
-            return; 
+            return;
 	}            
 }

@@ -509,8 +509,6 @@ public class DAOCsv {
                         LeafNode leafNode = createLeafNode(attributeNodeSchema, columnValue);
                         attributeNode.addChild(leafNode);
                         tupleNode.addChild(attributeNode);                   
-         //avenet 26/9/2017 - Add support of UTF-8
-System.out.println("getInstanceByTable");
                }
                     sampleSize++;
                 }
