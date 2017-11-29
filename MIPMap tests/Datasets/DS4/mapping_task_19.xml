@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappingtask>
+  <config>
+    <rewriteSubsumptions>true</rewriteSubsumptions>
+    <rewriteCoverages>true</rewriteCoverages>
+    <rewriteSelfJoins>true</rewriteSelfJoins>
+    <rewriteEGDs>false</rewriteEGDs>
+    <sortStrategy>-1</sortStrategy>
+    <skolemTableStrategy>-1</skolemTableStrategy>
+    <useLocalSkolem>false</useLocalSkolem>
+  </config>
+  <source>
+    <type>CSV</type>
+    <csv>
+      <csv-db-name>Hospitals_Data</csv-db-name>
+      <csv-tables>
+        <csv-table>
+          <schema>hospitalExam.csv</schema>
+          <instances>
+            <instance>
+              <path>hospitalExam.csv</path>
+              <column-names>true</column-names>
+            </instance>
+          </instances>
+        </csv-table>
+        <csv-table>
+          <schema>patient_exams.csv</schema>
+          <instances>
+            <instance>
+              <path>patient_exams.csv</path>
+              <column-names>true</column-names>
+            </instance>
+          </instances>
+        </csv-table>
+        <csv-table>
+          <schema>hospitalPatient.csv</schema>
+          <instances>
+            <instance>
+              <path>hospitalPatient.csv</path>
+              <column-names>true</column-names>
+            </instance>
+          </instances>
+        </csv-table>
+      </csv-tables>
+    </csv>
+    <inclusions />
+    <exclusions />
+    <duplications />
+    <functionalDependencies />
+    <selectionConditions />
+    <joinConditions>
+      <joinCondition>
+        <join>
+          <from>Hospitals_Data.hospitalExam.hospitalExamTuple.patient_ipp</from>
+          <to>Hospitals_Data.hospitalPatient.hospitalPatientTuple.patient_ipp</to>
+        </join>
+        <foreignKey>false</foreignKey>
+        <mandatory>false</mandatory>
+        <matchString>false</matchString>
+      </joinCondition>
+    </joinConditions>
+  </source>
+  <target>
+    <type>Relational</type>
+    <relational>
+      <driver>org.postgresql.Driver</driver>
+      <uri>jdbc:postgresql://localhost/MIP_Database</uri>
+      <login>postgres</login>
+      <password>0000</password>
+    </relational>
+    <inclusions />
+    <exclusions />
+    <duplications />
+    <functionalDependencies />
+    <selectionConditions />
+    <joinConditions>
+      <joinCondition>
+        <join>
+          <from>MIP_Database.exam_value.exam_valueTuple.patient_id</from>
+          <to>MIP_Database.patient.patientTuple.id</to>
+        </join>
+        <foreignKey>true</foreignKey>
+        <mandatory>false</mandatory>
+        <matchString>false</matchString>
+      </joinCondition>
+    </joinConditions>
+  </target>
+  <correspondences>
+    <correspondence>
+      <source-paths>
+        <source-path>Hospitals_Data.hospitalPatient.hospitalPatientTuple.gender</source-path>
+      </source-paths>
+      <target-path>MIP_Database.patient.patientTuple.gender</target-path>
+      <transformation-function>Hospitals_Data.hospitalPatient.hospitalPatientTuple.gender</transformation-function>
+      <confidence>1.0</confidence>
+    </correspondence>
+    <correspondence>
+      <source-paths>
+        <source-path>Hospitals_Data.hospitalPatient.hospitalPatientTuple.first_name</source-path>
+        <source-path>Hospitals_Data.hospitalPatient.hospitalPatientTuple.last_name</source-path>
+      </source-paths>
+      <target-path>MIP_Database.patient.patientTuple.name</target-path>
+      <transformation-function>append(Hospitals_Data.hospitalPatient.hospitalPatientTuple.first_name, append(" ", Hospitals_Data.hospitalPatient.hospitalPatientTuple.last_name))</transformation-function>
+      <confidence>1.0</confidence>
+    </correspondence>
+  </correspondences>
+</mappingtask>
+
