@@ -58,7 +58,7 @@ public class ExportSQLInstances {
     }
     
     public void exportSQLInstances(MappingTask mappingTask, int scenarioNo, String driver, String uri, 
-            String userName, String password) throws DAOException, SQLException, IOException{          
+            String userName, String password) throws DAOException, SQLException, IOException{         
         //connection to Postgres
         connectionFactory = new SimpleDbConnectionFactory();
         Connection connection = getConnectionToPostgres(connectionFactory);
@@ -104,7 +104,7 @@ public class ExportSQLInstances {
                     ResultSet tableColumns = statement.executeQuery("SELECT column_name, data_type, is_nullable "+
                     " FROM information_schema.columns WHERE " + " table_schema = '" + SpicyEngineConstants.TARGET_SCHEMA_NAME+String.valueOf(scenarioNo) 
                             + "' AND table_name = '"+ tableName  + "' ORDER BY ordinal_position;");
-
+                    
                     ResultSet pkConstraints = databaseMetaData.getPrimaryKeys(SpicyEngineConstants.MAPPING_TASK_DB_NAME, 
                             SpicyEngineConstants.TARGET_SCHEMA_NAME+scenarioNo, tableName);
 
@@ -275,7 +275,7 @@ public class ExportSQLInstances {
             }
 
             ArrayList<TableSchema> targetDatabaseTables = new ArrayList<>();
-            statement = connection.createStatement();            
+            statement = connection.createStatement();   
             //get table names from target database
             DatabaseMetaData databaseMetaData = connection.getMetaData();          
             ResultSet tableResultSet = databaseMetaData.getTables(SpicyEngineConstants.MAPPING_TASK_DB_NAME, 
@@ -293,7 +293,6 @@ public class ExportSQLInstances {
                     } else if (database == 1) {
                         t.addDataType(searchMappings(tableColumns.getString("data_type"), 1));
                     }
-                    
                     t.addIsNull(tableColumns.getString("is_nullable"));
                     t.addColumn(tableColumns.getString("column_name"));
                 }
@@ -372,7 +371,9 @@ public class ExportSQLInstances {
     private void insertIntoDbPerRow(ResultSet tableRows, String tableName, Statement statementCreateAndInsertToTable) throws SQLException{
         ResultSetMetaData rsmd = tableRows.getMetaData();
         int columnsNumber = rsmd.getColumnCount();
+        int rowsnumber = 0;
         while(tableRows.next()){
+            rowsnumber++;
             String insertIntoScript = "INSERT INTO " + tableName + " VALUES \n";
             insertIntoScript += "(";
             for(int i=1;i<=columnsNumber;i++){

@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.sql.Connection;
+import java.sql.JDBCType;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.HashSet;
@@ -110,7 +111,10 @@ public class ExecuteSQL {
             } 
             
             Statement statement = connection.createStatement();
+            
+            System.out.println("Starting Data Translation" + new java.util.Date());
             statement.execute(sqlScript);
+            System.out.println("Data Translation Ended with " + statement.getUpdateCount() + "\t insertions\t" + new java.util.Date());
             SQLWarning warning = statement.getWarnings();
             String notice = SpicyEngineConstants.PRIMARY_KEY_CONSTR_NOTICE;
             while (warning != null){ 
