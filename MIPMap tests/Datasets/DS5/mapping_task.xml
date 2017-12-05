@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappingtask>
+  <config>
+    <rewriteSubsumptions>true</rewriteSubsumptions>
+    <rewriteCoverages>true</rewriteCoverages>
+    <rewriteSelfJoins>true</rewriteSelfJoins>
+    <rewriteEGDs>false</rewriteEGDs>
+    <sortStrategy>-1</sortStrategy>
+    <skolemTableStrategy>-1</skolemTableStrategy>
+    <useLocalSkolem>false</useLocalSkolem>
+  </config>
+  <source>
+    <type>CSV</type>
+    <csv>
+      <csv-db-name>source</csv-db-name>
+      <csv-tables>
+        <csv-table>
+          <schema>PDBProtein.csv</schema>
+          <instances>
+            <instance>
+              <path>PDBProtein.csv</path>
+              <column-names>true</column-names>
+            </instance>
+          </instances>
+        </csv-table>
+        <csv-table>
+          <schema>PDBGene.csv</schema>
+          <instances>
+            <instance>
+              <path>PDBGene.csv</path>
+              <column-names>true</column-names>
+            </instance>
+          </instances>
+        </csv-table>
+		<csv-table>
+          <schema>EMBLGene.csv</schema>
+          <instances>
+            <instance>
+              <path>EMBLGene.csv</path>
+              <column-names>true</column-names>
+            </instance>
+          </instances>
+        </csv-table>
+      </csv-tables>
+    </csv>
+    <inclusions />
+    <exclusions />
+    <duplications />
+    <functionalDependencies />
+    <selectionConditions />
+    <joinConditions>
+      <joinCondition>
+        <join>
+          <from>source.PDBGene.PDBGeneTuple.protId</from>
+          <to>source.PDBProtein.PDBProteinTuple.id</to>
+        </join>
+        <foreignKey>true</foreignKey>
+        <mandatory>false</mandatory>
+        <matchString>false</matchString>
+      </joinCondition>
+    </joinConditions>
+  </source>
+  <target>
+    <type>CSV</type>
+    <csv>
+      <csv-db-name>target</csv-db-name>
+      <csv-tables>
+        <csv-table>
+          <schema>GeneProtein.csv</schema>
+          <instances />
+        </csv-table>
+      </csv-tables>
+    </csv>
+    <inclusions />
+    <exclusions />
+    <duplications />
+    <functionalDependencies />
+    <selectionConditions />
+    <joinConditions />
+  </target>
+  <correspondences>
+    <correspondence>
+      <source-paths>
+        <source-path>source.PDBGene.PDBGeneTuple.protId</source-path>
+      </source-paths>
+      <target-path>target.GeneProtein.GeneProteinTuple.proteinId</target-path>
+      <transformation-function>source.PDBGene.PDBGeneTuple.protId</transformation-function>
+      <confidence>1.0</confidence>
+    </correspondence>
+    <correspondence>
+      <source-paths>
+        <source-path>source.PDBProtein.PDBProteinTuple.pname</source-path>
+      </source-paths>
+      <target-path>target.GeneProtein.GeneProteinTuple.pname</target-path>
+      <transformation-function>source.PDBProtein.PDBProteinTuple.pname</transformation-function>
+      <confidence>1.0</confidence>
+    </correspondence>
+    <correspondence>
+      <source-paths>
+        <source-path>source.PDBGene.PDBGeneTuple.gname</source-path>
+      </source-paths>
+      <target-path>target.GeneProtein.GeneProteinTuple.gname</target-path>
+      <transformation-function>source.PDBGene.PDBGeneTuple.gname</transformation-function>
+      <confidence>1.0</confidence>
+    </correspondence>
+  </correspondences>
+</mappingtask>
+
