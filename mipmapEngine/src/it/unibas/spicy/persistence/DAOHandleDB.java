@@ -49,11 +49,13 @@ public class DAOHandleDB {
                     dropSchemataQuery.append("drop schema if exists ").append(res.getString("schemaName")).append(" cascade;\n");
                 }                
                 statement2.executeUpdate(dropSchemataQuery.toString());
+//                System.out.println("DROP SCHEMATA QUERY IN TEMP DB\n------------------------------\n" + dropSchemataQuery.toString());
             }
             else{
                 StringBuilder createDatabaseQuery = new StringBuilder(); 
                 createDatabaseQuery.append("create database ").append(SpicyEngineConstants.MAPPING_TASK_DB_NAME).append(";\n");
                 statement.executeUpdate(createDatabaseQuery.toString());
+//                System.out.println("CREATE DB QUERY IN TEMP DB\n------------------------------\n" + createDatabaseQuery.toString());
             }            
         }
         catch (Exception ex) {

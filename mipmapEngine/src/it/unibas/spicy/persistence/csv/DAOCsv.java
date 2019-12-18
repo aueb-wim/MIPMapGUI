@@ -531,9 +531,7 @@ public class DAOCsv {
         LeafNode leafNodeInSchema = (LeafNode) attributeNode.getChild(0);
         String type = leafNodeInSchema.getLabel();
         Object typedValue = Types.getTypedValue(type, untypedValue);
-         //avenet 26/9/2017 - Add support of UTF-8
-System.out.println("getInstanceByTable");
-   return new LeafNode(type, typedValue);
+        return new LeafNode(type, typedValue);
     }
     
     @SuppressWarnings("unchecked")

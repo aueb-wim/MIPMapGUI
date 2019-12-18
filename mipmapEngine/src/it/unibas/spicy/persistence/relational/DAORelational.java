@@ -248,6 +248,7 @@ public class DAORelational {
             String typeOfColumn = DAORelationalUtility.convertDBTypeToDataSourceType(columnType);
             columnNode.addChild(new LeafNode(typeOfColumn));
             tupleNode.addChild(columnNode);
+//            if(tableName.contains("encounter_mapping")) System.out.println("\n\tColumn Name: " + columnName + "(" + columnType + ") " + " type of column= " + typeOfColumn + "[IS_Nullable: " + isNullable + "]");
             if (logger.isDebugEnabled()) logger.debug("\n\tColumn Name: " + columnName + "(" + columnType + ") " + " type of column= " + typeOfColumn + "[IS_Nullable: " + isNullable + "]");
         }
         //take out the last ',' character
@@ -263,6 +264,26 @@ public class DAORelational {
         statement.executeUpdate("drop table if exists "+ table);
         statement.executeUpdate("create table "+ table +" ("+ columns+ ")");
         
+//        if(tableName.contains("encounter_mapping")) {
+//            System.out.println("-----------------------------------------------\n"
+//                + "create table "+ table +" ("+ columns+ ")"
+//                + "\n-----------------------------------------------");
+//            
+//            System.out.println("Running query");
+//        
+//            ResultSet queryResult = statement.executeQuery("SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE " 
+//                + "table_name = '"+ tableName  + "' ORDER BY ordinal_position;");
+//
+//            System.out.println("Query run, waiting for results");
+//            while (queryResult.next()) {
+//                System.out.println(queryResult.getString("column_name") + "\t" + 
+//                        queryResult.getString("data_type") + "\t" + queryResult.getString("is_nullable"));
+//            }
+//            
+//            System.out.println("END of results");
+//        }
+//        
+
         return tupleNode;
     }
     
@@ -502,46 +523,72 @@ public class DAORelational {
                 }
                 String newTablePath = tableName;
                 if (source){
-                   newTablePath =  SpicyEngineConstants.SOURCE_SCHEMA_NAME+ scenarioNo+".\""+tableName+"\"";
+                   newTablePath = SpicyEngineConstants.SOURCE_SCHEMA_NAME+ scenarioNo+".\""+tableName+"\"";
                 }
                 else{
-                   newTablePath =  SpicyEngineConstants.TARGET_SCHEMA_NAME+ scenarioNo+".\""+tableName+"\"";
+                   newTablePath = SpicyEngineConstants.TARGET_SCHEMA_NAME+ scenarioNo+".\""+tableName+"\"";
                 }
                 ResultSet countResult = statement.executeQuery("SELECT COUNT(*) AS instancesCount FROM " +tablePath+";");
                 int instancesCount = 1;
                 while(countResult.next()){
                     instancesCount = countResult.getInt("instancesCount");
-                }                            
+                }
+                
+                ResultSet pKList = null;
+                pKList = databaseMetaData.getPrimaryKeys(null, null, tableName);
+//                ResultSet pKList = statement.executeQuery("SELECT c.column_name as keyname\n" + "FROM information_schema.key_column_usage AS c\n" +
+//                    "LEFT JOIN information_schema.table_constraints AS t\n" +
+//                    "ON t.constraint_name = c.constraint_name\n" +
+//                    "WHERE t.table_name = '" + tablePath + "' AND t.constraint_type = 'PRIMARY KEY';");
+                String pKListString = "";
+                while (pKList.next()) {
+                    pKListString += pKList.getString("COLUMN_NAME") + ",";
+                }
+                if (pKListString != "" )
+                    pKListString = pKListString.substring(0, pKListString.length()-1);
+                
+                int inCount = 0;
+                String viewName = tableName + "_MIPMapView";
+                String orderByClause = "";
+                if ( pKListString != "" )
+                    orderByClause = " ORDER BY " + pKListString;
+                statement.executeUpdate("DROP VIEW IF EXISTS " + viewName + ";");
+                statement.executeUpdate("CREATE VIEW " + viewName + " AS SELECT * FROM " + tablePath + orderByClause + ";");
                 for (int i=0; i<=((instancesCount-1)/BATCH_SIZE); i++){
-                    ResultSet instancesSet = statement.executeQuery("SELECT * FROM " +tablePath+" LIMIT "+BATCH_SIZE+" OFFSET "+BATCH_SIZE*i+";");
+                    ResultSet instancesSet = statement.executeQuery("SELECT * FROM " +viewName + " LIMIT "+BATCH_SIZE+" OFFSET "+(BATCH_SIZE*i)+";");
                     ResultSetMetaData rsmd = instancesSet.getMetaData();
                     int columnsNumber = rsmd.getColumnCount();
-                    String sql_insert_stmnt="";
+                    String sql_insert_stmnt= "";
                     while (instancesSet.next()){
-                        sql_insert_stmnt += "(";
+                        String tmp_sql_insert_stmnt = "(";
                         for (int j=1; j<=columnsNumber; j++){
                             String columnValue = instancesSet.getString(j);
                             if (columnValue == null){
-                                sql_insert_stmnt += " null,";
+                                tmp_sql_insert_stmnt += " null,";
                             } else {
                                 if(isTextColumn(rsmd.getColumnTypeName(j))){
-                                    sql_insert_stmnt += "'"+columnValue.replaceAll("'", "''") +"',";  
+                                    tmp_sql_insert_stmnt += "'"+columnValue.replaceAll("'", "''") +"',";  
                                 } else {
-                                    sql_insert_stmnt += ""+columnValue +",";  
+                                    tmp_sql_insert_stmnt += ""+columnValue +",";  
                                 }
                             }
                             
                         }
                         //take out the last ',' character           
-                        sql_insert_stmnt = sql_insert_stmnt.substring(0, sql_insert_stmnt.length()-1);
-                        sql_insert_stmnt += "),";
+                        tmp_sql_insert_stmnt = tmp_sql_insert_stmnt.substring(0, tmp_sql_insert_stmnt.length()-1);
+                        tmp_sql_insert_stmnt += "),";
+//                        if (!inserted.contains(tmp_sql_insert_stmnt)) {
+                            sql_insert_stmnt+=tmp_sql_insert_stmnt;
+//                            inserted.add(tmp_sql_insert_stmnt);
+//                        }
                     }
                     if (!sql_insert_stmnt.equals("")){
                         //take out the last ',' character           
                         sql_insert_stmnt = sql_insert_stmnt.substring(0, sql_insert_stmnt.length()-1);
-                        statementPostgres.executeUpdate("insert into "+newTablePath+" values "+sql_insert_stmnt+";");
+                        inCount += statementPostgres.executeUpdate("insert into "+newTablePath+" values "+sql_insert_stmnt+";");
                     }
                 }
+                statement.executeUpdate("DROP VIEW IF EXISTS " + viewName + ";");
             }
             dataSource.addAnnotation(SpicyEngineConstants.LOADED_INSTANCES_FLAG, true);
         }
