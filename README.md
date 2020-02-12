@@ -2,7 +2,7 @@
 Data integration and data exchange tool
 
 ### Dependencies
--   Oracle Java 1.8 (does not work with OpenJDK)
+-   Java 1.8
 -   PostgreSQL 9.5
 
 ### Project
@@ -16,5 +16,5 @@ For installing MIPMap, use the installers attached in the Releases. Check MIPMap
 ### Development
 This project consists of NetBeans Modules. For a developer-oriented guide, check MIPMap Report docx file.
 
-Open the project with Netbeans IDE. When making changes in the project, the modules' jars have to be regenerated.
+Open the project with Netbeans IDE. Upon making changes, build the project and run after_build.sh (a few jar's need to be c-p'd so as MIPMap to import all of its modules).
 
