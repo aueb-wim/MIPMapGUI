@@ -2,7 +2,7 @@
 Schema mapping and data exchange tool. Offers a graphical interface where the user, given a source and target schema, can define correspondences/mappings by simply drawing arrow lines between the elements of the two tree-form representations.
 
 ### Dependencies
--   Java 1.8
+-   Oracle Java 1.8
 -   PostgreSQL 9.5
 
 ### Project
