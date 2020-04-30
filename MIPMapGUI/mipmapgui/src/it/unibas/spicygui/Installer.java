@@ -25,12 +25,14 @@ package it.unibas.spicygui;
 import it.unibas.spicygui.commons.Modello;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.jgoodies.looks.plastic.theme.LightGray;
+
 import it.unibas.spicy.persistence.DAOException;
 import it.unibas.spicy.persistence.DAOHandleDB;
 import it.unibas.spicy.utility.SpicyEngineConstants;
 import it.unibas.spicygui.commons.LastActionBean;
 import it.unibas.spicygui.controllo.Scenario;
 import it.unibas.spicygui.controllo.Scenarios;
+import it.unibas.spicygui.vista.Vista;
 import java.awt.Image;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
@@ -51,6 +53,7 @@ import java.net.URLDecoder;
 import java.sql.Timestamp;
 import java.util.Properties;
 import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.apache.log4j.PatternLayout;
@@ -76,9 +79,10 @@ import sun.audio.*;
 public class Installer extends ModuleInstall {
 
     public static final String LOG4J_CONFIGURATION_FILE = "/conf/spicyGUI-log4j.properties";
-    public static final String POSTGRESDB_CONFIGURATION_FILE = "postgresdb.properties";
+    public static String postgres_db_conf_file; //= "postgresdb.properties"//kostisk: going from constant to variable...
 //    private ActionExitApplication actionExitApplication = new ActionExitApplication();
     private boolean close;
+    
     
     @Override
     public void close() {
@@ -190,20 +194,28 @@ public class Installer extends ModuleInstall {
         configureLog4j();        
         configuraObservable();
         configureFavoriteWindow();
-        //giannisk
-        configureDatabaseProperties();
-        createDB();
-        java.util.Date date2= new java.util.Date();
-        System.out.println("MIPMap loaded: "+new Timestamp(date2.getTime()));
+        //kostisk
+        new DBPropertiesChooserJFrame(this).setVisible(true);
+        //this.postgres_db_conf_file=adbpc.getConfigurationFile();
+        //giannisk commented by kostisk, they run once the user selects the properties db file in ActionDBPropertiesChooser
+        //configureDatabaseProperties();
+        //createDB();
+        //java.util.Date date2= new java.util.Date();
+        //System.out.println("MIPMap loaded: "+new Timestamp(date2.getTime()));
     }
     
-    private void createDB(){
+    public void setPostgresDbConfFile(String fullPathFilename)
+    {   this.postgres_db_conf_file = fullPathFilename;}
+    
+    public void createDB(){
         DAOHandleDB daoCreateDB = new DAOHandleDB();
         try {
             daoCreateDB.createNewDatabase();
         } catch (DAOException ex) {
+            System.err.println("*** Something went wrong while creating the auxiliary db for the mapping-tasks I guess..? ***");
             Exceptions.printStackTrace(ex);
         }
+        System.out.println("*** DB created ***");
     }
     
     private File getClassLocation() {
@@ -259,7 +271,7 @@ public class Installer extends ModuleInstall {
     
     //giannisk
     //reads the properties file with database configuration and sets the appropriate variables
-    private void configureDatabaseProperties() {        
+    public void configureDatabaseProperties() {
         Properties dbproperties = new Properties();            
         //TO RUN AS AN APPLICATION:
         //uncomment the following block and the "else" block
@@ -274,7 +286,15 @@ public class Installer extends ModuleInstall {
             try {
                 stream = new FileInputStream(propertyFile);*/
         //// 
-            InputStream stream = Installer.class.getResourceAsStream("/conf/"+POSTGRESDB_CONFIGURATION_FILE); //comment for application     
+            //InputStream stream = Installer.class.getResourceAsStream(postgres_db_conf_file); //comment for application     
+        System.out.println("DB Properties file is "+this.postgres_db_conf_file) ;
+        InputStream stream=null;//changes by kostisk
+        try {
+            stream = new FileInputStream(new File (postgres_db_conf_file));
+        } catch (FileNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+            //if (stream == null){System.out.println("---> Why stream is null here (1)...?? <---");}
             try {                                                                                            //comment for application
                 dbproperties.load(stream);
                 SpicyEngineConstants.setDatabaseParameters(dbproperties.getProperty("driver"),dbproperties.getProperty("uri"),
@@ -284,6 +304,7 @@ public class Installer extends ModuleInstall {
                 Logger.getLogger(Installer.class.getName()).severe("Unable to load database configuration file");
             } finally {
                 try {
+                    //if (stream == null){System.out.println("---> Why stream is null here (2)...?? <---");}
                     stream.close();
                 } catch (IOException ex) {
                     DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(Costanti.class, Costanti.NEW_ERROR) + " : " + ex.getMessage(), DialogDescriptor.ERROR_MESSAGE));
@@ -365,13 +386,29 @@ public class Installer extends ModuleInstall {
     }
 
     private void setLookAndFeel() {
-        try {
+        /*try {
             if ((Utilities.getOperatingSystem() & Utilities.OS_LINUX) != 0) {
                 Plastic3DLookAndFeel.setPlasticTheme(new LightGray());
                 UIManager.setLookAndFeel(new Plastic3DLookAndFeel());
             }
         } catch (UnsupportedLookAndFeelException ex) {
             Exceptions.printStackTrace(ex);
+        }*/
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Metal".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(DBPropertiesChooserJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(DBPropertiesChooserJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(DBPropertiesChooserJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(DBPropertiesChooserJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
     }
 

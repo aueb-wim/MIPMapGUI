@@ -55,7 +55,7 @@ public class LoadCsvInstancesMainFrame extends javax.swing.JDialog{
             LoadCsvInstancesPanel instancePanel = new LoadCsvInstancesPanel(tableName.getLabel());
             add(instancePanel);
             instanceArray.add(instancePanel);
-        }        
+        }
         JPanel instanceMain=new LoadCsvInstancesBottomPanel(this);
         add(instanceMain);  
         pack();

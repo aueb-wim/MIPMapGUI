@@ -135,6 +135,15 @@ public class Vista {
 //        fileChooserFolder.updateUI();
         return fileChooserFolder;
     }
+    
+    //kostisk
+    public JFileChooser getFileChooserProperties() {
+        fileChooser.resetChoosableFileFilters();
+        fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+        fileChooser.setFileFilter(new FileNameExtensionFilter("PROPERTIES FILE", "properties"));
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        return fileChooser;
+    }
 
     public MultipleJDialog getNewMultipleJDialog() {
         this.multipleJDialog = new MultipleJDialog(WindowManager.getDefault().getMainWindow(), false);

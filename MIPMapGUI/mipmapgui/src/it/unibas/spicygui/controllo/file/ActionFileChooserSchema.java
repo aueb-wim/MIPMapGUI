@@ -47,6 +47,7 @@ public class ActionFileChooserSchema extends AbstractAction {
         super("...");
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         executeInjection();
         
